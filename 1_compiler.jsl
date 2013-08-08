@@ -1,0 +1,441 @@
+;;;;;;;;;;;;;;;;;;;;;
+;;; compiler1.jsl ;;;
+;;;;;;;;;;;;;;;;;;;;;
+
+(def eof '(eof))
+(defun (eof? x) (= x eof))
+
+(defun (stream:make source s)
+  (let (i 0
+        len (s:length s)
+        line 1
+        col 0)
+    (defun (peek)
+      (if (< i len) ;>
+        (s:charAt s i)
+        eof))
+    (defun (read)
+      (if (< i len) ; >
+        (let (c (s:charAt s i))
+          (switch c
+            "\n" (do (set! line (+ 1 line))
+                     (set! col 0))
+            (do (set! col (+ 1 col))))
+          (set! i (+ 1 i))
+          c)
+        eof))
+    (fun (msg # args)
+      (apply
+       (switch msg
+         'peek peek
+         'read read
+         'eof? (fun () (>= i len)) ;<
+         'input (fun () s)
+         'source (fun () source)
+         'line (fun () line)
+         'col  (fun () col)
+         (error (++ "No such message: " msg)))
+       args))))
+
+(defun (stream:error s msg)
+  (error (++ (s 'source) ":" (s 'line) ":" (s 'col) ": " msg)))
+(defun (stream:error-expecting s exp)
+  (stream:error s (++ "Expecting '" exp "'.")))
+
+(defun (stream:try-read s char)
+  (and (= char (s 'peek))
+       (do (s 'read) true)))
+
+(defun (stream:read-expect s char)
+  (or (stream:try-read s char)
+      (stream:error-expecting s char)))
+
+(defun (s:contains s sub)
+  (!= -1 (s:indexOf s sub)))
+
+(defun (read:eat-comment stream)
+  (if (stream 'eof?)          'pass
+      (= "\n" (stream 'peek)) (read:eat-spaces stream)
+      otherwise (do (stream 'read)
+                    (read:eat-comment stream))))
+
+(defun (read:eat-spaces stream)
+  (if (stream 'eof?)
+        'pass
+      (s:contains " \t\n\r" (stream 'peek))
+        (do (stream 'read)
+            (read:eat-spaces stream))
+      (= ";" (stream 'peek))  (read:eat-comment stream)))
+
+(defun (read:sexp-tail stream)
+  (read:eat-spaces stream)
+  (if (stream 'eof?)
+        (stream:error-expecting stream ")")
+      (stream:try-read stream ")")
+        '()
+      otherwise
+        (let (head (read:sexp stream))
+          (read:eat-spaces stream)
+          (if (stream:try-read stream "#")
+            (do1 (cons head (read:sexp stream))
+                 (read:eat-spaces stream)
+                 (stream:read-expect stream ")"))
+            (cons head (read:sexp-tail stream))))))
+
+(defun (read:string stream)
+  (if (stream 'eof?)
+    (stream:error-expecting stream "\"") ;")
+    (let (c (stream 'read))
+      (switch c
+        "\""  ""   ;"
+        "\\"  (let (esc (switch (stream 'read)
+                          "\\"   "\\"
+                          "\""   "\""
+                          "n"    "\n"
+                          "t"    "\t"
+                          "r"    "\r"
+                          (stream:error stream
+                             "Unknown escape code.")))
+                (++ esc (read:string stream)))
+        (++ c (read:string stream))))))
+
+(defun (read:token stream)
+  (defun (_rt)
+    (let (c (stream 'peek))
+      (if (or (eof? c) (s:contains "'\"()#; \t\n\r" c)) ;"))
+        ""
+        (do (stream 'read)
+            (++ c (_rt))))))
+  (let (tok (_rt))
+    (if (= "" tok)
+      (stream:error stream "Expecting identifier or number.")
+      (let (val (js:toNum tok))
+        (if (NaN? val) tok val)))))
+
+(defun (read:sexp stream)
+  (read:eat-spaces stream)
+  (if (stream 'eof?)
+        (stream:error stream "Unexpected end of input.")
+      (stream:try-read stream "(")
+        (read:sexp-tail stream)
+      (stream:try-read stream "'")
+        (list 'quote (read:sexp stream))
+      (stream:try-read stream "\"") ;")
+        (list 'quote (read:string stream))
+      otherwise
+        (read:token stream)))
+
+(defun (read:all stream)
+  (if (stream 'eof?)
+    '()
+    (let (s (read:sexp stream))
+      (cons s (read:all stream)))))
+
+(defun (make-env parent # bindings)
+  (let (d (apply dict bindings))
+    (fun (msg # args)
+      (apply
+       (switch msg
+         'lookup (fun (k default)
+                   (if (dict:has? d k)  (dict:get d k)
+                       (null? parent)    default
+                       (parent 'lookup k default)))
+         'has? (fun (k)
+                 (if (dict:has? d k) true
+                     (null? parent)   false
+                     (parent 'has? k)))
+         'set! (fun (k v) (dict:set! d k v))
+         (error (++ "No such message: " msg)))
+       args))))
+
+(def new-var
+  (let (count 0)
+    (fun (old)
+      (set! count (+ count 1))
+      (++ old "#" count))))
+
+;;; Pseudo-ADTs
+
+(defmac defstruct (fun (_ form)
+  (list 'do
+    ;; a constructor
+    (list 'defun form
+      (append (list 'list (list 'quote (head form)))
+              (tail form)))
+    ;; a predicate
+    (list 'defun (list (++ (head form) "?") 'x)
+      (list 'and
+        '(cons? x)
+        (list '= '(head x) (list 'quote (head form))))))))
+
+;; (destruct val (s1 x y z ...) using-x-y-z ... [otherwise])
+(defmac destruct (fun (_ v # bindings)
+  (defun (_destruct vv bindings)
+    (if (nil? bindings)
+          null
+        (nil? (tail bindings))
+          (head bindings)
+        otherwise
+          (let (pat (head bindings)
+                con (head (tail bindings))
+                bindings2 (tail (tail bindings)))
+            (let (pred (++ (head pat) '?))
+              (list 'if (list pred vv)
+                (list 'apply (list 'fun (tail pat) con)
+                  (list 'tail vv))
+                (_destruct vv bindings2))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_destruct vv bindings)))))
+
+;;; The mid-IR is in continuation form
+
+(defstruct (midir:lit s next))
+(defstruct (midir:lookup s next))
+(defstruct (midir:glookup s next))
+(defstruct (midir:enter args varg defs next)) ; C O
+(defstruct (midir:return)) ; O C
+(defstruct (midir:bind v next))
+(defstruct (midir:if cons alt next))
+(defstruct (midir:leave)) ; O C
+(defstruct (midir:funcall f args next))
+(defstruct (midir:closure f next))
+(defstruct (midir:set! v next))
+(defstruct (midir:gset! v next))
+
+(def midir-macros (dict))
+
+(dict:set! midir-macros 'do (fun (_ # body) (cons 'prim:do body)))
+(dict:set! midir-macros 'fun (fun (_ # stuff) (cons 'prim:fun stuff)))
+(dict:set! midir-macros 'def (fun (_ # stuff) (cons 'prim:def stuff)))
+(dict:set! midir-macros 'set! (fun (_ # stuff) (cons 'prim:set! stuff)))
+
+;; Expands the form until it's not immediately a macro anymore (there may still be sub-macros)
+(defun (midir-macro-expand s)
+  (if (and (cons? s) (dict:has? midir-macros (head s)))
+		(midir-macro-expand (apply (dict:get midir-macros (head s)) s))
+    s))
+
+(defun (compile-to-midir env s next)
+  (let (s (midir-macro-expand s))
+    (if (number? s)  (midir:lit s next)
+        (string? s)  (if (env 'has? s)
+                       (midir:lookup (env 'lookup s null) next)
+                       (midir:glookup s next))
+        (cons? s)    (compile-form-to-midir env s next)
+        otherwise    (error (++ "Unknown form: " (repr s))))))
+
+(defun (compile-form-to-midir env s next)
+  (switch (head s)
+    'quote    (midir:lit (head (tail s)) next)
+    'prim:do  (let (cs (map (curry (partial compile-to-midir env)) (tail s)))
+                (foldr $ next cs))
+    'prim:if  (let (cons (compile-to-midir env
+                           (head (tail (tail s)))
+                           (midir:leave))
+                    alt (compile-to-midir env
+                           (head (tail (tail (tail s))))
+                           (midir:leave)))
+                (compile-to-midir env
+                  (head (tail s))
+                  (midir:if cons alt next)))
+    'prim:fun   (let* (sargs (split-fun-args (head (tail s)))
+                       sbody (split-fun-body (tail (tail s)))
+                       dvars (console (map (. head tail) (head sbody)))
+                       new-bindings (append (head sargs) (if (null? (tail sargs)) (list) (list (tail sargs))) dvars)
+                       env2 (apply make-env (cons env (map-append (fun (v) (list v (new-var v))) new-bindings)))
+                       get-new (fun (k) (env2 'lookup k null))
+                       sargs2 (cons (map get-new (head sargs)) (get-new (tail sargs)))
+                       dvars2 (map get-new dvars)
+                       cbs1 (map (fun (d) (partial compile-to-midir env2 (cons 'prim:set! (tail d)))) (head sbody))
+                       cbs2 (map (curry (partial compile-to-midir env2)) (tail sbody)))
+                    (midir:closure (midir:enter (head sargs2) (tail sargs2) dvars2
+                                     (foldr $ (midir:return) (append cbs1 cbs2)))
+                                   next))
+    'prim:def   (error "Definitions may only occur at the beginning of a function.")
+    'prim:set!  (let (var (head (tail s)))
+                  (compile-to-midir env (head (tail (tail s)))
+                    (if (env 'has? var)
+                      (midir:set! (env 'lookup var null) next)
+                      (midir:gset! var next))))
+    (compile-application-to-midir env s next)))
+
+(defun (split-fun-args arglist)
+  (if (nil? arglist)    (cons '() null)
+      (cons? arglist)   (let (r (split-fun-args (tail arglist)))
+                          (cons (cons (head arglist)
+                                      (head r))
+                                (tail r)))
+      (string? arglist) (cons '() arglist)
+      (error (++ "Improper argument list: " (repr arglist)))))
+(defun (split-fun-body body)
+  (if (nil? body)
+        (cons '() '())
+      (not (cons? body))
+        (error "Function body must not be an improper list.")
+      (and (cons? (head body)) (= "prim:def" (head (head body))))
+        (let (r (split-fun-body (tail body)))
+          (cons (cons (head body) (head r)) (tail r)))
+      otherwise
+        (cons '() body)))
+
+(defun (compile-application-to-midir env s next)
+  (let (f (head s)
+        args (tail s)
+        gf (gensym))
+    (let (gargs (map (fun (a) (cons (gensym) a)) args))
+      (let (cf (compile-to-midir env f
+                 (midir:bind gf
+                   (midir:funcall gf (map head gargs) next)))
+            combine (fun (ga next)
+                      (compile-to-midir env (tail ga)
+                        (midir:bind (head ga) next))))
+        (foldr combine cf gargs)))))
+
+;;; midir to lambdas
+
+(defun (make-l-env parent)
+  (let (d (dict))
+    (fun (msg # args)
+      (apply
+       (switch msg
+         'get (fun (k)
+							  (if (dict:has? d k)
+										(dict:get d k)
+										(parent 'get k)))
+         'set! (fun (k v) (dict:set! d k v))
+         (error (++ "Unknown message " msg)))
+       args))))
+
+(defun (compile-midir-to-lambdas m next)
+  (defun (compile-next next2)
+    (compile-midir-to-lambdas next2 next))
+  (defun (return v)
+    (fun (env) v))
+  (defun (bind a f)
+    (fun (env) ((f (a env)) env)))
+  (destruct m
+    (midir:lit s next2)
+      (let (c2 (compile-next next2))
+				(const (bind (return s) c2)))
+    (midir:lookup s next2)
+      (let (c2 (compile-next next2))
+        (const (bind (fun (env)
+										   (env 'get s))
+										 c2)))
+		(midir:glookup s next2)
+      (let (c2 (compile-next next2))
+        (const (bind (fun (env)
+                       (env 'get s)) ; could be different
+                     c2)))
+    (midir:enter args varg defs next2)
+      (let (c2 (compile-next next2))
+        (defun (add-args d args varg arguments)
+          (if (and (nil? args) (null? varg) (not (nil? arguments)))
+							  (error "Too many arguments passed to function.")
+							(nil? args)
+                (do (if (not (null? varg))
+                      (d 'set! varg arguments))
+										d)
+              (nil? arguments)
+                (error "Too few arguments passed to function.")
+              otherwise
+                (do (d 'set! (head args) (head arguments))
+										(add-args d (tail args) varg (tail arguments)))))
+        (fun (v-env)
+          (fun arguments
+            (let (env2 (add-args (make-l-env v-env) args varg arguments))
+							((c2 null) env2)))))
+		(midir:return)
+		  (fun (v) (fun (env) v))
+    (midir:bind v next2)
+      (let (c2 (compile-next next2))
+        (fun (val)
+          (fun (env)
+            (env 'set! v val)
+            ((c2 null) env))))
+    (midir:if con alt next2)
+      (let (c2 (compile-next next2))
+        (let (con2 (compile-midir-to-lambdas con null)
+							alt2 (compile-midir-to-lambdas alt null))
+          (fun (v)
+            (bind ((if v con2 alt2) null) c2))))
+    (midir:leave)
+      (fun (v) (fun (env) v))
+    (midir:funcall f args next2)
+      (let (c2 (compile-next next2))
+        (fun (v)
+          (fun (env)
+            (let (fv (env 'get f)
+			  					argsv (map (fun (a) (env 'get a)) args))
+              ((c2 (apply fv argsv)) env))))) ; TODO
+    (midir:closure f next2)
+      (let (fc (compile-midir-to-lambdas f null)
+						c2 (compile-next next2))
+        (const (bind fc c2)))
+    (midir:set! v next2)
+      (let (c2 (compile-next next2))
+        (fun (val)
+				  (fun (env)
+					  (env 'set! v val)
+						((c2 null) env))))
+    (error (++ "Unknown midir " (repr m)))))
+
+(defun (test-to-lambdas s)
+  (defun (scope x)
+    (print "scope: " (repr x) "\n")
+    x)
+  (def env (make-l-env null))
+  (env 'set! 'f (fun (x) (+ (scope x) 1)))
+  (env 'set! 'true true)
+  (env 'set! 'false false)
+  (env 'set! 'print print)
+  (let* (m (scope (compile-to-midir (make-env null) s (midir:leave)))
+				 l (compile-midir-to-lambdas m id)
+         v ((l null) env))
+    v))
+
+;;; midir to js
+
+(def make-js-var
+  (let (count 0
+        d (dict))
+    (fun (s)
+      (if (and (not (null? s)) (dict:has? d s))
+        (dict:get d s)
+        (do (set! count (+ 1 count))
+            (let (new (++ "v" count))
+              (dict:set! d s new)
+              new))))))
+
+(defun (compile-midir-to-js m prev)
+  (destruct m
+    (midir:lit s next)
+      (let (v (make-js-var null))
+        (++ "var " v "=(" (compile-lit s) ");\n"
+            (compile-midir-to-js next v)))
+    (midir:lookup s next)
+      (let (v (make-js-var null))
+        (++ "var " v "=(" (make-js-var v) ");\n"
+            (compile-midir-to-js next v)))
+    (midir:glookup s next)
+      (let (v (make-js-var null))
+        (++ "var " v "=(global['" s "');\n"
+            (compile-midir-to-js next v)))
+    "null"))
+
+(defun (compile-lit l)
+  (if (nil? l)    "new Nil()"
+      (cons? l)   (++ "new Cons("
+                      (compile-lit (head l))
+                      ", "
+                      (compile-lit (tail l))
+                      ")")
+      (null? l)   "null"
+      (number? l) (js:toString l)
+      (string? l) (++ "\"" (escape l) "\"") ; TODO
+      otherwise   (error (++ "Cannot compile literal: " l))))
+
+;(defun (test)
+;  (let* (s '(do 1 2 3)
+;         m (compile-to-midir (make-env null) s (midir:leave))
