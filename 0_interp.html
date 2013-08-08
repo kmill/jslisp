@@ -34,6 +34,9 @@
           (list 'prim:if c v (cons 'if (tail (tail conds)))))))))
   (def otherwise true)
 
+  (defmac when (fun (_ pred # body)
+    (list 'if pred (cons 'do body))))
+
   ; (defun (f a1 a2 ...) body...)
   (defmac defun (fun (_ v # body)
     (list 'def (head v) (list 'fun (tail v) (cons 'do body)))))
@@ -61,6 +64,7 @@
       null
       (do (op (head lst))
           (each op (tail lst)))))
+  (defun (reverse lst) (foldl (flip cons) '() lst))
 
   (defun (filter pred lst)
     (if (nil? lst)        '()
@@ -95,7 +99,6 @@
   (def ++ (ffi "(function () {
     return Array.prototype.join.call(arguments, '');
   })"))
-
 
   (defun (+ # args) (foldl js:+ 0 args))
   (defun (* # args) (foldl js:* 1 args))
@@ -141,6 +144,12 @@
     var ret = new Nil();
     return s.split.apply(s, args);
   })"))
+
+  (defun (intercalate sep ss)
+    (if (nil? ss)        ""
+			  (nil? (tail ss)) (head ss)
+				otherwise        (++ (head ss) sep
+					                   (intercalate sep (tail ss)))))
 
   ;;; Dictionaries
   (def js:dictConst (ffi "function Dict () {}; Dict"))
@@ -188,7 +197,7 @@
       v
       (let (vvar (gensym))
         (list 'let (list vvar v)
-          (list 'if vvar vvar (cons 'and args)))))))
+          (list 'if vvar vvar (cons 'or args)))))))
   (defun (not x) (if x false true))
   (defun (!= a b) (not (= a b)))
 
@@ -286,15 +295,24 @@
         otherwise (js:toString x)))
   (set! repl-format repr)
 
+  ; for debugging
+  (defun (scope x)
+    (print "scope: " (repr x) "\n")
+    x)
+
 </script>
 
 </head>
 <body>
 <input id="runButton" type="submit" value="Run"/>
-<input id="loadFile" type="file"/>
+<label>Load and execute:
+<input id="loadFile" type="file"/></label>
+<label>Read file:
+<input id="readFile" type="file"/></label>
 <br/>
-<textarea id="input" style="min-width:40em; min-height: 8em;">
+<textarea id="repl" style="width:40%;min-width:30em; min-height: 8em;">
 </textarea>
+<textarea id="compiled" style="width:40%;min-height:8em;"></textarea>
 <div id="output" style="overflow:scroll;max-height:250px;">
 <pre>
 </pre>

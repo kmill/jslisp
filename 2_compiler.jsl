@@ -1,0 +1,151 @@
+;;;;;;;;;;;;;;;;;;;;
+;; 2_compiler.jsl ;;
+;;;;;;;;;;;;;;;;;;;;
+
+;; bootstrap
+(prim:def cons (prim:fun (a b) (prim:cons a b)))
+
+;; Make some macros to tie into the primitives
+(macro:set! 'fun
+  (prim:fun (_ # stuff) (cons 'prim:fun stuff)))
+(macro:set! 'do
+  (fun (_ # stuff) (cons 'prim:do stuff)))
+(macro:set! 'def
+  (fun (_ # stuff) (cons 'prim:def stuff)))
+(macro:set! 'set!
+  (fun (_ # stuff) (cons 'prim:set! stuff)))
+
+;; tie some primitives to lisp functions
+(def cons? (fun (a) (prim:cons? a)))
+(def head (fun (a) (prim:head a)))
+(def tail (fun (a) (prim:tail a)))
+(def nil (fun () (prim:nil)))
+(def nil? (fun (a) (prim:nil? a)))
+
+;; Tie into javascript for the self-evaluating types
+(def number? (prim:ffi "
+  (function (x) {
+    return typeof x === \"number\";
+  })
+"))
+(def true (prim:ffi "true"))
+(def false (prim:ffi "false"))
+(def null (prim:ffi "null"))
+(def null? (prim:ffi "
+  (function (x) {
+    return x === null;
+  })
+"))
+
+(def apply (prim:ffi "(function (f, args) {
+  var as = [];
+  while (!(args instanceof Nil)) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+})"))
+(def error (prim:ffi "(function (s) { throw new Error(s); })"))
+
+; (list a b c ...) => (a b c ...)
+(def list (fun args args))
+
+; (if cond1 cons1 cond2 cons2 ... [alt])
+(macro:set! 'if
+  (fun (_ # conds)
+    (prim:if (nil? conds)
+      null
+      (prim:if (nil? (tail conds))
+        (head conds)
+        (list 'prim:if (head conds)
+							(head (tail conds))
+							(cons 'if (tail (tail conds))))))))
+(def otherwise true)
+
+(macro:set! 'defmac
+  (fun (_ args # body)
+    (list 'macro:set! (list 'quote (head args))
+      (list 'fun (cons '_ (tail args))
+        (cons 'do body)))))
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+
+; (defun (f a1 a2 ...) body...)
+(defmac (defun v # body)
+  (list 'def (head v) (list 'fun (tail v) (cons 'do body))))
+
+;;; Operations on lists
+
+(defun (foldl op start lst)
+  (defun (_foldl acc lst)
+    (if (nil? lst)
+      acc
+      (_foldl (op acc (head lst)) (tail lst))))
+  (_foldl start lst))
+
+(defun (foldr op end lst)
+  (if (nil? lst)
+    end
+    (op (head lst) (foldr op end (tail lst)))))
+
+(defun (map op lst)
+  (if (nil? lst)
+    '()
+    (cons (op (head lst)) (map op (tail lst)))))
+(defun (each op lst)
+  (if (nil? lst)
+    null
+    (do (op (head lst))
+        (each op (tail lst)))))
+(defun (reverse lst) (foldl (flip cons) '() lst))
+
+(defun (filter pred lst)
+  (if (nil? lst)        '()
+      (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
+      otherwise         (filter pred (tail lst))))
+
+; Operators
+(def js:+ (prim:ffi "(function (a, b) { return a + b; })"))
+(defun (ffi-make-binop op)
+  (prim:ffi (js:+ (js:+ "(function (a, b) { return a " op) " b; })")))
+(def js:- (ffi-make-binop '-))
+(def js:* (ffi-make-binop '*))
+(def js:/ (ffi-make-binop '/))
+(def js:% (ffi-make-binop '%))
+(def js:< (ffi-make-binop '< ))
+(def js:> (ffi-make-binop '> ))
+(def js:<= (ffi-make-binop '<= ))
+(def js:>= (ffi-make-binop '>= ))
+(def js:=== (ffi-make-binop '===))
+(def js:toString (prim:ffi "(function (a) { return \"\" + a; })"))
+(def js:toNum (prim:ffi "(function (a) { return +a; })"))
+(def NaN? (prim:ffi "(function (a) { return isNaN(a); })"))
+
+(def / js:/)
+(def % js:%)
+(def < js:<)
+(def > js:>)
+(def <= js:<=)
+(def >= js:>=)
+(def = js:===)
+
+(def ++ (prim:ffi "(function () {
+  return Array.prototype.join.call(arguments, '');
+})"))
+
+(defun (+ # args) (foldl js:+ 0 args))
+(defun (* # args) (foldl js:* 1 args))
+
+(defun (- s # args)
+  (if (nil? args)
+    (js:- 0 s)
+    (js:- s (apply + args))))
+
+;; Debug utils
+(def console (prim:ffi "
+  (function (x) {
+    console.log(x);
+    return null;
+  })
+"))

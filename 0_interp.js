@@ -29,6 +29,8 @@ var jsscheme = (function () {
 	}
 	function Nil() {
 	}
+	me.Cons = Cons;
+	me.Nil = Nil;
 	var nonToken = "'\"()#; \t\n\r";
 	me.nonToken = nonToken;
 	var read = function (s) {
@@ -374,7 +376,12 @@ var jsscheme = (function () {
 	me.global = {
 		'ffi' : function (code) {
 			try {
-				return eval(code);
+				var res = eval(code);
+				if (res === undefined) {
+					return null;
+				} else {
+					return res;
+				}
 			} catch (x) {
 				console.log(code);
 				throw x;
@@ -390,13 +397,24 @@ var jsscheme = (function () {
     'null?' : function (c) { return c === null; },
 		'cons' : function (a, b) { return new Cons(a, b); },
 		'cons?' : function (c) { return c instanceof Cons; },
-		'head' : function (c) { return c.head; },
-		'tail' : function (c) { return c.tail; },
+		'head' : function (c) {
+			if (c.head === undefined) {
+				throw new Error("Cannot take head.");
+			}
+			return c.head;
+		},
+		'tail' : function (c) {
+			if (c.tail === undefined) {
+				throw new Error("Cannot take tail.");
+			}
+			return c.tail;
+		},
     'set-head!' : function (c, a) { c.head = a; return c; },
     'set-tail!' : function (c, b) { c.tail = b; return c; },
 		'nil' : function () { return new Nil(); },
 		'nil?' : function (c) { return c instanceof Nil; },
 		'number?' : function (c) { return typeof c === "number"; },
+		'boolean?' : function (c) { return typeof c === "boolean"; },
 		'string?' : function (c) { return typeof c === "string"; },
 		'get-macro' : function (name) {
 			var m = macros[name];
@@ -414,6 +432,9 @@ function output(s) {
 	el.find("pre").append(s);
 	el.scrollTop(el.prop("scrollHeight"));
 }
+
+var Nil = jsscheme.Nil;
+var Cons = jsscheme.Cons;
 
 jQuery(function () {
 	function runScript(code) {
@@ -439,7 +460,7 @@ jQuery(function () {
 	output("Loaded.\n");
 	$("#runButton").on("click", function (e) {
 		try {
-			var r = jsscheme.compileAll($("#input").val(), jsscheme.global);
+			var r = jsscheme.compileAll($("#repl").val(), jsscheme.global);
 			var f = jsscheme.runTramp(jsscheme.global['repl-format'](r));
 			output("" + f + "\n");
 		} catch (x) {
@@ -459,5 +480,19 @@ jQuery(function () {
 			reader.readAsText(files[i]);
 		}
 		$("#loadFile").val('');
+	});
+	$("#readFile").on("change", function (e) {
+		var files = e.target.files;
+    for (var i = 0; i < files.length; i++) {
+			var reader = new FileReader();
+			reader.onload = (function (theFile) {
+				return function (e) {
+					jsscheme.global["jsui:input-file"] = e.target.result;
+					output("Read file into 'jsui:input-file'.\n");
+				};
+			})(files[i]);
+			reader.readAsText(files[i]);
+		}
+		$("#readFile").val('');
 	});
 });
