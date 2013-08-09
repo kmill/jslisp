@@ -2,6 +2,10 @@
 ;;; 1_compiler.jsl ;;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
+;; This is a basic lisp->javascript compiler.  The main functions are
+;; (compile) and (compile-too).  These are the same except that
+;; (compile) also resets the compiler.
+
 (def eof '(eof))
 (defun (eof? x) (= x eof))
 
@@ -11,11 +15,11 @@
         line 1
         col 0)
     (defun (peek)
-      (if (< i len) ;>
+      (if (< i len)
         (s:charAt s i)
         eof))
     (defun (read)
-      (if (< i len) ; >
+      (if (< i len)
         (let (c (s:charAt s i))
           (switch c
             "\n" (do (set! line (+ 1 line))
@@ -29,7 +33,7 @@
        (switch msg
          'peek peek
          'read read
-         'eof? (fun () (>= i len)) ;<
+         'eof? (fun () (>= i len))
          'input (fun () s)
          'source (fun () source)
          'line (fun () line)
@@ -286,7 +290,7 @@ window.lglobal={
 
 (defun (compile-toplevel-to-midir s)
   (defun (do-compile s)
-    (scope (compile-to-midir (make-env null) s (midir:leave))))
+    (scope (run-copy-propagate-midir (scope (compile-to-midir (make-env null) s (midir:leave))))))
   (let (s (scope (midir-macro-expand s)))
     (if (and (cons? s) (= (head s) 'prim:def))
           (let (s2 (do-compile (head (tail (tail s)))))
@@ -305,8 +309,10 @@ window.lglobal={
 													"})();\n"))
 						  (ffi (scope js))
               (set! midir-toplevel-defs (cons js midir-toplevel-defs))))
-        (and (cons? s) (= (head s) 'when-running))
-          (each when-running-toplevel (tail s))
+        (and (cons? s) (= (head s) 'prim:do))
+          (each compile-toplevel-to-midir (tail s))
+        (and (cons? s) (= (head s) 'when-execute))
+          (each when-execute-toplevel (tail s))
         otherwise
           ; just run it
 ;          (((compile-midir-to-lambdas (do-compile s) id) null) midir-global))))
@@ -318,7 +324,7 @@ window.lglobal={
 												"})();\n"))
 						(ffi (scope js))))))
 
-(defun (when-running-toplevel s)
+(defun (when-execute-toplevel s)
   (defun (do-compile s)
     (compile-to-midir (make-env null) s (midir:leave)))
   (let (s (midir-macro-expand s))
@@ -407,6 +413,50 @@ window.lglobal={
                       (compile-to-midir env (tail ga)
                         (midir:bind (head ga) next))))
         (foldr combine cf gargs)))))
+
+;;; Simplification pass (copy propagation)
+(defun (run-copy-propagate-midir m)
+  (copy-propagate-midir m (make-env null)))
+(defun (copy-propagate-midir m binds)
+  (def continue copy-propagate-midir)
+  (defun (try-get v)
+	  (if (binds 'has? v)
+				(binds 'lookup v)
+				v))
+  (destruct m
+    (midir:lit s next)
+      (midir:lit s (continue next binds))
+    (midir:lookup s next)
+      (destruct next
+        (midir:bind v next2)
+          (do (binds 'set! v s)
+              (continue next2 binds))
+        (midir:lookup (try-get s) (continue next binds)))
+    (midir:glookup s next)
+      (midir:glookup s (continue next binds))
+    (midir:enter args varg defs next)
+      (midir:enter args varg defs (continue next (make-env binds)))
+    (midir:return)
+      (midir:return)
+    (midir:bind v next)
+      (midir:bind v (continue next binds))
+    (midir:if cons alt next)
+      (midir:if (continue cons binds) (continue alt binds)
+                (continue next binds))
+    (midir:leave)
+      (midir:leave)
+    (midir:funcall f args next)
+      (midir:funcall (try-get f) (map try-get args)
+										 (continue next binds))
+    (midir:closure f next)
+      (midir:closure (continue f binds) (continue next binds))
+    (midir:set! v next)
+      (midir:set! (try-get v) (continue next binds))
+    (midir:gset! v next)
+      (midir:gset! v (continue next binds))
+    (midir:ffi next)
+      (midir:ffi (continue next binds))
+    (error (++ "Unknown midir: " m))))
 
 ;;; midir to lambdas
 
@@ -502,6 +552,8 @@ window.lglobal={
     (compile-all stream)))
 (defun (compile)
   (reset-midir-compile)
+	(compile-too))
+(defun (compile-too)
   (compile-file "*file*" jsui:input-file)
   ((ffi "(function (v) {$('#compiled').val(v); return null;})")
    (apply ++ (reverse midir-toplevel-defs))))
@@ -623,8 +675,10 @@ window.lglobal={
     (if (< i (s:length s))
       (cons (switch (s:charAt s i)
               "\""  "\\\""
-							"\n"  "\\\n"
-							"\t"  "\\\t"
+							"\n"  "\\n"
+							"\t"  "\\t"
+							"\r"  "\\r"
+							"\\"  "\\\\"
               (s:charAt s i))
 						(escape-char (+ i 1)))
       (list "\"")))

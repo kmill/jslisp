@@ -1,0 +1,38 @@
+<html>
+<head>
+<script type="text/javascript" src="jquery-1.9.1.js"></script>
+<script type="text/javascript" src="underscore-min.js"></script>
+<script type="text/javascript" src="3_compiler.js"></script>
+<title>jsscheme.html</title>
+
+<script type="text/javascript">
+lglobal['output'] = function (a) {
+	var el = $("#output");
+	el.find("pre").append(s);
+	el.scrollTop(el.prop("scrollHeight"));
+  return null;
+};
+$(function () {
+  $("#runButton").on("click", function () {
+    var s = $("#repl").val();
+    runJTramp(lglobal['midir-eval-all'](s));
+  });
+});
+</script>
+</head>
+<body>
+<input id="runButton" type="submit" value="Run"/>
+<label>Load and execute:
+<input id="loadFile" type="file"/></label>
+<label>Read file:
+<input id="readFile" type="file"/></label>
+<br/>
+<textarea id="repl" style="width:40%;min-width:30em; min-height: 8em;">
+</textarea>
+<textarea id="compiled" style="width:40%;min-height:8em;"></textarea>
+<div id="output" style="overflow:scroll;max-height:250px;">
+<pre>
+</pre>
+</div>
+</body>
+</html>
