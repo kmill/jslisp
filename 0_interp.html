@@ -71,6 +71,19 @@
         (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
         otherwise         (filter pred (tail lst))))
 
+	; Association lists
+	(defun (a:keys alist)
+    (if (nil? alist)        '()
+        (nil? (tail alist)) (error "Improper alist")
+        otherwise           (cons (head alist)
+                                  (a:keys (tail (tail alist))))))
+  (defun (a:values alist)
+    (if (nil? alist)        '()
+        (nil? (tail alist)) (error "Improper alist")
+        otherwise           (cons (head (tail alist))
+                                  (a:values (tail (tail alist))))))
+
+
   ; Operators
   (def js:+ (ffi "(function (a, b) { return a + b; })"))
   (defun (ffi-make-binop op)
@@ -117,6 +130,12 @@
   (defun (map-append f lst)
     (apply append (map f lst)))
 
+  (defun (intercalate sep lst)
+    (if (nil? lst)        '()
+        (nil? (tail lst)) lst
+				otherwise         (cons (head lst)
+                                (cons sep (intercalate sep (tail lst))))))
+
   (def gensym
     (let (count 0)
       (fun ()
@@ -142,14 +161,18 @@
     var args = _.toArray(arguments);
     args.shift();
     var ret = new Nil();
-    return s.split.apply(s, args);
+    var split = s.split.apply(s, args);
+    for (var i = split.length - 1; i >= 0; i--) {
+      ret = new Cons(split[i], ret);
+    }
+    return ret;
   })"))
 
-  (defun (intercalate sep ss)
+  (defun (s:join sep ss)
     (if (nil? ss)        ""
 			  (nil? (tail ss)) (head ss)
 				otherwise        (++ (head ss) sep
-					                   (intercalate sep (tail ss)))))
+					                   (s:join sep (tail ss)))))
 
   ;;; Dictionaries
   (def js:dictConst (ffi "function Dict () {}; Dict"))
@@ -169,6 +192,9 @@
     }
   })"))
   (def dict:set! (ffi "(function (o, k, v) {
+    if (v === undefined) {
+      throw new Error(\"Not enough arguments passed to dict:set!\");
+    }
     o[k] = v;
     return null;
   })"))

@@ -6,18 +6,125 @@
 <title>jsscheme.html</title>
 
 <script type="text/javascript">
-lglobal['output'] = function (a) {
+var output = lglobal['output'] = function (a) {
 	var el = $("#output");
-	el.find("pre").append(s);
+	el.find("pre").append(a);
 	el.scrollTop(el.prop("scrollHeight"));
   return null;
 };
 $(function () {
+  $('script[type="text/jsscheme"]').each(function () {
+    var code = $(this).text();
+    runJTramp(lglobal['midir-eval-all'](code));
+  });
+  output("Loaded.\n");
   $("#runButton").on("click", function () {
     var s = $("#repl").val();
     runJTramp(lglobal['midir-eval-all'](s));
   });
 });
+$('input[type="file"]').on("change", function () {
+  alert("File input doesn't do anything.");
+}
+</script>
+<script type="text/jsscheme">
+; 3_environ.jsl
+; We just need to recompile all of the macros for 3_compiler.jsl
+
+(prim:def macro:set! (prim:fun (name f) (dict:set! midir-macros name f)))
+
+;; Make some macros to tie into the primitives
+(macro:set! 'fun
+  (prim:fun (_ # stuff) (cons 'prim:fun stuff)))
+(macro:set! 'do
+  (fun (_ # stuff) (cons 'prim:do stuff)))
+(macro:set! 'def
+  (fun (_ # stuff) (cons 'prim:def stuff)))
+(macro:set! 'set!
+  (fun (_ # stuff) (cons 'prim:set! stuff)))
+
+; (if cond1 cons1 cond2 cons2 ... [alt])
+(macro:set! 'if
+  (fun (_ # conds)
+    (prim:if (nil? conds)
+      null
+      (prim:if (nil? (tail conds))
+        (head conds)
+        (list 'prim:if (head conds)
+							(head (tail conds))
+							(cons 'if (tail (tail conds))))))))
+
+; (defmac (macro a b c) ...)
+; or (defmac s (fun ...))
+(macro:set! 'defmac
+  (fun (_ args # body)
+    (if (cons? args)
+      (list 'macro:set! (list 'quote (head args))
+        (list 'fun (cons '_ (tail args))
+          (cons 'do body)))
+      ; reverse compatibility so we can compile 1_compiler.jsl
+      (list 'macro:set! (list 'quote args) (head body)))))
+
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+
+; (defun (f a1 a2 ...) body...)
+(defmac (defun v # body)
+  (list 'def (head v) (list 'fun (tail v) (cons 'do body))))
+
+
+; Let via basic let->lambda
+
+(defmac (let bindings # body)
+  (cons (list 'fun (a:keys bindings) (cons 'do body))
+				(a:values bindings)))
+
+;;; Logical operators
+
+(defmac (and v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar)))))
+(defmac (or v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args))))))
+
+;;; More control flow
+
+(defmac let* (fun (_ bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body)))))
+
+(defmac do1 (fun (_ fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v))))
+
+(defmac foreach (fun (_ v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in foreach.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst))))
+
+(defmac switch (fun (_ v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases)) (head (tail cases)) (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases)))))
+
 </script>
 </head>
 <body>

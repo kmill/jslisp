@@ -34,6 +34,16 @@
     return typeof x === \"number\";
   })
 "))
+(def boolean? (ffi "
+  (function (x) {
+    return typeof x === \"boolean\";
+  })
+"))
+(def string? (ffi "
+  (function (x) {
+    return typeof x === \"string\";
+  })
+"))
 (def true (ffi "true"))
 (def false (ffi "false"))
 (def null (ffi "null"))
@@ -181,6 +191,12 @@
 (defun (map-append f lst)
   (apply append (map f lst)))
 
+(defun (intercalate sep lst)
+  (if (nil? lst)        '()
+      (nil? (tail lst)) lst
+  		otherwise         (cons (head lst)
+                              (cons sep (intercalate sep (tail lst))))))
+
 (def gensym
   (let (count 0)
     (fun ()
@@ -208,18 +224,23 @@
   return s.indexOf.apply(s, args);
 })"))
 (def s:fromCharCode (ffi "String.fromCharCode"))
+; Remember: it's javascript split, so (s:split "ababa" 2) gives (a a)
 (def s:split (ffi "(function (s) {
   var args = _.toArray(arguments);
   args.shift();
   var ret = new Nil();
-  return s.split.apply(s, args);
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
 })"))
 
-(defun (intercalate sep ss)
+(defun (s:join sep ss)
   (if (nil? ss)        ""
   	  (nil? (tail ss)) (head ss)
 	  	otherwise        (++ (head ss) sep
-		  	                   (intercalate sep (tail ss)))))
+		  	                   (s:join sep (tail ss)))))
 
 ;;; Dictionaries
 (def js:dictConst (ffi "function Dict () {}; Dict"))
@@ -239,6 +260,9 @@
   }
 })"))
 (def dict:set! (ffi "(function (o, k, v) {
+  if (v === undefined) {
+    throw new Error(\"Not enough arguments passed to dict:set!\");
+  }
   o[k] = v;
   return null;
 })"))
@@ -354,6 +378,10 @@
   (foreach x in xs
     (js:print (repr x))))
 
+(defun (scope x)
+  (print "Scope: " x)
+  x)
+
 (defun (repr x)
   (defun (repr-tail xs)
     (if (nil? (tail xs))   (++ (repr (head xs)) ")")
@@ -372,11 +400,3 @@
     return null;
   })
 "))
-
-;; test
-(defun (fact n)
-  (defun (_fact acc i)
-    (if (<= i 1)
-      acc
-      (_fact (* acc i) (- i 1))))
-  (_fact 1 n))

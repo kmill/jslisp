@@ -6,6 +6,9 @@
 ;; (compile) and (compile-too).  These are the same except that
 ;; (compile) also resets the compiler.
 
+;; N.B. The copy propagator is turned off since it's not been tested
+;; much.
+
 (def eof '(eof))
 (defun (eof? x) (= x eof))
 
@@ -198,6 +201,7 @@
 (defstruct (midir:enter args varg defs next)) ; C O
 (defstruct (midir:return)) ; O C
 (defstruct (midir:bind v next))
+(defstruct (midir:bind-drop next)) ; for runJTramp inside blocks
 (defstruct (midir:if cons alt next))
 (defstruct (midir:leave)) ; O C
 (defstruct (midir:funcall f args next))
@@ -337,11 +341,14 @@ window.lglobal={
       (set! midir-toplevel-defs
             (cons null (cons (do-compile s) midir-toplevel-defs))))))
 
+(defun (compile-body-to-midir env body next)
+  (let (comped (map (curry (partial compile-to-midir env)) body))
+    (foldr $ next (intercalate midir:bind-drop comped))))
+
 (defun (compile-form-to-midir env s next)
   (switch (head s)
     'quote    (midir:lit (head (tail s)) next)
-    'prim:do  (let (cs (map (curry (partial compile-to-midir env)) (tail s)))
-                (foldr $ next cs))
+    'prim:do  (compile-body-to-midir env (tail s) next)
     'prim:if  (let (cons (compile-to-midir env
                            (head (tail (tail s)))
                            (midir:leave))
@@ -362,7 +369,7 @@ window.lglobal={
                        cbs1 (map (fun (d) (partial compile-to-midir env2 (cons 'prim:set! (tail d)))) (head sbody))
                        cbs2 (map (curry (partial compile-to-midir env2)) (tail sbody)))
                     (midir:closure (midir:enter (head sargs2) (tail sargs2) dvars2
-                                     (foldr $ (midir:return) (append cbs1 cbs2)))
+                                     (foldr $ (midir:return) (append cbs1 (intercalate midir:bind-drop cbs2))))
                                    next))
     'prim:def   (error "Definitions may only occur at the beginning of a function.")
     'prim:set!  (let (var (head (tail s)))
@@ -416,7 +423,8 @@ window.lglobal={
 
 ;;; Simplification pass (copy propagation)
 (defun (run-copy-propagate-midir m)
-  (copy-propagate-midir m (make-env null)))
+;  (copy-propagate-midir m (make-env null)))
+  m)
 (defun (copy-propagate-midir m binds)
   (def continue copy-propagate-midir)
   (defun (try-get v)
@@ -440,6 +448,8 @@ window.lglobal={
       (midir:return)
     (midir:bind v next)
       (midir:bind v (continue next binds))
+    (midir:bind-drop next)
+      (midir:bind-drop (continue next binds))
     (midir:if cons alt next)
       (midir:if (continue cons binds) (continue alt binds)
                 (continue next binds))
@@ -589,7 +599,7 @@ window.lglobal={
        (let (argsv (map make-js-var args)
              vargv (make-js-var varg) ; varg may be null
              defsv (map make-js-var defs))
-         (++ "function (" (intercalate "," argsv) ") {\n"
+         (++ "function (" (s:join "," argsv) ") {\n"
 						 (js-check-num-args (length argsv) (not (null? varg)))
              (if (null? varg)
                  ""
@@ -601,6 +611,9 @@ window.lglobal={
       (++ "return " prev ";\n")
     (midir:bind s next)
       (++ "var " (make-js-var s) "=" prev ";\n"
+					(compile-midir-to-js next "ERROR" leavev))
+    (midir:bind-drop next)
+      (++ prev "=runJTramp(" prev ");\n"
 					(compile-midir-to-js next "ERROR" leavev))
     (midir:if cons alt next)
       (let (leavev2 (make-js-var null))
@@ -621,18 +634,20 @@ window.lglobal={
             "if (typeof " fv " !== \"function\") {\n"
             "throw new Error(\"Cannot call non-function.\");\n"
 						"}\n"
-				    "var " v "=new JTramp(" fv ", [" (intercalate "," (map (fun (a) (++ "runJTramp(" a ")"))argsv)) "]);\n"
+				    "var " v "=new JTramp(" fv ", [" (s:join "," (map (fun (a) (++ "runJTramp(" a ")"))argsv)) "]);\n"
 						(compile-midir-to-js next v leavev)))
     (midir:closure f next)
       (let (v (make-js-var null))
         (++ "var " v "=" (compile-midir-to-js f "ERROR" "ERROR") ";\n"
             (compile-midir-to-js next v leavev)))
     (midir:set! v next)
-      (++ (make-js-var v) "=runJTramp(" prev ");\n"
-					(compile-midir-to-js next "ERROR" leavev))
+      (let (v2 (make-js-var null))
+        (++ "var " v2 "=" (make-js-var v) "=runJTramp(" prev ");\n"
+	  				(compile-midir-to-js next v2 leavev)))
     (midir:gset! v next)
-      (++ "lglobal[" (js-escape-string v) "]=runJTramp(" prev ");\n"
-					(compile-midir-to-js next "ERROR" leavev))
+      (let (v2 (make-js-var null))
+        (++ "var " v2 "=" "lglobal[" (js-escape-string v) "]=runJTramp(" prev ");\n"
+  					(compile-midir-to-js next v2 leavev)))
     (midir:ffi next)
       (let (v (make-js-var null))
         (++ "var " v "=eval(runJTramp(" prev "));\n"
