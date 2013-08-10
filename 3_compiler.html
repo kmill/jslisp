@@ -13,15 +13,19 @@ var output = lglobal['output'] = function (a) {
   return null;
 };
 $(function () {
+  var midir_eval_all = lglobal['midir-eval-all'];
   $('script[type="text/jsscheme"]').each(function () {
     var code = $(this).text();
-    runJTramp(lglobal['midir-eval-all'](code));
+    runJTramp(midir_eval_all(code));
   });
   output("Loaded.\n");
+  function Env() {}
+  Env.prototype = lglobal;
+  lglobal = new Env();
+  var run_repl = lglobal['run-repl'];
   $("#runButton").on("click", function () {
     var s = $("#repl").val();
-//    runJTramp(lglobal['midir-eval-all'](s));
-    runJTramp(lglobal['run-repl'](s));
+    runJTramp(run_repl(s));
   });
 });
 $('input[type="file"]').on("change", function () {
@@ -125,20 +129,6 @@ $('input[type="file"]').on("change", function () {
   (let (vv (gensym))
     (list 'let (list vv v)
       (_switch vv cases)))))
-
-;;; Rewriting because didn't make it into this version
-(defun (run-repl input)
-  (def last-out null)
-  (defun (compile-all stream)
-    (when (read:has-another? stream)
-      (let (sexp (read:sexp stream))
-        (print "Compiling " (repr sexp) "\n")
-        (set! last-out (compile-toplevel-to-midir sexp))
-        (compile-all stream))))
-  (let (stream (stream:make "*repl*" input))
-    (compile-all stream)
-    (print last-out "\n")))
-
 </script>
 </head>
 <body>

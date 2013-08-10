@@ -9,6 +9,10 @@
 <script type="text/jsscheme">
   ;;; Basic functions and macros
 
+  ; this exists because ffi changes in the next stages
+  (def js:eval (fun (code)
+    (ffi code)))
+
   (def apply (ffi "(function (f, args) {
     var as = [];
     while (!(args instanceof Nil)) {

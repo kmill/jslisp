@@ -4,8 +4,9 @@
 
 ;; This is basically lifted from 0_compiler.html
 
-;; This should be compiled using 1_compiler.jsl, and then so should
-;; 1_compiler.jsl.  This produces 3_compiler.js
+;; This should be (compile)d using 1_compiler.jsl, and then
+;; 1_compiler.jsl should be (compile-too)d.  This produces
+;; 3_compiler.js
 
 ;; bootstrap
 (prim:def cons (prim:fun (a b) (prim:cons a b)))
@@ -20,13 +21,17 @@
 (macro:set! 'set!
   (fun (_ # stuff) (cons 'prim:set! stuff)))
 
-;; tie some primitives to lisp functions
+;; tie some primitives to lisp functions. these are separated so that
+;; future renamings are easy
 (def cons? (fun (a) (prim:cons? a)))
 (def head (fun (a) (prim:head a)))
 (def tail (fun (a) (prim:tail a)))
 (def nil (fun () (prim:nil)))
 (def nil? (fun (a) (prim:nil? a)))
-(def ffi (fun (c) (prim:ffi c)))
+(macro:set! 'ffi (fun (_ # body)
+  (cons 'prim:ffi body)))
+(def js:eval (fun (code)
+  ((ffi "(function (code) { return (undefined || eval)(code); })") code)))
 
 ;; Tie into javascript for the self-evaluating types
 (def number? (ffi "
@@ -147,17 +152,20 @@
 
 ; Operators
 (def js:+ (ffi "(function (a, b) { return a + b; })"))
-(defun (ffi-make-binop op)
-  (ffi (js:+ (js:+ "(function (a, b) { return a " op) " b; })")))
-(def js:- (ffi-make-binop '-))
-(def js:* (ffi-make-binop '*))
-(def js:/ (ffi-make-binop '/))
-(def js:% (ffi-make-binop '%))
-(def js:< (ffi-make-binop '< ))
-(def js:> (ffi-make-binop '> ))
-(def js:<= (ffi-make-binop '<= ))
-(def js:>= (ffi-make-binop '>= ))
-(def js:=== (ffi-make-binop '===))
+(defmac (def-ffi-binop name op)
+  (let (op (if (cons? op) ; quoted form?
+             (head (tail op))
+             op))
+    (list 'def name (list 'ffi (list 'quote (js:+ (js:+ "(function (a, b) { return a " op) " b; })"))))))
+(def-ffi-binop js:- '-)
+(def-ffi-binop js:* '*)
+(def-ffi-binop js:/ '/)
+(def-ffi-binop js:% '%)
+(def-ffi-binop js:< '<)
+(def-ffi-binop js:> '>)
+(def-ffi-binop js:<= '<=)
+(def-ffi-binop js:>= '>=)
+(def-ffi-binop js:=== '===)
 (def js:toString (ffi "(function (a) { return \"\" + a; })"))
 (def js:toNum (ffi "(function (a) { return +a; })"))
 (def NaN? (ffi "(function (a) { return isNaN(a); })"))
@@ -243,7 +251,7 @@
                            (s:join sep (tail ss)))))
 
 ;;; Dictionaries
-(def js:dictConst (ffi "function Dict () {}; Dict"))
+(def js:dictConst (ffi "function Dict () {}" 'Dict))
 (def js:makeDict ((ffi "(function (con) {
   return function () { return new con(); };
 })") js:dictConst))
@@ -379,7 +387,7 @@
     (js:print (repr x))))
 
 (defun (scope x)
-  (print "Scope: " x)
+  (print "Scope: " x "\n")
   x)
 
 (defun (repr x)

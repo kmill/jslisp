@@ -6,9 +6,6 @@
 ;; (compile) and (compile-too).  These are the same except that
 ;; (compile) also resets the compiler.
 
-;; N.B. The copy propagator is turned off since it's not been tested
-;; much.
-
 (def eof '(eof))
 (defun (eof? x) (= x eof))
 
@@ -208,7 +205,7 @@
 (defstruct (midir:closure f next))
 (defstruct (midir:set! v next))
 (defstruct (midir:gset! v next))
-(defstruct (midir:ffi next))
+(defstruct (midir:ffi code outvar next))
 
 (def midir-macros (dict))
 (def midir-toplevel-defs '())
@@ -223,38 +220,43 @@ if (window.Cons === undefined) {
   };
   window.Nil = function Nil() {};
 }
-window.JTramp = function JTramp(f, args) {
-  this.f = f;
-  this.args = args;
-};
-window.runJTramp = function (o) {
-  while (o instanceof JTramp) {
-    o = o.f.apply(undefined, o.args);
-  }
-  return o;
-};
-window.lglobal={
+if (window.JTramp === undefined) {
+  window.JTramp = function JTramp(f, args) {
+    this.f = f;
+    this.args = args;
+  };
+  window.runJTramp = function (o) {
+    while (o instanceof JTramp) {
+      o = o.f.apply(undefined, o.args);
+    }
+    return o;
+  };
+}
+function GlobalEnv() {};
+GlobalEnv.prototype = window.lglobal || {};
+var lglobal = new GlobalEnv();
+_.extend(lglobal, {
   'prim:cons' : function (a, b) { return new Cons(a, b); },
   'prim:cons?' : function (a) { return a instanceof Cons; },
   'prim:head' : function (a) { return a.head; },
   'prim:tail' : function (a) { return a.tail; },
   'prim:nil' : function () { return new Nil(); },
   'prim:nil?' : function (a) { return a instanceof Nil; }
-};
+});
+window.lglobal = lglobal;
 ")
 
 (defun (set-in-lglobal k v)
-  ((ffi "(function (k, v) { window.lglobal[k] = v; })") k v))
+  ((js:eval "(function (k, v) { window.lglobal[k] = v; })") k v))
 (defun (runJTramp v)
-  ((ffi "runJTramp") v))
+  ((js:eval "runJTramp") v))
 
 (defun (reset-midir-compile)
   (set! midir-macros (dict))
-  (ffi js-default-lglobal)
+  (js:eval js-default-lglobal)
   (set! midir-toplevel-defs
     (reverse
       (list js-default-lglobal)))
-;  (set! midir-global (make-env null))
 
   (set-in-lglobal 'macro:set!
     (fun (name f)
@@ -263,15 +265,7 @@ window.lglobal={
           (fun args (runJTramp (apply f args)))))))
   (set-in-lglobal 'macro:get
     (fun (name)
-      (dict:get midir-macros name)))
-
-  ;; TODO make these tie better into structures
-;  (midir-global 'set! 'cons cons)
-;  (midir-global 'set! 'cons? cons?)
-;  (midir-global 'set! 'head head)
-;  (midir-global 'set! 'tail tail)
-;  (midir-global 'set! 'nil? nil?))
-  )
+      (dict:get midir-macros name))))
 
 ;; Expands the form until it's not immediately a macro anymore (there may still be sub-macros)
 (defun (midir-macro-expand s)
@@ -296,12 +290,6 @@ window.lglobal={
   (let (s (scope (midir-macro-expand s)))
     (if (and (cons? s) (= (head s) 'prim:def))
           (let (s2 (do-compile (head (tail (tail s)))))
-            ;; ; execute
-            ;; (midir-global 'set! (head (tail s))
-            ;;   (((compile-midir-to-lambdas s2 id) null) midir-global))
-            ;; ; save for compilation
-            ;; (set! midir-toplevel-defs
-            ;;       (append (list (head (tail s)) s2) midir-toplevel-defs)))
             (let* (res (make-js-var null)
                    js (++ "(function () {\n"
                           "var " res ";\n"
@@ -309,22 +297,20 @@ window.lglobal={
                           "lglobal[" (js-escape-string (head (tail s))) "]"
                           "=runJTramp(" res ");\n"
                           "})();\n"))
-              (ffi (scope js))
+              (js:eval (scope js))
               (set! midir-toplevel-defs (cons js midir-toplevel-defs))))
         (and (cons? s) (= (head s) 'prim:do))
           (each compile-toplevel-to-midir (tail s))
         (and (cons? s) (= (head s) 'when-execute))
           (each when-execute-toplevel (tail s))
         otherwise
-          ; just run it
-;          (((compile-midir-to-lambdas (do-compile s) id) null) midir-global))))
           (let* (res (make-js-var null)
                  js (++ "(function () {\n"
                         "var " res ";\n"
                         (compile-midir-to-js (do-compile s) "ERROR" res)
                         "return runJTramp(" res ");\n"
                         "})();\n"))
-            (ffi (scope js))))))
+            (js:eval (scope js))))))
 
 (defun (when-execute-toplevel s)
   (defun (do-compile s)
@@ -375,7 +361,11 @@ window.lglobal={
                     (if (env 'has? var)
                       (midir:set! (env 'lookup var) next)
                       (midir:gset! var next))))
-    'prim:ffi   (compile-to-midir env (head (tail s)) (midir:ffi next))
+    'prim:ffi   (let* (code (head (tail s))
+                       code (if (cons? code) (head (tail code)) code)
+                       outvar (if (cons? (tail (tail s))) (head (tail (tail s))) null)
+                       outvar (if (cons? outvar) (head (tail outvar)) outvar))
+                  (midir:ffi code outvar next))
     (compile-application-to-midir env s next)))
 
 (defun (normalize-fun-body body)
@@ -421,8 +411,7 @@ window.lglobal={
 
 ;;; Simplification pass (copy propagation)
 (defun (run-copy-propagate-midir m)
-;  (copy-propagate-midir m (make-env null)))
-  m)
+  (copy-propagate-midir m (make-env null)))
 (defun (copy-propagate-midir m binds)
   (def continue copy-propagate-midir)
   (defun (try-get v)
@@ -462,90 +451,10 @@ window.lglobal={
       (midir:set! (try-get v) (continue next binds))
     (midir:gset! v next)
       (midir:gset! v (continue next binds))
-    (midir:ffi next)
-      (midir:ffi (continue next binds))
+    (midir:ffi code outvar next)
+      (midir:ffi code outvar (continue next binds))
     (error (++ "Unknown midir: " m))))
 
-;;; midir to lambdas
-
-(defun (compile-midir-to-lambdas m next)
-  (defun (compile-next next2)
-    (compile-midir-to-lambdas next2 next))
-  (defun (return v)
-    (fun (env) v))
-  (defun (bind a f)
-    (fun (env) ((f (a env)) env)))
-  (destruct m
-    (midir:lit s next2)
-      (let (c2 (compile-next next2))
-        (const (bind (return s) c2)))
-    (midir:lookup s next2)
-      (let (c2 (compile-next next2))
-        (const (bind (fun (env)
-                       (env 'lookup s))
-                     c2)))
-    (midir:glookup s next2)
-      (let (c2 (compile-next next2))
-        (const (bind (fun (env)
-                       (env 'lookup s)) ; could be different
-                     c2)))
-    (midir:enter args varg defs next2)
-      (let (c2 (compile-next next2))
-        (defun (add-args d args varg arguments)
-          (if (and (nil? args) (null? varg) (not (nil? arguments)))
-                (error "Too many arguments passed to function.")
-              (nil? args)
-                (do (if (not (null? varg))
-                      (d 'set! varg arguments))
-                    d)
-              (nil? arguments)
-                (error "Too few arguments passed to function.")
-              otherwise
-                (do (d 'set! (head args) (head arguments))
-                    (add-args d (tail args) varg (tail arguments)))))
-        (fun (v-env)
-          (fun arguments
-            (let (env2 (add-args (make-env v-env) args varg arguments))
-              ((c2 null) env2)))))
-    (midir:return)
-      (fun (v) (fun (env) v))
-    (midir:bind v next2)
-      (let (c2 (compile-next next2))
-        (fun (val)
-          (fun (env)
-            (env 'set! v val)
-            ((c2 null) env))))
-    (midir:if con alt next2)
-      (let (c2 (compile-next next2))
-        (let (con2 (compile-midir-to-lambdas con null)
-              alt2 (compile-midir-to-lambdas alt null))
-          (fun (v)
-            (bind ((if v con2 alt2) null) c2))))
-    (midir:leave)
-      (fun (v) (fun (env) v))
-    (midir:funcall f args next2)
-      (let (c2 (compile-next next2))
-        (fun (v)
-          (fun (env)
-            (let (fv (env 'lookup f)
-                  argsv (map (fun (a) (env 'lookup a)) args))
-              ((c2 (apply fv argsv)) env))))) ; TODO
-    (midir:closure f next2)
-      (let (fc (compile-midir-to-lambdas f null)
-            c2 (compile-next next2))
-        (const (bind fc c2)))
-    (midir:set! v next2)
-      (let (c2 (compile-next next2))
-        (fun (val)
-          (fun (env)
-            (env 'set! v val)
-            ((c2 null) env))))
-    (midir:ffi next2)
-      (let (c2 (compile-next next2))
-        (fun (val)
-          (fun (env)
-            ((c2 (ffi val)) env))))
-    (error (++ "Unknown midir " (repr m)))))
 
 ;;; reading a whole file
 
@@ -565,10 +474,22 @@ window.lglobal={
   (compile-too))
 (defun (compile-too)
   (compile-file "*file*" jsui:input-file)
-  ((ffi "(function (v) {$('#compiled').val(v); return null;})")
-   (apply ++ (reverse midir-toplevel-defs))))
+  ((js:eval "(function (v) {$('#compiled').val(v); return null;})")
+   (++ "(function () { // Compiled\n" (apply ++ (reverse midir-toplevel-defs)) "})();\n")))
 (defun (midir-eval-all s)
   (compile-file "*eval*" s))
+
+(defun (run-repl input)
+  (def last-out null)
+  (defun (compile-all stream)
+    (when (read:has-another? stream)
+      (let (sexp (read:sexp stream))
+        (print "Compiling " (repr sexp) "\n")
+        (set! last-out (compile-toplevel-to-midir sexp))
+        (compile-all stream))))
+  (let (stream (stream:make "*repl*" input))
+    (compile-all stream)
+    (print last-out "\n")))
 
 ;;; midir to js
 
@@ -579,7 +500,7 @@ window.lglobal={
       (if (and (not (null? s)) (dict:has? d s))
         (dict:get d s)
         (do (set! count (+ 1 count))
-            (let (new (++ "v" count))
+            (let (new (++ "_v" count))
               (dict:set! d s new)
               new))))))
 
@@ -594,6 +515,7 @@ window.lglobal={
     (midir:glookup s next)
       (let (v (make-js-var null))
         (++ "var " v "=lglobal[" (js-escape-string s) "];\n"
+            "if (" v " === undefined) { throw new Error(\"No such global: \" + " (js-escape-string s) "); }\n"
             (compile-midir-to-js next v leavev)))
     (midir:enter args varg defs next)
        (let (argsv (map make-js-var args)
@@ -648,10 +570,12 @@ window.lglobal={
       (let (v2 (make-js-var null))
         (++ "var " v2 "=" "lglobal[" (js-escape-string v) "]=runJTramp(" prev ");\n"
             (compile-midir-to-js next v2 leavev)))
-    (midir:ffi next)
-      (let (v (make-js-var null))
-        (++ "var " v "=eval(runJTramp(" prev "));\n"
+    (midir:ffi code outvar next)
+      (if (null? outvar)
+        (let (v (make-js-var null))
+          (++ "var " v "=(" code ");\n"
             (compile-midir-to-js next v leavev)))
+        (++ code ";\n" (compile-midir-to-js next outvar leavev)))
     (error (++ "Unknown midir " m))))
 
 (defun (js-check-num-args min-expected has-varargs)
@@ -699,7 +623,3 @@ window.lglobal={
       (list "\"")))
   (apply ++ (cons "\"" (escape-char 0))))
 
-
-;(defun (test)
-;  (let* (s '(do 1 2 3)
-;         m (compile-to-midir (make-env null) s (midir:leave))

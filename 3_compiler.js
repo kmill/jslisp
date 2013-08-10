@@ -1,3 +1,4 @@
+(function () { // Compiled
 
 "use strict";
 if (window.Cons === undefined) {
@@ -7,14816 +8,13505 @@ if (window.Cons === undefined) {
   };
   window.Nil = function Nil() {};
 }
-window.JTramp = function JTramp(f, args) {
-  this.f = f;
-  this.args = args;
-};
-window.runJTramp = function (o) {
-  while (o instanceof JTramp) {
-    o = o.f.apply(undefined, o.args);
-  }
-  return o;
-};
-window.lglobal={
+if (window.JTramp === undefined) {
+  window.JTramp = function JTramp(f, args) {
+    this.f = f;
+    this.args = args;
+  };
+  window.runJTramp = function (o) {
+    while (o instanceof JTramp) {
+      o = o.f.apply(undefined, o.args);
+    }
+    return o;
+  };
+}
+function GlobalEnv() {};
+GlobalEnv.prototype = window.lglobal || {};
+var lglobal = new GlobalEnv();
+_.extend(lglobal, {
   'prim:cons' : function (a, b) { return new Cons(a, b); },
   'prim:cons?' : function (a) { return a instanceof Cons; },
   'prim:head' : function (a) { return a.head; },
   'prim:tail' : function (a) { return a.tail; },
   'prim:nil' : function () { return new Nil(); },
   'prim:nil?' : function (a) { return a instanceof Nil; }
-
-  // ADHOC because of compiling mistakes
-	,
-  'scope' : function (x) { return x; },
-	'boolean?' : function (x) { return typeof x === 'boolean'; },
-	'string?' : function (x) { return typeof x === 'string'; }
-};
+});
+window.lglobal = lglobal;
 (function () {
-var v1;
-var v2=function (v3,v4) {
+var _v1;
+var _v2=function (_v3,_v4) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v6=v3;
-var v7=v4;
-var v8=lglobal["prim:cons"];
-var v9=v8;
-v9=runJTramp(v9);
-if (typeof v9 !== "function") {
+var _v6=lglobal["prim:cons"];
+if (_v6 === undefined) { throw new Error("No such global: " + "prim:cons"); }
+var _v7=_v6;
+_v7=runJTramp(_v7);
+if (typeof _v7 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v10=new JTramp(v9, [runJTramp(v6),runJTramp(v7)]);
-return v10;
+var _v8=new JTramp(_v7, [runJTramp(_v3),runJTramp(_v4)]);
+return _v8;
 };
-v1=v2;
-lglobal["cons"]=runJTramp(v1);
+_v1=_v2;
+lglobal["cons"]=runJTramp(_v1);
 })();
 (function () {
-var v79;
-var v80=function (v81) {
+var _v73;
+var _v74=function (_v75) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v83=v81;
-var v84=lglobal["prim:cons?"];
-var v85=v84;
-v85=runJTramp(v85);
-if (typeof v85 !== "function") {
+var _v77=lglobal["prim:cons?"];
+if (_v77 === undefined) { throw new Error("No such global: " + "prim:cons?"); }
+var _v78=_v77;
+_v78=runJTramp(_v78);
+if (typeof _v78 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v86=new JTramp(v85, [runJTramp(v83)]);
-return v86;
+var _v79=new JTramp(_v78, [runJTramp(_v75)]);
+return _v79;
 };
-v79=v80;
-lglobal["cons?"]=runJTramp(v79);
+_v73=_v74;
+lglobal["cons?"]=runJTramp(_v73);
 })();
 (function () {
-var v87;
-var v88=function (v89) {
+var _v80;
+var _v81=function (_v82) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v91=v89;
-var v92=lglobal["prim:head"];
-var v93=v92;
-v93=runJTramp(v93);
-if (typeof v93 !== "function") {
+var _v84=lglobal["prim:head"];
+if (_v84 === undefined) { throw new Error("No such global: " + "prim:head"); }
+var _v85=_v84;
+_v85=runJTramp(_v85);
+if (typeof _v85 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v94=new JTramp(v93, [runJTramp(v91)]);
-return v94;
+var _v86=new JTramp(_v85, [runJTramp(_v82)]);
+return _v86;
 };
-v87=v88;
-lglobal["head"]=runJTramp(v87);
+_v80=_v81;
+lglobal["head"]=runJTramp(_v80);
 })();
 (function () {
-var v95;
-var v96=function (v97) {
+var _v87;
+var _v88=function (_v89) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v99=v97;
-var v100=lglobal["prim:tail"];
-var v101=v100;
-v101=runJTramp(v101);
-if (typeof v101 !== "function") {
+var _v91=lglobal["prim:tail"];
+if (_v91 === undefined) { throw new Error("No such global: " + "prim:tail"); }
+var _v92=_v91;
+_v92=runJTramp(_v92);
+if (typeof _v92 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v102=new JTramp(v101, [runJTramp(v99)]);
-return v102;
+var _v93=new JTramp(_v92, [runJTramp(_v89)]);
+return _v93;
 };
-v95=v96;
-lglobal["tail"]=runJTramp(v95);
+_v87=_v88;
+lglobal["tail"]=runJTramp(_v87);
 })();
 (function () {
-var v103;
-var v104=function () {
+var _v94;
+var _v95=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v106=lglobal["prim:nil"];
-var v107=v106;
-v107=runJTramp(v107);
-if (typeof v107 !== "function") {
+var _v97=lglobal["prim:nil"];
+if (_v97 === undefined) { throw new Error("No such global: " + "prim:nil"); }
+var _v98=_v97;
+_v98=runJTramp(_v98);
+if (typeof _v98 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v108=new JTramp(v107, []);
-return v108;
+var _v99=new JTramp(_v98, []);
+return _v99;
 };
-v103=v104;
-lglobal["nil"]=runJTramp(v103);
+_v94=_v95;
+lglobal["nil"]=runJTramp(_v94);
 })();
 (function () {
-var v109;
-var v110=function (v111) {
+var _v100;
+var _v101=function (_v102) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v113=v111;
-var v114=lglobal["prim:nil?"];
-var v115=v114;
-v115=runJTramp(v115);
-if (typeof v115 !== "function") {
+var _v104=lglobal["prim:nil?"];
+if (_v104 === undefined) { throw new Error("No such global: " + "prim:nil?"); }
+var _v105=_v104;
+_v105=runJTramp(_v105);
+if (typeof _v105 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v116=new JTramp(v115, [runJTramp(v113)]);
-return v116;
+var _v106=new JTramp(_v105, [runJTramp(_v102)]);
+return _v106;
 };
-v109=v110;
-lglobal["nil?"]=runJTramp(v109);
+_v100=_v101;
+lglobal["nil?"]=runJTramp(_v100);
 })();
 (function () {
-var v117;
-var v118=function (v119) {
+var _v123;
+var _v124=function (_v125) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v121=eval(runJTramp(v119));
-return v121;
+var _v127=((function (code) { return (undefined || eval)(code); }));
+var _v128=_v127;
+_v128=runJTramp(_v128);
+if (typeof _v128 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v129=new JTramp(_v128, [runJTramp(_v125)]);
+return _v129;
 };
-v117=v118;
-lglobal["ffi"]=runJTramp(v117);
+_v123=_v124;
+lglobal["js:eval"]=runJTramp(_v123);
 })();
 (function () {
-var v122;
-var v123="\n  (function (x) {\n    return typeof x === \"number\";\n  })\n";
-var v124=v123;
-var v125=lglobal["ffi"];
-var v126=v125;
-v126=runJTramp(v126);
-if (typeof v126 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v127=new JTramp(v126, [runJTramp(v124)]);
-v122=v127;
-lglobal["number?"]=runJTramp(v122);
+var _v130;
+var _v131=(
+  (function (x) {
+    return typeof x === "number";
+  })
+);
+_v130=_v131;
+lglobal["number?"]=runJTramp(_v130);
 })();
 (function () {
-var v128;
-var v129="true";
-var v130=v129;
-var v131=lglobal["ffi"];
-var v132=v131;
-v132=runJTramp(v132);
-if (typeof v132 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v133=new JTramp(v132, [runJTramp(v130)]);
-v128=v133;
-lglobal["true"]=runJTramp(v128);
+var _v132;
+var _v133=(
+  (function (x) {
+    return typeof x === "boolean";
+  })
+);
+_v132=_v133;
+lglobal["boolean?"]=runJTramp(_v132);
 })();
 (function () {
-var v134;
-var v135="false";
-var v136=v135;
-var v137=lglobal["ffi"];
-var v138=v137;
-v138=runJTramp(v138);
-if (typeof v138 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v139=new JTramp(v138, [runJTramp(v136)]);
-v134=v139;
-lglobal["false"]=runJTramp(v134);
+var _v134;
+var _v135=(
+  (function (x) {
+    return typeof x === "string";
+  })
+);
+_v134=_v135;
+lglobal["string?"]=runJTramp(_v134);
 })();
 (function () {
-var v140;
-var v141="null";
-var v142=v141;
-var v143=lglobal["ffi"];
-var v144=v143;
-v144=runJTramp(v144);
-if (typeof v144 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v145=new JTramp(v144, [runJTramp(v142)]);
-v140=v145;
-lglobal["null"]=runJTramp(v140);
+var _v136;
+var _v137=(true);
+_v136=_v137;
+lglobal["true"]=runJTramp(_v136);
 })();
 (function () {
-var v146;
-var v147="\n  (function (x) {\n    return x === null;\n  })\n";
-var v148=v147;
-var v149=lglobal["ffi"];
-var v150=v149;
-v150=runJTramp(v150);
-if (typeof v150 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v151=new JTramp(v150, [runJTramp(v148)]);
-v146=v151;
-lglobal["null?"]=runJTramp(v146);
+var _v138;
+var _v139=(false);
+_v138=_v139;
+lglobal["false"]=runJTramp(_v138);
 })();
 (function () {
-var v152;
-var v153="(function (f, args) {\n  var as = [];\n  while (!(args instanceof Nil)) {\n    as.push(args.head);\n    args = args.tail;\n  }\n  return f.apply(undefined, as);\n})";
-var v154=v153;
-var v155=lglobal["ffi"];
-var v156=v155;
-v156=runJTramp(v156);
-if (typeof v156 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v157=new JTramp(v156, [runJTramp(v154)]);
-v152=v157;
-lglobal["apply"]=runJTramp(v152);
+var _v140;
+var _v141=(null);
+_v140=_v141;
+lglobal["null"]=runJTramp(_v140);
 })();
 (function () {
-var v158;
-var v159="(function (s) { throw new Error(s); })";
-var v160=v159;
-var v161=lglobal["ffi"];
-var v162=v161;
-v162=runJTramp(v162);
-if (typeof v162 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v163=new JTramp(v162, [runJTramp(v160)]);
-v158=v163;
-lglobal["error"]=runJTramp(v158);
+var _v142;
+var _v143=(
+  (function (x) {
+    return x === null;
+  })
+);
+_v142=_v143;
+lglobal["null?"]=runJTramp(_v142);
 })();
 (function () {
-var v164;
-var v165=function () {
-var v166 = new Nil();
-for (var v167 = arguments.length - 1; v167 >= 0; v167--) {
-  v166 = new Cons(arguments[v167], v166);
+var _v144;
+var _v145=((function (f, args) {
+  var as = [];
+  while (!(args instanceof Nil)) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+}));
+_v144=_v145;
+lglobal["apply"]=runJTramp(_v144);
+})();
+(function () {
+var _v146;
+var _v147=((function (s) { throw new Error(s); }));
+_v146=_v147;
+lglobal["error"]=runJTramp(_v146);
+})();
+(function () {
+var _v148;
+var _v149=function () {
+var _v150 = new Nil();
+for (var _v151 = arguments.length - 1; _v151 >= 0; _v151--) {
+  _v150 = new Cons(arguments[_v151], _v150);
 }
-return v166;
+return _v150;
 };
-v164=v165;
-lglobal["list"]=runJTramp(v164);
+_v148=_v149;
+lglobal["list"]=runJTramp(_v148);
 })();
 (function () {
-var v232;
-var v233=lglobal["true"];
-v232=v233;
-lglobal["otherwise"]=runJTramp(v232);
+var _v210;
+var _v211=lglobal["true"];
+if (_v211 === undefined) { throw new Error("No such global: " + "true"); }
+_v210=_v211;
+lglobal["otherwise"]=runJTramp(_v210);
 })();
 (function () {
-var v373;
-var v374=function (v375,v376,v377) {
+var _v340;
+var _v341=function (_v342,_v343,_v344) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v379;
-var v380=function (v381,v382) {
+var _v346;
+var _v347=function (_v348,_v349) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v384=v382;
-var v385=lglobal["nil?"];
-var v386=v385;
-v386=runJTramp(v386);
-if (typeof v386 !== "function") {
+var _v351=lglobal["nil?"];
+if (_v351 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v352=_v351;
+_v352=runJTramp(_v352);
+if (typeof _v352 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v387=new JTramp(v386, [runJTramp(v384)]);
-var v388;
-if(runJTramp(v387)) {
-v388=v381;
+var _v353=new JTramp(_v352, [runJTramp(_v349)]);
+var _v354;
+if(runJTramp(_v353)) {
+_v354=_v348;
 } else {
-var v389=v381;
-var v390=v382;
-var v391=lglobal["head"];
-var v392=v391;
-v392=runJTramp(v392);
-if (typeof v392 !== "function") {
+var _v355=lglobal["head"];
+if (_v355 === undefined) { throw new Error("No such global: " + "head"); }
+var _v356=_v355;
+_v356=runJTramp(_v356);
+if (typeof _v356 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v393=new JTramp(v392, [runJTramp(v390)]);
-var v394=v393;
-var v395=v375;
-v395=runJTramp(v395);
-if (typeof v395 !== "function") {
+var _v357=new JTramp(_v356, [runJTramp(_v349)]);
+var _v358=_v357;
+_v342=runJTramp(_v342);
+if (typeof _v342 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v396=new JTramp(v395, [runJTramp(v389),runJTramp(v394)]);
-var v397=v396;
-var v398=v382;
-var v399=lglobal["tail"];
-var v400=v399;
-v400=runJTramp(v400);
-if (typeof v400 !== "function") {
+var _v359=new JTramp(_v342, [runJTramp(_v348),runJTramp(_v358)]);
+var _v360=_v359;
+var _v361=lglobal["tail"];
+if (_v361 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v362=_v361;
+_v362=runJTramp(_v362);
+if (typeof _v362 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v401=new JTramp(v400, [runJTramp(v398)]);
-var v402=v401;
-var v403=v379;
-v403=runJTramp(v403);
-if (typeof v403 !== "function") {
+var _v363=new JTramp(_v362, [runJTramp(_v349)]);
+var _v364=_v363;
+_v346=runJTramp(_v346);
+if (typeof _v346 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v404=new JTramp(v403, [runJTramp(v397),runJTramp(v402)]);
-v388=v404;
+var _v365=new JTramp(_v346, [runJTramp(_v360),runJTramp(_v364)]);
+_v354=_v365;
 }
-return v388;
+return _v354;
 };
-var v405=v379=runJTramp(v380);
-var v406=v376;
-var v407=v377;
-var v408=v379;
-v408=runJTramp(v408);
-if (typeof v408 !== "function") {
+var _v366=_v346=runJTramp(_v347);
+_v346=runJTramp(_v346);
+if (typeof _v346 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v409=new JTramp(v408, [runJTramp(v406),runJTramp(v407)]);
-return v409;
+var _v367=new JTramp(_v346, [runJTramp(_v343),runJTramp(_v344)]);
+return _v367;
 };
-v373=v374;
-lglobal["foldl"]=runJTramp(v373);
+_v340=_v341;
+lglobal["foldl"]=runJTramp(_v340);
 })();
 (function () {
-var v410;
-var v411=function (v412,v413,v414) {
+var _v368;
+var _v369=function (_v370,_v371,_v372) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v416=v414;
-var v417=lglobal["nil?"];
-var v418=v417;
-v418=runJTramp(v418);
-if (typeof v418 !== "function") {
+var _v374=lglobal["nil?"];
+if (_v374 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v375=_v374;
+_v375=runJTramp(_v375);
+if (typeof _v375 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v419=new JTramp(v418, [runJTramp(v416)]);
-var v420;
-if(runJTramp(v419)) {
-v420=v413;
+var _v376=new JTramp(_v375, [runJTramp(_v372)]);
+var _v377;
+if(runJTramp(_v376)) {
+_v377=_v371;
 } else {
-var v421=v414;
-var v422=lglobal["head"];
-var v423=v422;
-v423=runJTramp(v423);
-if (typeof v423 !== "function") {
+var _v378=lglobal["head"];
+if (_v378 === undefined) { throw new Error("No such global: " + "head"); }
+var _v379=_v378;
+_v379=runJTramp(_v379);
+if (typeof _v379 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v424=new JTramp(v423, [runJTramp(v421)]);
-var v425=v424;
-var v426=v412;
-var v427=v413;
-var v428=v414;
-var v429=lglobal["tail"];
-var v430=v429;
-v430=runJTramp(v430);
-if (typeof v430 !== "function") {
+var _v380=new JTramp(_v379, [runJTramp(_v372)]);
+var _v381=_v380;
+var _v382=lglobal["tail"];
+if (_v382 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v383=_v382;
+_v383=runJTramp(_v383);
+if (typeof _v383 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v431=new JTramp(v430, [runJTramp(v428)]);
-var v432=v431;
-var v433=lglobal["foldr"];
-var v434=v433;
-v434=runJTramp(v434);
-if (typeof v434 !== "function") {
+var _v384=new JTramp(_v383, [runJTramp(_v372)]);
+var _v385=_v384;
+var _v386=lglobal["foldr"];
+if (_v386 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v387=_v386;
+_v387=runJTramp(_v387);
+if (typeof _v387 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v435=new JTramp(v434, [runJTramp(v426),runJTramp(v427),runJTramp(v432)]);
-var v436=v435;
-var v437=v412;
-v437=runJTramp(v437);
-if (typeof v437 !== "function") {
+var _v388=new JTramp(_v387, [runJTramp(_v370),runJTramp(_v371),runJTramp(_v385)]);
+var _v389=_v388;
+_v370=runJTramp(_v370);
+if (typeof _v370 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v438=new JTramp(v437, [runJTramp(v425),runJTramp(v436)]);
-v420=v438;
+var _v390=new JTramp(_v370, [runJTramp(_v381),runJTramp(_v389)]);
+_v377=_v390;
 }
-return v420;
+return _v377;
 };
-v410=v411;
-lglobal["foldr"]=runJTramp(v410);
+_v368=_v369;
+lglobal["foldr"]=runJTramp(_v368);
 })();
 (function () {
-var v439;
-var v440=function (v441,v442) {
+var _v391;
+var _v392=function (_v393,_v394) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v444=v442;
-var v445=lglobal["nil?"];
-var v446=v445;
-v446=runJTramp(v446);
-if (typeof v446 !== "function") {
+var _v396=lglobal["nil?"];
+if (_v396 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v397=_v396;
+_v397=runJTramp(_v397);
+if (typeof _v397 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v447=new JTramp(v446, [runJTramp(v444)]);
-var v448;
-if(runJTramp(v447)) {
-var v449=new Nil();
-v448=v449;
+var _v398=new JTramp(_v397, [runJTramp(_v394)]);
+var _v399;
+if(runJTramp(_v398)) {
+var _v400=new Nil();
+_v399=_v400;
 } else {
-var v450=v442;
-var v451=lglobal["head"];
-var v452=v451;
-v452=runJTramp(v452);
-if (typeof v452 !== "function") {
+var _v401=lglobal["head"];
+if (_v401 === undefined) { throw new Error("No such global: " + "head"); }
+var _v402=_v401;
+_v402=runJTramp(_v402);
+if (typeof _v402 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v453=new JTramp(v452, [runJTramp(v450)]);
-var v454=v453;
-var v455=v441;
-v455=runJTramp(v455);
-if (typeof v455 !== "function") {
+var _v403=new JTramp(_v402, [runJTramp(_v394)]);
+var _v404=_v403;
+_v393=runJTramp(_v393);
+if (typeof _v393 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v456=new JTramp(v455, [runJTramp(v454)]);
-var v457=v456;
-var v458=v441;
-var v459=v442;
-var v460=lglobal["tail"];
-var v461=v460;
-v461=runJTramp(v461);
-if (typeof v461 !== "function") {
+var _v405=new JTramp(_v393, [runJTramp(_v404)]);
+var _v406=_v405;
+var _v407=lglobal["tail"];
+if (_v407 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v408=_v407;
+_v408=runJTramp(_v408);
+if (typeof _v408 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v462=new JTramp(v461, [runJTramp(v459)]);
-var v463=v462;
-var v464=lglobal["map"];
-var v465=v464;
-v465=runJTramp(v465);
-if (typeof v465 !== "function") {
+var _v409=new JTramp(_v408, [runJTramp(_v394)]);
+var _v410=_v409;
+var _v411=lglobal["map"];
+if (_v411 === undefined) { throw new Error("No such global: " + "map"); }
+var _v412=_v411;
+_v412=runJTramp(_v412);
+if (typeof _v412 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v466=new JTramp(v465, [runJTramp(v458),runJTramp(v463)]);
-var v467=v466;
-var v468=lglobal["cons"];
-var v469=v468;
-v469=runJTramp(v469);
-if (typeof v469 !== "function") {
+var _v413=new JTramp(_v412, [runJTramp(_v393),runJTramp(_v410)]);
+var _v414=_v413;
+var _v415=lglobal["cons"];
+if (_v415 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v416=_v415;
+_v416=runJTramp(_v416);
+if (typeof _v416 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v470=new JTramp(v469, [runJTramp(v457),runJTramp(v467)]);
-v448=v470;
+var _v417=new JTramp(_v416, [runJTramp(_v406),runJTramp(_v414)]);
+_v399=_v417;
 }
-return v448;
+return _v399;
 };
-v439=v440;
-lglobal["map"]=runJTramp(v439);
+_v391=_v392;
+lglobal["map"]=runJTramp(_v391);
 })();
 (function () {
-var v471;
-var v472=function (v473,v474) {
+var _v418;
+var _v419=function (_v420,_v421) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v476=v474;
-var v477=lglobal["nil?"];
-var v478=v477;
-v478=runJTramp(v478);
-if (typeof v478 !== "function") {
+var _v423=lglobal["nil?"];
+if (_v423 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v424=_v423;
+_v424=runJTramp(_v424);
+if (typeof _v424 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v479=new JTramp(v478, [runJTramp(v476)]);
-var v480;
-if(runJTramp(v479)) {
-var v481=lglobal["null"];
-v480=v481;
+var _v425=new JTramp(_v424, [runJTramp(_v421)]);
+var _v426;
+if(runJTramp(_v425)) {
+var _v427=lglobal["null"];
+if (_v427 === undefined) { throw new Error("No such global: " + "null"); }
+_v426=_v427;
 } else {
-var v482=v474;
-var v483=lglobal["head"];
-var v484=v483;
-v484=runJTramp(v484);
-if (typeof v484 !== "function") {
+var _v428=lglobal["head"];
+if (_v428 === undefined) { throw new Error("No such global: " + "head"); }
+var _v429=_v428;
+_v429=runJTramp(_v429);
+if (typeof _v429 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v485=new JTramp(v484, [runJTramp(v482)]);
-var v486=v485;
-var v487=v473;
-v487=runJTramp(v487);
-if (typeof v487 !== "function") {
+var _v430=new JTramp(_v429, [runJTramp(_v421)]);
+var _v431=_v430;
+_v420=runJTramp(_v420);
+if (typeof _v420 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v488=new JTramp(v487, [runJTramp(v486)]);
-v488=runJTramp(v488);
-var v489=v473;
-var v490=v474;
-var v491=lglobal["tail"];
-var v492=v491;
-v492=runJTramp(v492);
-if (typeof v492 !== "function") {
+var _v432=new JTramp(_v420, [runJTramp(_v431)]);
+_v432=runJTramp(_v432);
+var _v433=lglobal["tail"];
+if (_v433 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v434=_v433;
+_v434=runJTramp(_v434);
+if (typeof _v434 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v493=new JTramp(v492, [runJTramp(v490)]);
-var v494=v493;
-var v495=lglobal["each"];
-var v496=v495;
-v496=runJTramp(v496);
-if (typeof v496 !== "function") {
+var _v435=new JTramp(_v434, [runJTramp(_v421)]);
+var _v436=_v435;
+var _v437=lglobal["each"];
+if (_v437 === undefined) { throw new Error("No such global: " + "each"); }
+var _v438=_v437;
+_v438=runJTramp(_v438);
+if (typeof _v438 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v497=new JTramp(v496, [runJTramp(v489),runJTramp(v494)]);
-v480=v497;
+var _v439=new JTramp(_v438, [runJTramp(_v420),runJTramp(_v436)]);
+_v426=_v439;
 }
-return v480;
+return _v426;
 };
-v471=v472;
-lglobal["each"]=runJTramp(v471);
+_v418=_v419;
+lglobal["each"]=runJTramp(_v418);
 })();
 (function () {
-var v498;
-var v499=function (v500) {
+var _v440;
+var _v441=function (_v442) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v502=lglobal["cons"];
-var v503=v502;
-var v504=lglobal["flip"];
-var v505=v504;
-v505=runJTramp(v505);
-if (typeof v505 !== "function") {
+var _v444=lglobal["cons"];
+if (_v444 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v445=_v444;
+var _v446=lglobal["flip"];
+if (_v446 === undefined) { throw new Error("No such global: " + "flip"); }
+var _v447=_v446;
+_v447=runJTramp(_v447);
+if (typeof _v447 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v506=new JTramp(v505, [runJTramp(v503)]);
-var v507=v506;
-var v508=new Nil();
-var v509=v508;
-var v510=v500;
-var v511=lglobal["foldl"];
-var v512=v511;
-v512=runJTramp(v512);
-if (typeof v512 !== "function") {
+var _v448=new JTramp(_v447, [runJTramp(_v445)]);
+var _v449=_v448;
+var _v450=new Nil();
+var _v451=_v450;
+var _v452=lglobal["foldl"];
+if (_v452 === undefined) { throw new Error("No such global: " + "foldl"); }
+var _v453=_v452;
+_v453=runJTramp(_v453);
+if (typeof _v453 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v513=new JTramp(v512, [runJTramp(v507),runJTramp(v509),runJTramp(v510)]);
-return v513;
+var _v454=new JTramp(_v453, [runJTramp(_v449),runJTramp(_v451),runJTramp(_v442)]);
+return _v454;
 };
-v498=v499;
-lglobal["reverse"]=runJTramp(v498);
+_v440=_v441;
+lglobal["reverse"]=runJTramp(_v440);
 })();
 (function () {
-var v514;
-var v515=function (v516,v517) {
+var _v455;
+var _v456=function (_v457,_v458) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v519=v517;
-var v520=lglobal["nil?"];
-var v521=v520;
-v521=runJTramp(v521);
-if (typeof v521 !== "function") {
+var _v460=lglobal["nil?"];
+if (_v460 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v461=_v460;
+_v461=runJTramp(_v461);
+if (typeof _v461 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v522=new JTramp(v521, [runJTramp(v519)]);
-var v523;
-if(runJTramp(v522)) {
-var v524=new Nil();
-v523=v524;
+var _v462=new JTramp(_v461, [runJTramp(_v458)]);
+var _v463;
+if(runJTramp(_v462)) {
+var _v464=new Nil();
+_v463=_v464;
 } else {
-var v525=v517;
-var v526=lglobal["head"];
-var v527=v526;
-v527=runJTramp(v527);
-if (typeof v527 !== "function") {
+var _v465=lglobal["head"];
+if (_v465 === undefined) { throw new Error("No such global: " + "head"); }
+var _v466=_v465;
+_v466=runJTramp(_v466);
+if (typeof _v466 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v528=new JTramp(v527, [runJTramp(v525)]);
-var v529=v528;
-var v530=v516;
-v530=runJTramp(v530);
-if (typeof v530 !== "function") {
+var _v467=new JTramp(_v466, [runJTramp(_v458)]);
+var _v468=_v467;
+_v457=runJTramp(_v457);
+if (typeof _v457 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v531=new JTramp(v530, [runJTramp(v529)]);
-var v532;
-if(runJTramp(v531)) {
-var v533=v517;
-var v534=lglobal["head"];
-var v535=v534;
-v535=runJTramp(v535);
-if (typeof v535 !== "function") {
+var _v469=new JTramp(_v457, [runJTramp(_v468)]);
+var _v470;
+if(runJTramp(_v469)) {
+var _v471=lglobal["head"];
+if (_v471 === undefined) { throw new Error("No such global: " + "head"); }
+var _v472=_v471;
+_v472=runJTramp(_v472);
+if (typeof _v472 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v536=new JTramp(v535, [runJTramp(v533)]);
-var v537=v536;
-var v538=v516;
-var v539=v517;
-var v540=lglobal["tail"];
-var v541=v540;
-v541=runJTramp(v541);
-if (typeof v541 !== "function") {
+var _v473=new JTramp(_v472, [runJTramp(_v458)]);
+var _v474=_v473;
+var _v475=lglobal["tail"];
+if (_v475 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v476=_v475;
+_v476=runJTramp(_v476);
+if (typeof _v476 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v542=new JTramp(v541, [runJTramp(v539)]);
-var v543=v542;
-var v544=lglobal["filter"];
-var v545=v544;
-v545=runJTramp(v545);
-if (typeof v545 !== "function") {
+var _v477=new JTramp(_v476, [runJTramp(_v458)]);
+var _v478=_v477;
+var _v479=lglobal["filter"];
+if (_v479 === undefined) { throw new Error("No such global: " + "filter"); }
+var _v480=_v479;
+_v480=runJTramp(_v480);
+if (typeof _v480 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v546=new JTramp(v545, [runJTramp(v538),runJTramp(v543)]);
-var v547=v546;
-var v548=lglobal["cons"];
-var v549=v548;
-v549=runJTramp(v549);
-if (typeof v549 !== "function") {
+var _v481=new JTramp(_v480, [runJTramp(_v457),runJTramp(_v478)]);
+var _v482=_v481;
+var _v483=lglobal["cons"];
+if (_v483 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v484=_v483;
+_v484=runJTramp(_v484);
+if (typeof _v484 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v550=new JTramp(v549, [runJTramp(v537),runJTramp(v547)]);
-v532=v550;
+var _v485=new JTramp(_v484, [runJTramp(_v474),runJTramp(_v482)]);
+_v470=_v485;
 } else {
-var v551=lglobal["otherwise"];
-var v552;
-if(runJTramp(v551)) {
-var v553=v516;
-var v554=v517;
-var v555=lglobal["tail"];
-var v556=v555;
-v556=runJTramp(v556);
-if (typeof v556 !== "function") {
+var _v486=lglobal["otherwise"];
+if (_v486 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v487;
+if(runJTramp(_v486)) {
+var _v488=lglobal["tail"];
+if (_v488 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v489=_v488;
+_v489=runJTramp(_v489);
+if (typeof _v489 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v557=new JTramp(v556, [runJTramp(v554)]);
-var v558=v557;
-var v559=lglobal["filter"];
-var v560=v559;
-v560=runJTramp(v560);
-if (typeof v560 !== "function") {
+var _v490=new JTramp(_v489, [runJTramp(_v458)]);
+var _v491=_v490;
+var _v492=lglobal["filter"];
+if (_v492 === undefined) { throw new Error("No such global: " + "filter"); }
+var _v493=_v492;
+_v493=runJTramp(_v493);
+if (typeof _v493 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v561=new JTramp(v560, [runJTramp(v553),runJTramp(v558)]);
-v552=v561;
+var _v494=new JTramp(_v493, [runJTramp(_v457),runJTramp(_v491)]);
+_v487=_v494;
 } else {
-var v562=null;
-v552=v562;
+var _v495=null;
+_v487=_v495;
 }
-v532=v552;
+_v470=_v487;
 }
-v523=v532;
+_v463=_v470;
 }
-return v523;
+return _v463;
 };
-v514=v515;
-lglobal["filter"]=runJTramp(v514);
+_v455=_v456;
+lglobal["filter"]=runJTramp(_v455);
 })();
 (function () {
-var v563;
-var v564=function (v565) {
+var _v496;
+var _v497=function (_v498) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v567=v565;
-var v568=lglobal["nil?"];
-var v569=v568;
-v569=runJTramp(v569);
-if (typeof v569 !== "function") {
+var _v500=lglobal["nil?"];
+if (_v500 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v501=_v500;
+_v501=runJTramp(_v501);
+if (typeof _v501 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v570=new JTramp(v569, [runJTramp(v567)]);
-var v571;
-if(runJTramp(v570)) {
-var v572=new Nil();
-v571=v572;
+var _v502=new JTramp(_v501, [runJTramp(_v498)]);
+var _v503;
+if(runJTramp(_v502)) {
+var _v504=new Nil();
+_v503=_v504;
 } else {
-var v573=v565;
-var v574=lglobal["tail"];
-var v575=v574;
-v575=runJTramp(v575);
-if (typeof v575 !== "function") {
+var _v505=lglobal["tail"];
+if (_v505 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v506=_v505;
+_v506=runJTramp(_v506);
+if (typeof _v506 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v576=new JTramp(v575, [runJTramp(v573)]);
-var v577=v576;
-var v578=lglobal["nil?"];
-var v579=v578;
-v579=runJTramp(v579);
-if (typeof v579 !== "function") {
+var _v507=new JTramp(_v506, [runJTramp(_v498)]);
+var _v508=_v507;
+var _v509=lglobal["nil?"];
+if (_v509 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v510=_v509;
+_v510=runJTramp(_v510);
+if (typeof _v510 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v580=new JTramp(v579, [runJTramp(v577)]);
-var v581;
-if(runJTramp(v580)) {
-var v582="Improper alist";
-var v583=v582;
-var v584=lglobal["error"];
-var v585=v584;
-v585=runJTramp(v585);
-if (typeof v585 !== "function") {
+var _v511=new JTramp(_v510, [runJTramp(_v508)]);
+var _v512;
+if(runJTramp(_v511)) {
+var _v513="Improper alist";
+var _v514=_v513;
+var _v515=lglobal["error"];
+if (_v515 === undefined) { throw new Error("No such global: " + "error"); }
+var _v516=_v515;
+_v516=runJTramp(_v516);
+if (typeof _v516 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v586=new JTramp(v585, [runJTramp(v583)]);
-v581=v586;
+var _v517=new JTramp(_v516, [runJTramp(_v514)]);
+_v512=_v517;
 } else {
-var v587=lglobal["otherwise"];
-var v588;
-if(runJTramp(v587)) {
-var v589=v565;
-var v590=lglobal["head"];
-var v591=v590;
-v591=runJTramp(v591);
-if (typeof v591 !== "function") {
+var _v518=lglobal["otherwise"];
+if (_v518 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v519;
+if(runJTramp(_v518)) {
+var _v520=lglobal["head"];
+if (_v520 === undefined) { throw new Error("No such global: " + "head"); }
+var _v521=_v520;
+_v521=runJTramp(_v521);
+if (typeof _v521 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v592=new JTramp(v591, [runJTramp(v589)]);
-var v593=v592;
-var v594=v565;
-var v595=lglobal["tail"];
-var v596=v595;
-v596=runJTramp(v596);
-if (typeof v596 !== "function") {
+var _v522=new JTramp(_v521, [runJTramp(_v498)]);
+var _v523=_v522;
+var _v524=lglobal["tail"];
+if (_v524 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v525=_v524;
+_v525=runJTramp(_v525);
+if (typeof _v525 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v597=new JTramp(v596, [runJTramp(v594)]);
-var v598=v597;
-var v599=lglobal["tail"];
-var v600=v599;
-v600=runJTramp(v600);
-if (typeof v600 !== "function") {
+var _v526=new JTramp(_v525, [runJTramp(_v498)]);
+var _v527=_v526;
+var _v528=lglobal["tail"];
+if (_v528 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v529=_v528;
+_v529=runJTramp(_v529);
+if (typeof _v529 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v601=new JTramp(v600, [runJTramp(v598)]);
-var v602=v601;
-var v603=lglobal["a:keys"];
-var v604=v603;
-v604=runJTramp(v604);
-if (typeof v604 !== "function") {
+var _v530=new JTramp(_v529, [runJTramp(_v527)]);
+var _v531=_v530;
+var _v532=lglobal["a:keys"];
+if (_v532 === undefined) { throw new Error("No such global: " + "a:keys"); }
+var _v533=_v532;
+_v533=runJTramp(_v533);
+if (typeof _v533 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v605=new JTramp(v604, [runJTramp(v602)]);
-var v606=v605;
-var v607=lglobal["cons"];
-var v608=v607;
-v608=runJTramp(v608);
-if (typeof v608 !== "function") {
+var _v534=new JTramp(_v533, [runJTramp(_v531)]);
+var _v535=_v534;
+var _v536=lglobal["cons"];
+if (_v536 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v537=_v536;
+_v537=runJTramp(_v537);
+if (typeof _v537 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v609=new JTramp(v608, [runJTramp(v593),runJTramp(v606)]);
-v588=v609;
+var _v538=new JTramp(_v537, [runJTramp(_v523),runJTramp(_v535)]);
+_v519=_v538;
 } else {
-var v610=null;
-v588=v610;
+var _v539=null;
+_v519=_v539;
 }
-v581=v588;
+_v512=_v519;
 }
-v571=v581;
+_v503=_v512;
 }
-return v571;
+return _v503;
 };
-v563=v564;
-lglobal["a:keys"]=runJTramp(v563);
+_v496=_v497;
+lglobal["a:keys"]=runJTramp(_v496);
 })();
 (function () {
-var v611;
-var v612=function (v613) {
+var _v540;
+var _v541=function (_v542) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v615=v613;
-var v616=lglobal["nil?"];
-var v617=v616;
-v617=runJTramp(v617);
-if (typeof v617 !== "function") {
+var _v544=lglobal["nil?"];
+if (_v544 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v545=_v544;
+_v545=runJTramp(_v545);
+if (typeof _v545 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v618=new JTramp(v617, [runJTramp(v615)]);
-var v619;
-if(runJTramp(v618)) {
-var v620=new Nil();
-v619=v620;
+var _v546=new JTramp(_v545, [runJTramp(_v542)]);
+var _v547;
+if(runJTramp(_v546)) {
+var _v548=new Nil();
+_v547=_v548;
 } else {
-var v621=v613;
-var v622=lglobal["tail"];
-var v623=v622;
-v623=runJTramp(v623);
-if (typeof v623 !== "function") {
+var _v549=lglobal["tail"];
+if (_v549 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v550=_v549;
+_v550=runJTramp(_v550);
+if (typeof _v550 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v624=new JTramp(v623, [runJTramp(v621)]);
-var v625=v624;
-var v626=lglobal["nil?"];
-var v627=v626;
-v627=runJTramp(v627);
-if (typeof v627 !== "function") {
+var _v551=new JTramp(_v550, [runJTramp(_v542)]);
+var _v552=_v551;
+var _v553=lglobal["nil?"];
+if (_v553 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v554=_v553;
+_v554=runJTramp(_v554);
+if (typeof _v554 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v628=new JTramp(v627, [runJTramp(v625)]);
-var v629;
-if(runJTramp(v628)) {
-var v630="Improper alist";
-var v631=v630;
-var v632=lglobal["error"];
-var v633=v632;
-v633=runJTramp(v633);
-if (typeof v633 !== "function") {
+var _v555=new JTramp(_v554, [runJTramp(_v552)]);
+var _v556;
+if(runJTramp(_v555)) {
+var _v557="Improper alist";
+var _v558=_v557;
+var _v559=lglobal["error"];
+if (_v559 === undefined) { throw new Error("No such global: " + "error"); }
+var _v560=_v559;
+_v560=runJTramp(_v560);
+if (typeof _v560 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v634=new JTramp(v633, [runJTramp(v631)]);
-v629=v634;
+var _v561=new JTramp(_v560, [runJTramp(_v558)]);
+_v556=_v561;
 } else {
-var v635=lglobal["otherwise"];
-var v636;
-if(runJTramp(v635)) {
-var v637=v613;
-var v638=lglobal["tail"];
-var v639=v638;
-v639=runJTramp(v639);
-if (typeof v639 !== "function") {
+var _v562=lglobal["otherwise"];
+if (_v562 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v563;
+if(runJTramp(_v562)) {
+var _v564=lglobal["tail"];
+if (_v564 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v565=_v564;
+_v565=runJTramp(_v565);
+if (typeof _v565 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v640=new JTramp(v639, [runJTramp(v637)]);
-var v641=v640;
-var v642=lglobal["head"];
-var v643=v642;
-v643=runJTramp(v643);
-if (typeof v643 !== "function") {
+var _v566=new JTramp(_v565, [runJTramp(_v542)]);
+var _v567=_v566;
+var _v568=lglobal["head"];
+if (_v568 === undefined) { throw new Error("No such global: " + "head"); }
+var _v569=_v568;
+_v569=runJTramp(_v569);
+if (typeof _v569 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v644=new JTramp(v643, [runJTramp(v641)]);
-var v645=v644;
-var v646=v613;
-var v647=lglobal["tail"];
-var v648=v647;
-v648=runJTramp(v648);
-if (typeof v648 !== "function") {
+var _v570=new JTramp(_v569, [runJTramp(_v567)]);
+var _v571=_v570;
+var _v572=lglobal["tail"];
+if (_v572 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v573=_v572;
+_v573=runJTramp(_v573);
+if (typeof _v573 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v649=new JTramp(v648, [runJTramp(v646)]);
-var v650=v649;
-var v651=lglobal["tail"];
-var v652=v651;
-v652=runJTramp(v652);
-if (typeof v652 !== "function") {
+var _v574=new JTramp(_v573, [runJTramp(_v542)]);
+var _v575=_v574;
+var _v576=lglobal["tail"];
+if (_v576 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v577=_v576;
+_v577=runJTramp(_v577);
+if (typeof _v577 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v653=new JTramp(v652, [runJTramp(v650)]);
-var v654=v653;
-var v655=lglobal["a:values"];
-var v656=v655;
-v656=runJTramp(v656);
-if (typeof v656 !== "function") {
+var _v578=new JTramp(_v577, [runJTramp(_v575)]);
+var _v579=_v578;
+var _v580=lglobal["a:values"];
+if (_v580 === undefined) { throw new Error("No such global: " + "a:values"); }
+var _v581=_v580;
+_v581=runJTramp(_v581);
+if (typeof _v581 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v657=new JTramp(v656, [runJTramp(v654)]);
-var v658=v657;
-var v659=lglobal["cons"];
-var v660=v659;
-v660=runJTramp(v660);
-if (typeof v660 !== "function") {
+var _v582=new JTramp(_v581, [runJTramp(_v579)]);
+var _v583=_v582;
+var _v584=lglobal["cons"];
+if (_v584 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v585=_v584;
+_v585=runJTramp(_v585);
+if (typeof _v585 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v661=new JTramp(v660, [runJTramp(v645),runJTramp(v658)]);
-v636=v661;
+var _v586=new JTramp(_v585, [runJTramp(_v571),runJTramp(_v583)]);
+_v563=_v586;
 } else {
-var v662=null;
-v636=v662;
+var _v587=null;
+_v563=_v587;
 }
-v629=v636;
+_v556=_v563;
 }
-v619=v629;
+_v547=_v556;
 }
-return v619;
+return _v547;
 };
-v611=v612;
-lglobal["a:values"]=runJTramp(v611);
+_v540=_v541;
+lglobal["a:values"]=runJTramp(_v540);
 })();
 (function () {
-var v701;
-var v702="(function (a, b) { return a + b; })";
-var v703=v702;
-var v704=lglobal["ffi"];
-var v705=v704;
-v705=runJTramp(v705);
-if (typeof v705 !== "function") {
+var _v623;
+var _v624=((function (a, b) { return a + b; }));
+_v623=_v624;
+lglobal["js:+"]=runJTramp(_v623);
+})();
+(function () {
+var _v683;
+var _v684=((function (a, b) { return a - b; }));
+_v683=_v684;
+lglobal["js:-"]=runJTramp(_v683);
+})();
+(function () {
+var _v685;
+var _v686=((function (a, b) { return a * b; }));
+_v685=_v686;
+lglobal["js:*"]=runJTramp(_v685);
+})();
+(function () {
+var _v687;
+var _v688=((function (a, b) { return a / b; }));
+_v687=_v688;
+lglobal["js:/"]=runJTramp(_v687);
+})();
+(function () {
+var _v689;
+var _v690=((function (a, b) { return a % b; }));
+_v689=_v690;
+lglobal["js:%"]=runJTramp(_v689);
+})();
+(function () {
+var _v691;
+var _v692=((function (a, b) { return a < b; }));
+_v691=_v692;
+lglobal["js:<"]=runJTramp(_v691);
+})();
+(function () {
+var _v693;
+var _v694=((function (a, b) { return a > b; }));
+_v693=_v694;
+lglobal["js:>"]=runJTramp(_v693);
+})();
+(function () {
+var _v695;
+var _v696=((function (a, b) { return a <= b; }));
+_v695=_v696;
+lglobal["js:<="]=runJTramp(_v695);
+})();
+(function () {
+var _v697;
+var _v698=((function (a, b) { return a >= b; }));
+_v697=_v698;
+lglobal["js:>="]=runJTramp(_v697);
+})();
+(function () {
+var _v699;
+var _v700=((function (a, b) { return a === b; }));
+_v699=_v700;
+lglobal["js:==="]=runJTramp(_v699);
+})();
+(function () {
+var _v701;
+var _v702=((function (a) { return "" + a; }));
+_v701=_v702;
+lglobal["js:toString"]=runJTramp(_v701);
+})();
+(function () {
+var _v703;
+var _v704=((function (a) { return +a; }));
+_v703=_v704;
+lglobal["js:toNum"]=runJTramp(_v703);
+})();
+(function () {
+var _v705;
+var _v706=((function (a) { return isNaN(a); }));
+_v705=_v706;
+lglobal["NaN?"]=runJTramp(_v705);
+})();
+(function () {
+var _v707;
+var _v708=lglobal["js:/"];
+if (_v708 === undefined) { throw new Error("No such global: " + "js:/"); }
+_v707=_v708;
+lglobal["/"]=runJTramp(_v707);
+})();
+(function () {
+var _v709;
+var _v710=lglobal["js:%"];
+if (_v710 === undefined) { throw new Error("No such global: " + "js:%"); }
+_v709=_v710;
+lglobal["%"]=runJTramp(_v709);
+})();
+(function () {
+var _v711;
+var _v712=lglobal["js:<"];
+if (_v712 === undefined) { throw new Error("No such global: " + "js:<"); }
+_v711=_v712;
+lglobal["<"]=runJTramp(_v711);
+})();
+(function () {
+var _v713;
+var _v714=lglobal["js:>"];
+if (_v714 === undefined) { throw new Error("No such global: " + "js:>"); }
+_v713=_v714;
+lglobal[">"]=runJTramp(_v713);
+})();
+(function () {
+var _v715;
+var _v716=lglobal["js:<="];
+if (_v716 === undefined) { throw new Error("No such global: " + "js:<="); }
+_v715=_v716;
+lglobal["<="]=runJTramp(_v715);
+})();
+(function () {
+var _v717;
+var _v718=lglobal["js:>="];
+if (_v718 === undefined) { throw new Error("No such global: " + "js:>="); }
+_v717=_v718;
+lglobal[">="]=runJTramp(_v717);
+})();
+(function () {
+var _v719;
+var _v720=lglobal["js:==="];
+if (_v720 === undefined) { throw new Error("No such global: " + "js:==="); }
+_v719=_v720;
+lglobal["="]=runJTramp(_v719);
+})();
+(function () {
+var _v721;
+var _v722=((function () {
+  return Array.prototype.join.call(arguments, '');
+}));
+_v721=_v722;
+lglobal["++"]=runJTramp(_v721);
+})();
+(function () {
+var _v723;
+var _v724=function () {
+var _v725 = new Nil();
+for (var _v726 = arguments.length - 1; _v726 >= 0; _v726--) {
+  _v725 = new Cons(arguments[_v726], _v725);
+}
+var _v727=lglobal["js:+"];
+if (_v727 === undefined) { throw new Error("No such global: " + "js:+"); }
+var _v728=_v727;
+var _v729=0;
+var _v730=_v729;
+var _v731=lglobal["foldl"];
+if (_v731 === undefined) { throw new Error("No such global: " + "foldl"); }
+var _v732=_v731;
+_v732=runJTramp(_v732);
+if (typeof _v732 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v706=new JTramp(v705, [runJTramp(v703)]);
-v701=v706;
-lglobal["js:+"]=runJTramp(v701);
+var _v733=new JTramp(_v732, [runJTramp(_v728),runJTramp(_v730),runJTramp(_v725)]);
+return _v733;
+};
+_v723=_v724;
+lglobal["+"]=runJTramp(_v723);
 })();
 (function () {
-var v707;
-var v708=function (v709) {
+var _v734;
+var _v735=function () {
+var _v736 = new Nil();
+for (var _v737 = arguments.length - 1; _v737 >= 0; _v737--) {
+  _v736 = new Cons(arguments[_v737], _v736);
+}
+var _v738=lglobal["js:*"];
+if (_v738 === undefined) { throw new Error("No such global: " + "js:*"); }
+var _v739=_v738;
+var _v740=1;
+var _v741=_v740;
+var _v742=lglobal["foldl"];
+if (_v742 === undefined) { throw new Error("No such global: " + "foldl"); }
+var _v743=_v742;
+_v743=runJTramp(_v743);
+if (typeof _v743 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v744=new JTramp(_v743, [runJTramp(_v739),runJTramp(_v741),runJTramp(_v736)]);
+return _v744;
+};
+_v734=_v735;
+lglobal["*"]=runJTramp(_v734);
+})();
+(function () {
+var _v745;
+var _v746=function (_v747) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
+var _v748 = new Nil();
+for (var _v749 = arguments.length - 1; _v749 >= 1; _v749--) {
+  _v748 = new Cons(arguments[_v749], _v748);
 }
-var v711="(function (a, b) { return a ";
-var v712=v711;
-var v713=v709;
-var v714=lglobal["js:+"];
-var v715=v714;
-v715=runJTramp(v715);
-if (typeof v715 !== "function") {
+var _v750=lglobal["nil?"];
+if (_v750 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v751=_v750;
+_v751=runJTramp(_v751);
+if (typeof _v751 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v716=new JTramp(v715, [runJTramp(v712),runJTramp(v713)]);
-var v717=v716;
-var v718=" b; })";
-var v719=v718;
-var v720=lglobal["js:+"];
-var v721=v720;
-v721=runJTramp(v721);
-if (typeof v721 !== "function") {
+var _v752=new JTramp(_v751, [runJTramp(_v748)]);
+var _v753;
+if(runJTramp(_v752)) {
+var _v754=0;
+var _v755=_v754;
+var _v756=lglobal["js:-"];
+if (_v756 === undefined) { throw new Error("No such global: " + "js:-"); }
+var _v757=_v756;
+_v757=runJTramp(_v757);
+if (typeof _v757 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v722=new JTramp(v721, [runJTramp(v717),runJTramp(v719)]);
-var v723=v722;
-var v724=lglobal["ffi"];
-var v725=v724;
-v725=runJTramp(v725);
-if (typeof v725 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v726=new JTramp(v725, [runJTramp(v723)]);
-return v726;
-};
-v707=v708;
-lglobal["ffi-make-binop"]=runJTramp(v707);
-})();
-(function () {
-var v727;
-var v728="-";
-var v729=v728;
-var v730=lglobal["ffi-make-binop"];
-var v731=v730;
-v731=runJTramp(v731);
-if (typeof v731 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v732=new JTramp(v731, [runJTramp(v729)]);
-v727=v732;
-lglobal["js:-"]=runJTramp(v727);
-})();
-(function () {
-var v733;
-var v734="*";
-var v735=v734;
-var v736=lglobal["ffi-make-binop"];
-var v737=v736;
-v737=runJTramp(v737);
-if (typeof v737 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v738=new JTramp(v737, [runJTramp(v735)]);
-v733=v738;
-lglobal["js:*"]=runJTramp(v733);
-})();
-(function () {
-var v739;
-var v740="/";
-var v741=v740;
-var v742=lglobal["ffi-make-binop"];
-var v743=v742;
-v743=runJTramp(v743);
-if (typeof v743 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v744=new JTramp(v743, [runJTramp(v741)]);
-v739=v744;
-lglobal["js:/"]=runJTramp(v739);
-})();
-(function () {
-var v745;
-var v746="%";
-var v747=v746;
-var v748=lglobal["ffi-make-binop"];
-var v749=v748;
-v749=runJTramp(v749);
-if (typeof v749 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v750=new JTramp(v749, [runJTramp(v747)]);
-v745=v750;
-lglobal["js:%"]=runJTramp(v745);
-})();
-(function () {
-var v751;
-var v752="<";
-var v753=v752;
-var v754=lglobal["ffi-make-binop"];
-var v755=v754;
-v755=runJTramp(v755);
-if (typeof v755 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v756=new JTramp(v755, [runJTramp(v753)]);
-v751=v756;
-lglobal["js:<"]=runJTramp(v751);
-})();
-(function () {
-var v757;
-var v758=">";
-var v759=v758;
-var v760=lglobal["ffi-make-binop"];
-var v761=v760;
-v761=runJTramp(v761);
-if (typeof v761 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v762=new JTramp(v761, [runJTramp(v759)]);
-v757=v762;
-lglobal["js:>"]=runJTramp(v757);
-})();
-(function () {
-var v763;
-var v764="<=";
-var v765=v764;
-var v766=lglobal["ffi-make-binop"];
-var v767=v766;
-v767=runJTramp(v767);
-if (typeof v767 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v768=new JTramp(v767, [runJTramp(v765)]);
-v763=v768;
-lglobal["js:<="]=runJTramp(v763);
-})();
-(function () {
-var v769;
-var v770=">=";
-var v771=v770;
-var v772=lglobal["ffi-make-binop"];
-var v773=v772;
-v773=runJTramp(v773);
-if (typeof v773 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v774=new JTramp(v773, [runJTramp(v771)]);
-v769=v774;
-lglobal["js:>="]=runJTramp(v769);
-})();
-(function () {
-var v775;
-var v776="===";
-var v777=v776;
-var v778=lglobal["ffi-make-binop"];
-var v779=v778;
-v779=runJTramp(v779);
-if (typeof v779 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v780=new JTramp(v779, [runJTramp(v777)]);
-v775=v780;
-lglobal["js:==="]=runJTramp(v775);
-})();
-(function () {
-var v781;
-var v782="(function (a) { return \"\" + a; })";
-var v783=v782;
-var v784=lglobal["ffi"];
-var v785=v784;
-v785=runJTramp(v785);
-if (typeof v785 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v786=new JTramp(v785, [runJTramp(v783)]);
-v781=v786;
-lglobal["js:toString"]=runJTramp(v781);
-})();
-(function () {
-var v787;
-var v788="(function (a) { return +a; })";
-var v789=v788;
-var v790=lglobal["ffi"];
-var v791=v790;
-v791=runJTramp(v791);
-if (typeof v791 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v792=new JTramp(v791, [runJTramp(v789)]);
-v787=v792;
-lglobal["js:toNum"]=runJTramp(v787);
-})();
-(function () {
-var v793;
-var v794="(function (a) { return isNaN(a); })";
-var v795=v794;
-var v796=lglobal["ffi"];
-var v797=v796;
-v797=runJTramp(v797);
-if (typeof v797 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v798=new JTramp(v797, [runJTramp(v795)]);
-v793=v798;
-lglobal["NaN?"]=runJTramp(v793);
-})();
-(function () {
-var v799;
-var v800=lglobal["js:/"];
-v799=v800;
-lglobal["/"]=runJTramp(v799);
-})();
-(function () {
-var v801;
-var v802=lglobal["js:%"];
-v801=v802;
-lglobal["%"]=runJTramp(v801);
-})();
-(function () {
-var v803;
-var v804=lglobal["js:<"];
-v803=v804;
-lglobal["<"]=runJTramp(v803);
-})();
-(function () {
-var v805;
-var v806=lglobal["js:>"];
-v805=v806;
-lglobal[">"]=runJTramp(v805);
-})();
-(function () {
-var v807;
-var v808=lglobal["js:<="];
-v807=v808;
-lglobal["<="]=runJTramp(v807);
-})();
-(function () {
-var v809;
-var v810=lglobal["js:>="];
-v809=v810;
-lglobal[">="]=runJTramp(v809);
-})();
-(function () {
-var v811;
-var v812=lglobal["js:==="];
-v811=v812;
-lglobal["="]=runJTramp(v811);
-})();
-(function () {
-var v813;
-var v814="(function () {\n  return Array.prototype.join.call(arguments, '');\n})";
-var v815=v814;
-var v816=lglobal["ffi"];
-var v817=v816;
-v817=runJTramp(v817);
-if (typeof v817 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v818=new JTramp(v817, [runJTramp(v815)]);
-v813=v818;
-lglobal["++"]=runJTramp(v813);
-})();
-(function () {
-var v819;
-var v820=function () {
-var v821 = new Nil();
-for (var v822 = arguments.length - 1; v822 >= 0; v822--) {
-  v821 = new Cons(arguments[v822], v821);
-}
-var v823=lglobal["js:+"];
-var v824=v823;
-var v825=0;
-var v826=v825;
-var v827=v821;
-var v828=lglobal["foldl"];
-var v829=v828;
-v829=runJTramp(v829);
-if (typeof v829 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v830=new JTramp(v829, [runJTramp(v824),runJTramp(v826),runJTramp(v827)]);
-return v830;
-};
-v819=v820;
-lglobal["+"]=runJTramp(v819);
-})();
-(function () {
-var v831;
-var v832=function () {
-var v833 = new Nil();
-for (var v834 = arguments.length - 1; v834 >= 0; v834--) {
-  v833 = new Cons(arguments[v834], v833);
-}
-var v835=lglobal["js:*"];
-var v836=v835;
-var v837=1;
-var v838=v837;
-var v839=v833;
-var v840=lglobal["foldl"];
-var v841=v840;
-v841=runJTramp(v841);
-if (typeof v841 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v842=new JTramp(v841, [runJTramp(v836),runJTramp(v838),runJTramp(v839)]);
-return v842;
-};
-v831=v832;
-lglobal["*"]=runJTramp(v831);
-})();
-(function () {
-var v843;
-var v844=function (v845) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-var v846 = new Nil();
-for (var v847 = arguments.length - 1; v847 >= 1; v847--) {
-  v846 = new Cons(arguments[v847], v846);
-}
-var v848=v846;
-var v849=lglobal["nil?"];
-var v850=v849;
-v850=runJTramp(v850);
-if (typeof v850 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v851=new JTramp(v850, [runJTramp(v848)]);
-var v852;
-if(runJTramp(v851)) {
-var v853=0;
-var v854=v853;
-var v855=v845;
-var v856=lglobal["js:-"];
-var v857=v856;
-v857=runJTramp(v857);
-if (typeof v857 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v858=new JTramp(v857, [runJTramp(v854),runJTramp(v855)]);
-v852=v858;
+var _v758=new JTramp(_v757, [runJTramp(_v755),runJTramp(_v747)]);
+_v753=_v758;
 } else {
-var v859=v845;
-var v860=lglobal["+"];
-var v861=v860;
-var v862=v846;
-var v863=lglobal["apply"];
-var v864=v863;
-v864=runJTramp(v864);
-if (typeof v864 !== "function") {
+var _v759=lglobal["+"];
+if (_v759 === undefined) { throw new Error("No such global: " + "+"); }
+var _v760=_v759;
+var _v761=lglobal["apply"];
+if (_v761 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v762=_v761;
+_v762=runJTramp(_v762);
+if (typeof _v762 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v865=new JTramp(v864, [runJTramp(v861),runJTramp(v862)]);
-var v866=v865;
-var v867=lglobal["js:-"];
-var v868=v867;
-v868=runJTramp(v868);
-if (typeof v868 !== "function") {
+var _v763=new JTramp(_v762, [runJTramp(_v760),runJTramp(_v748)]);
+var _v764=_v763;
+var _v765=lglobal["js:-"];
+if (_v765 === undefined) { throw new Error("No such global: " + "js:-"); }
+var _v766=_v765;
+_v766=runJTramp(_v766);
+if (typeof _v766 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v869=new JTramp(v868, [runJTramp(v859),runJTramp(v866)]);
-v852=v869;
+var _v767=new JTramp(_v766, [runJTramp(_v747),runJTramp(_v764)]);
+_v753=_v767;
 }
-return v852;
+return _v753;
 };
-v843=v844;
-lglobal["-"]=runJTramp(v843);
+_v745=_v746;
+lglobal["-"]=runJTramp(_v745);
 })();
 (function () {
-var v870;
-var v871=function (v872,v873) {
+var _v768;
+var _v769=function (_v770,_v771) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v875=lglobal["cons"];
-var v876=v875;
-var v877=v873;
-var v878=v872;
-var v879=lglobal["foldr"];
-var v880=v879;
-v880=runJTramp(v880);
-if (typeof v880 !== "function") {
+var _v773=lglobal["cons"];
+if (_v773 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v774=_v773;
+var _v775=lglobal["foldr"];
+if (_v775 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v776=_v775;
+_v776=runJTramp(_v776);
+if (typeof _v776 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v881=new JTramp(v880, [runJTramp(v876),runJTramp(v877),runJTramp(v878)]);
-return v881;
+var _v777=new JTramp(_v776, [runJTramp(_v774),runJTramp(_v771),runJTramp(_v770)]);
+return _v777;
 };
-v870=v871;
-lglobal["append2"]=runJTramp(v870);
+_v768=_v769;
+lglobal["append2"]=runJTramp(_v768);
 })();
 (function () {
-var v882;
-var v883=function () {
-var v884 = new Nil();
-for (var v885 = arguments.length - 1; v885 >= 0; v885--) {
-  v884 = new Cons(arguments[v885], v884);
+var _v778;
+var _v779=function () {
+var _v780 = new Nil();
+for (var _v781 = arguments.length - 1; _v781 >= 0; _v781--) {
+  _v780 = new Cons(arguments[_v781], _v780);
 }
-var v886=lglobal["append2"];
-var v887=v886;
-var v888=new Nil();
-var v889=v888;
-var v890=v884;
-var v891=lglobal["foldr"];
-var v892=v891;
-v892=runJTramp(v892);
-if (typeof v892 !== "function") {
+var _v782=lglobal["append2"];
+if (_v782 === undefined) { throw new Error("No such global: " + "append2"); }
+var _v783=_v782;
+var _v784=new Nil();
+var _v785=_v784;
+var _v786=lglobal["foldr"];
+if (_v786 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v787=_v786;
+_v787=runJTramp(_v787);
+if (typeof _v787 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v893=new JTramp(v892, [runJTramp(v887),runJTramp(v889),runJTramp(v890)]);
-return v893;
+var _v788=new JTramp(_v787, [runJTramp(_v783),runJTramp(_v785),runJTramp(_v780)]);
+return _v788;
 };
-v882=v883;
-lglobal["append"]=runJTramp(v882);
+_v778=_v779;
+lglobal["append"]=runJTramp(_v778);
 })();
 (function () {
-var v894;
-var v895=function (v896,v897) {
+var _v789;
+var _v790=function (_v791,_v792) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v899=lglobal["append"];
-var v900=v899;
-var v901=v896;
-var v902=v897;
-var v903=lglobal["map"];
-var v904=v903;
-v904=runJTramp(v904);
-if (typeof v904 !== "function") {
+var _v794=lglobal["append"];
+if (_v794 === undefined) { throw new Error("No such global: " + "append"); }
+var _v795=_v794;
+var _v796=lglobal["map"];
+if (_v796 === undefined) { throw new Error("No such global: " + "map"); }
+var _v797=_v796;
+_v797=runJTramp(_v797);
+if (typeof _v797 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v905=new JTramp(v904, [runJTramp(v901),runJTramp(v902)]);
-var v906=v905;
-var v907=lglobal["apply"];
-var v908=v907;
-v908=runJTramp(v908);
-if (typeof v908 !== "function") {
+var _v798=new JTramp(_v797, [runJTramp(_v791),runJTramp(_v792)]);
+var _v799=_v798;
+var _v800=lglobal["apply"];
+if (_v800 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v801=_v800;
+_v801=runJTramp(_v801);
+if (typeof _v801 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v909=new JTramp(v908, [runJTramp(v900),runJTramp(v906)]);
-return v909;
+var _v802=new JTramp(_v801, [runJTramp(_v795),runJTramp(_v799)]);
+return _v802;
 };
-v894=v895;
-lglobal["map-append"]=runJTramp(v894);
+_v789=_v790;
+lglobal["map-append"]=runJTramp(_v789);
 })();
 (function () {
-var v910;
-var v911=function (v912,v913) {
+var _v803;
+var _v804=function (_v805,_v806) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v915=v913;
-var v916=lglobal["nil?"];
-var v917=v916;
-v917=runJTramp(v917);
-if (typeof v917 !== "function") {
+var _v808=lglobal["nil?"];
+if (_v808 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v809=_v808;
+_v809=runJTramp(_v809);
+if (typeof _v809 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v918=new JTramp(v917, [runJTramp(v915)]);
-var v919;
-if(runJTramp(v918)) {
-var v920=new Nil();
-v919=v920;
+var _v810=new JTramp(_v809, [runJTramp(_v806)]);
+var _v811;
+if(runJTramp(_v810)) {
+var _v812=new Nil();
+_v811=_v812;
 } else {
-var v921=v913;
-var v922=lglobal["tail"];
-var v923=v922;
-v923=runJTramp(v923);
-if (typeof v923 !== "function") {
+var _v813=lglobal["tail"];
+if (_v813 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v814=_v813;
+_v814=runJTramp(_v814);
+if (typeof _v814 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v924=new JTramp(v923, [runJTramp(v921)]);
-var v925=v924;
-var v926=lglobal["nil?"];
-var v927=v926;
-v927=runJTramp(v927);
-if (typeof v927 !== "function") {
+var _v815=new JTramp(_v814, [runJTramp(_v806)]);
+var _v816=_v815;
+var _v817=lglobal["nil?"];
+if (_v817 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v818=_v817;
+_v818=runJTramp(_v818);
+if (typeof _v818 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v928=new JTramp(v927, [runJTramp(v925)]);
-var v929;
-if(runJTramp(v928)) {
-v929=v913;
+var _v819=new JTramp(_v818, [runJTramp(_v816)]);
+var _v820;
+if(runJTramp(_v819)) {
+_v820=_v806;
 } else {
-var v930=lglobal["otherwise"];
-var v931;
-if(runJTramp(v930)) {
-var v932=v913;
-var v933=lglobal["head"];
-var v934=v933;
-v934=runJTramp(v934);
-if (typeof v934 !== "function") {
+var _v821=lglobal["otherwise"];
+if (_v821 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v822;
+if(runJTramp(_v821)) {
+var _v823=lglobal["head"];
+if (_v823 === undefined) { throw new Error("No such global: " + "head"); }
+var _v824=_v823;
+_v824=runJTramp(_v824);
+if (typeof _v824 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v935=new JTramp(v934, [runJTramp(v932)]);
-var v936=v935;
-var v937=v912;
-var v938=v912;
-var v939=v913;
-var v940=lglobal["tail"];
-var v941=v940;
-v941=runJTramp(v941);
-if (typeof v941 !== "function") {
+var _v825=new JTramp(_v824, [runJTramp(_v806)]);
+var _v826=_v825;
+var _v827=lglobal["tail"];
+if (_v827 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v828=_v827;
+_v828=runJTramp(_v828);
+if (typeof _v828 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v942=new JTramp(v941, [runJTramp(v939)]);
-var v943=v942;
-var v944=lglobal["intercalate"];
-var v945=v944;
-v945=runJTramp(v945);
-if (typeof v945 !== "function") {
+var _v829=new JTramp(_v828, [runJTramp(_v806)]);
+var _v830=_v829;
+var _v831=lglobal["intercalate"];
+if (_v831 === undefined) { throw new Error("No such global: " + "intercalate"); }
+var _v832=_v831;
+_v832=runJTramp(_v832);
+if (typeof _v832 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v946=new JTramp(v945, [runJTramp(v938),runJTramp(v943)]);
-var v947=v946;
-var v948=lglobal["cons"];
-var v949=v948;
-v949=runJTramp(v949);
-if (typeof v949 !== "function") {
+var _v833=new JTramp(_v832, [runJTramp(_v805),runJTramp(_v830)]);
+var _v834=_v833;
+var _v835=lglobal["cons"];
+if (_v835 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v836=_v835;
+_v836=runJTramp(_v836);
+if (typeof _v836 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v950=new JTramp(v949, [runJTramp(v937),runJTramp(v947)]);
-var v951=v950;
-var v952=lglobal["cons"];
-var v953=v952;
-v953=runJTramp(v953);
-if (typeof v953 !== "function") {
+var _v837=new JTramp(_v836, [runJTramp(_v805),runJTramp(_v834)]);
+var _v838=_v837;
+var _v839=lglobal["cons"];
+if (_v839 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v840=_v839;
+_v840=runJTramp(_v840);
+if (typeof _v840 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v954=new JTramp(v953, [runJTramp(v936),runJTramp(v951)]);
-v931=v954;
+var _v841=new JTramp(_v840, [runJTramp(_v826),runJTramp(_v838)]);
+_v822=_v841;
 } else {
-var v955=null;
-v931=v955;
+var _v842=null;
+_v822=_v842;
 }
-v929=v931;
+_v820=_v822;
 }
-v919=v929;
+_v811=_v820;
 }
-return v919;
+return _v811;
 };
-v910=v911;
-lglobal["intercalate"]=runJTramp(v910);
+_v803=_v804;
+lglobal["intercalate"]=runJTramp(_v803);
 })();
 (function () {
-var v956;
-var v957=0;
-var v958=v957;
-var v959=function (v960) {
+var _v843;
+var _v844=0;
+var _v845=_v844;
+var _v846=function (_v847) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v962=function () {
+var _v849=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v964=1;
-var v965=v964;
-var v966=v960;
-var v967=lglobal["+"];
-var v968=v967;
-v968=runJTramp(v968);
-if (typeof v968 !== "function") {
+var _v851=1;
+var _v852=_v851;
+var _v853=lglobal["+"];
+if (_v853 === undefined) { throw new Error("No such global: " + "+"); }
+var _v854=_v853;
+_v854=runJTramp(_v854);
+if (typeof _v854 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v969=new JTramp(v968, [runJTramp(v965),runJTramp(v966)]);
-var v970=v960=runJTramp(v969);
-v970=runJTramp(v970);
-var v971="#gensym#";
-var v972=v971;
-var v973=v960;
-var v974=lglobal["++"];
-var v975=v974;
-v975=runJTramp(v975);
-if (typeof v975 !== "function") {
+var _v855=new JTramp(_v854, [runJTramp(_v852),runJTramp(_v847)]);
+var _v856=_v847=runJTramp(_v855);
+_v856=runJTramp(_v856);
+var _v857="#gensym#";
+var _v858=_v857;
+var _v859=lglobal["++"];
+if (_v859 === undefined) { throw new Error("No such global: " + "++"); }
+var _v860=_v859;
+_v860=runJTramp(_v860);
+if (typeof _v860 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v976=new JTramp(v975, [runJTramp(v972),runJTramp(v973)]);
-return v976;
+var _v861=new JTramp(_v860, [runJTramp(_v858),runJTramp(_v847)]);
+return _v861;
 };
-return v962;
+return _v849;
 };
-var v977=v959;
-v977=runJTramp(v977);
-if (typeof v977 !== "function") {
+var _v862=_v846;
+_v862=runJTramp(_v862);
+if (typeof _v862 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v978=new JTramp(v977, [runJTramp(v958)]);
-v956=v978;
-lglobal["gensym"]=runJTramp(v956);
+var _v863=new JTramp(_v862, [runJTramp(_v845)]);
+_v843=_v863;
+lglobal["gensym"]=runJTramp(_v843);
 })();
 (function () {
-var v979;
-var v980="(function (s) {\n  return s.length;\n})";
-var v981=v980;
-var v982=lglobal["ffi"];
-var v983=v982;
-v983=runJTramp(v983);
-if (typeof v983 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v984=new JTramp(v983, [runJTramp(v981)]);
-v979=v984;
-lglobal["s:length"]=runJTramp(v979);
+var _v864;
+var _v865=((function (s) {
+  return s.length;
+}));
+_v864=_v865;
+lglobal["s:length"]=runJTramp(_v864);
 })();
 (function () {
-var v985;
-var v986="(function (s, i) {\n  return s.charAt(i);\n})";
-var v987=v986;
-var v988=lglobal["ffi"];
-var v989=v988;
-v989=runJTramp(v989);
-if (typeof v989 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v990=new JTramp(v989, [runJTramp(v987)]);
-v985=v990;
-lglobal["s:charAt"]=runJTramp(v985);
+var _v866;
+var _v867=((function (s, i) {
+  return s.charAt(i);
+}));
+_v866=_v867;
+lglobal["s:charAt"]=runJTramp(_v866);
 })();
 (function () {
-var v991;
-var v992="(function (s, i) {\n  return s.charCodeAt(i);\n})";
-var v993=v992;
-var v994=lglobal["ffi"];
-var v995=v994;
-v995=runJTramp(v995);
-if (typeof v995 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v996=new JTramp(v995, [runJTramp(v993)]);
-v991=v996;
-lglobal["s:charCodeAt"]=runJTramp(v991);
+var _v868;
+var _v869=((function (s, i) {
+  return s.charCodeAt(i);
+}));
+_v868=_v869;
+lglobal["s:charCodeAt"]=runJTramp(_v868);
 })();
 (function () {
-var v997;
-var v998="(function (s) {\n  var args = _.toArray(arguments);\n  args.shift();\n  return s.slice.apply(s, args);\n})";
-var v999=v998;
-var v1000=lglobal["ffi"];
-var v1001=v1000;
-v1001=runJTramp(v1001);
-if (typeof v1001 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1002=new JTramp(v1001, [runJTramp(v999)]);
-v997=v1002;
-lglobal["s:slice"]=runJTramp(v997);
+var _v870;
+var _v871=((function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.slice.apply(s, args);
+}));
+_v870=_v871;
+lglobal["s:slice"]=runJTramp(_v870);
 })();
 (function () {
-var v1003;
-var v1004="(function (s) {\n  var args = _.toArray(arguments);\n  args.shift();\n  return s.indexOf.apply(s, args);\n})";
-var v1005=v1004;
-var v1006=lglobal["ffi"];
-var v1007=v1006;
-v1007=runJTramp(v1007);
-if (typeof v1007 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1008=new JTramp(v1007, [runJTramp(v1005)]);
-v1003=v1008;
-lglobal["s:indexOf"]=runJTramp(v1003);
+var _v872;
+var _v873=((function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.indexOf.apply(s, args);
+}));
+_v872=_v873;
+lglobal["s:indexOf"]=runJTramp(_v872);
 })();
 (function () {
-var v1009;
-var v1010="String.fromCharCode";
-var v1011=v1010;
-var v1012=lglobal["ffi"];
-var v1013=v1012;
-v1013=runJTramp(v1013);
-if (typeof v1013 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1014=new JTramp(v1013, [runJTramp(v1011)]);
-v1009=v1014;
-lglobal["s:fromCharCode"]=runJTramp(v1009);
+var _v874;
+var _v875=(String.fromCharCode);
+_v874=_v875;
+lglobal["s:fromCharCode"]=runJTramp(_v874);
 })();
 (function () {
-var v1015;
-var v1016="(function (s) {\n  var args = _.toArray(arguments);\n  args.shift();\n  var ret = new Nil();\n  var split = s.split.apply(s, args);\n  for (var i = split.length - 1; i >= 0; i--) {\n    ret = new Cons(split[i], ret);\n  }\n  return ret;\n})";
-var v1017=v1016;
-var v1018=lglobal["ffi"];
-var v1019=v1018;
-v1019=runJTramp(v1019);
-if (typeof v1019 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1020=new JTramp(v1019, [runJTramp(v1017)]);
-v1015=v1020;
-lglobal["s:split"]=runJTramp(v1015);
+var _v876;
+var _v877=((function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  var ret = new Nil();
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
+}));
+_v876=_v877;
+lglobal["s:split"]=runJTramp(_v876);
 })();
 (function () {
-var v1021;
-var v1022=function (v1023,v1024) {
+var _v878;
+var _v879=function (_v880,_v881) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1026=v1024;
-var v1027=lglobal["nil?"];
-var v1028=v1027;
-v1028=runJTramp(v1028);
-if (typeof v1028 !== "function") {
+var _v883=lglobal["nil?"];
+if (_v883 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v884=_v883;
+_v884=runJTramp(_v884);
+if (typeof _v884 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1029=new JTramp(v1028, [runJTramp(v1026)]);
-var v1030;
-if(runJTramp(v1029)) {
-var v1031="";
-v1030=v1031;
+var _v885=new JTramp(_v884, [runJTramp(_v881)]);
+var _v886;
+if(runJTramp(_v885)) {
+var _v887="";
+_v886=_v887;
 } else {
-var v1032=v1024;
-var v1033=lglobal["tail"];
-var v1034=v1033;
-v1034=runJTramp(v1034);
-if (typeof v1034 !== "function") {
+var _v888=lglobal["tail"];
+if (_v888 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v889=_v888;
+_v889=runJTramp(_v889);
+if (typeof _v889 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1035=new JTramp(v1034, [runJTramp(v1032)]);
-var v1036=v1035;
-var v1037=lglobal["nil?"];
-var v1038=v1037;
-v1038=runJTramp(v1038);
-if (typeof v1038 !== "function") {
+var _v890=new JTramp(_v889, [runJTramp(_v881)]);
+var _v891=_v890;
+var _v892=lglobal["nil?"];
+if (_v892 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v893=_v892;
+_v893=runJTramp(_v893);
+if (typeof _v893 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1039=new JTramp(v1038, [runJTramp(v1036)]);
-var v1040;
-if(runJTramp(v1039)) {
-var v1041=v1024;
-var v1042=lglobal["head"];
-var v1043=v1042;
-v1043=runJTramp(v1043);
-if (typeof v1043 !== "function") {
+var _v894=new JTramp(_v893, [runJTramp(_v891)]);
+var _v895;
+if(runJTramp(_v894)) {
+var _v896=lglobal["head"];
+if (_v896 === undefined) { throw new Error("No such global: " + "head"); }
+var _v897=_v896;
+_v897=runJTramp(_v897);
+if (typeof _v897 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1044=new JTramp(v1043, [runJTramp(v1041)]);
-v1040=v1044;
+var _v898=new JTramp(_v897, [runJTramp(_v881)]);
+_v895=_v898;
 } else {
-var v1045=lglobal["otherwise"];
-var v1046;
-if(runJTramp(v1045)) {
-var v1047=v1024;
-var v1048=lglobal["head"];
-var v1049=v1048;
-v1049=runJTramp(v1049);
-if (typeof v1049 !== "function") {
+var _v899=lglobal["otherwise"];
+if (_v899 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v900;
+if(runJTramp(_v899)) {
+var _v901=lglobal["head"];
+if (_v901 === undefined) { throw new Error("No such global: " + "head"); }
+var _v902=_v901;
+_v902=runJTramp(_v902);
+if (typeof _v902 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1050=new JTramp(v1049, [runJTramp(v1047)]);
-var v1051=v1050;
-var v1052=v1023;
-var v1053=v1023;
-var v1054=v1024;
-var v1055=lglobal["tail"];
-var v1056=v1055;
-v1056=runJTramp(v1056);
-if (typeof v1056 !== "function") {
+var _v903=new JTramp(_v902, [runJTramp(_v881)]);
+var _v904=_v903;
+var _v905=lglobal["tail"];
+if (_v905 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v906=_v905;
+_v906=runJTramp(_v906);
+if (typeof _v906 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1057=new JTramp(v1056, [runJTramp(v1054)]);
-var v1058=v1057;
-var v1059=lglobal["s:join"];
-var v1060=v1059;
-v1060=runJTramp(v1060);
-if (typeof v1060 !== "function") {
+var _v907=new JTramp(_v906, [runJTramp(_v881)]);
+var _v908=_v907;
+var _v909=lglobal["s:join"];
+if (_v909 === undefined) { throw new Error("No such global: " + "s:join"); }
+var _v910=_v909;
+_v910=runJTramp(_v910);
+if (typeof _v910 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1061=new JTramp(v1060, [runJTramp(v1053),runJTramp(v1058)]);
-var v1062=v1061;
-var v1063=lglobal["++"];
-var v1064=v1063;
-v1064=runJTramp(v1064);
-if (typeof v1064 !== "function") {
+var _v911=new JTramp(_v910, [runJTramp(_v880),runJTramp(_v908)]);
+var _v912=_v911;
+var _v913=lglobal["++"];
+if (_v913 === undefined) { throw new Error("No such global: " + "++"); }
+var _v914=_v913;
+_v914=runJTramp(_v914);
+if (typeof _v914 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1065=new JTramp(v1064, [runJTramp(v1051),runJTramp(v1052),runJTramp(v1062)]);
-v1046=v1065;
+var _v915=new JTramp(_v914, [runJTramp(_v904),runJTramp(_v880),runJTramp(_v912)]);
+_v900=_v915;
 } else {
-var v1066=null;
-v1046=v1066;
+var _v916=null;
+_v900=_v916;
 }
-v1040=v1046;
+_v895=_v900;
 }
-v1030=v1040;
+_v886=_v895;
 }
-return v1030;
+return _v886;
 };
-v1021=v1022;
-lglobal["s:join"]=runJTramp(v1021);
+_v878=_v879;
+lglobal["s:join"]=runJTramp(_v878);
 })();
 (function () {
-var v1067;
-var v1068="function Dict () {}; Dict";
-var v1069=v1068;
-var v1070=lglobal["ffi"];
-var v1071=v1070;
-v1071=runJTramp(v1071);
-if (typeof v1071 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1072=new JTramp(v1071, [runJTramp(v1069)]);
-v1067=v1072;
-lglobal["js:dictConst"]=runJTramp(v1067);
+var _v917;
+function Dict () {};
+_v917=Dict;
+lglobal["js:dictConst"]=runJTramp(_v917);
 })();
 (function () {
-var v1073;
-var v1074=lglobal["js:dictConst"];
-var v1075=v1074;
-var v1076="(function (con) {\n  return function () { return new con(); };\n})";
-var v1077=v1076;
-var v1078=lglobal["ffi"];
-var v1079=v1078;
-v1079=runJTramp(v1079);
-if (typeof v1079 !== "function") {
+var _v918;
+var _v919=lglobal["js:dictConst"];
+if (_v919 === undefined) { throw new Error("No such global: " + "js:dictConst"); }
+var _v920=_v919;
+var _v921=((function (con) {
+  return function () { return new con(); };
+}));
+var _v922=_v921;
+_v922=runJTramp(_v922);
+if (typeof _v922 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1080=new JTramp(v1079, [runJTramp(v1077)]);
-var v1081=v1080;
-v1081=runJTramp(v1081);
-if (typeof v1081 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1082=new JTramp(v1081, [runJTramp(v1075)]);
-v1073=v1082;
-lglobal["js:makeDict"]=runJTramp(v1073);
+var _v923=new JTramp(_v922, [runJTramp(_v920)]);
+_v918=_v923;
+lglobal["js:makeDict"]=runJTramp(_v918);
 })();
 (function () {
-var v1083;
-var v1084=lglobal["js:dictConst"];
-var v1085=v1084;
-var v1086="(function (con) {\n  return function (a) { return a instanceof con; };\n})";
-var v1087=v1086;
-var v1088=lglobal["ffi"];
-var v1089=v1088;
-v1089=runJTramp(v1089);
-if (typeof v1089 !== "function") {
+var _v924;
+var _v925=lglobal["js:dictConst"];
+if (_v925 === undefined) { throw new Error("No such global: " + "js:dictConst"); }
+var _v926=_v925;
+var _v927=((function (con) {
+  return function (a) { return a instanceof con; };
+}));
+var _v928=_v927;
+_v928=runJTramp(_v928);
+if (typeof _v928 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1090=new JTramp(v1089, [runJTramp(v1087)]);
-var v1091=v1090;
-v1091=runJTramp(v1091);
-if (typeof v1091 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1092=new JTramp(v1091, [runJTramp(v1085)]);
-v1083=v1092;
-lglobal["dict?"]=runJTramp(v1083);
+var _v929=new JTramp(_v928, [runJTramp(_v926)]);
+_v924=_v929;
+lglobal["dict?"]=runJTramp(_v924);
 })();
 (function () {
-var v1093;
-var v1094="(function (o, k, def) {\n  if (_.has(o, k)) {\n    return o[k];\n  } else if (def === undefined) {\n    throw new Error(\"Key error: \" + k);\n  } else {\n    return def;\n  }\n})";
-var v1095=v1094;
-var v1096=lglobal["ffi"];
-var v1097=v1096;
-v1097=runJTramp(v1097);
-if (typeof v1097 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1098=new JTramp(v1097, [runJTramp(v1095)]);
-v1093=v1098;
-lglobal["dict:get"]=runJTramp(v1093);
+var _v930;
+var _v931=((function (o, k, def) {
+  if (_.has(o, k)) {
+    return o[k];
+  } else if (def === undefined) {
+    throw new Error("Key error: " + k);
+  } else {
+    return def;
+  }
+}));
+_v930=_v931;
+lglobal["dict:get"]=runJTramp(_v930);
 })();
 (function () {
-var v1099;
-var v1100="(function (o, k, v) {\n  if (v === undefined) {\n    throw new Error(\"Not enough arguments passed to dict:set!\");\n  }\n  o[k] = v;\n  return null;\n})";
-var v1101=v1100;
-var v1102=lglobal["ffi"];
-var v1103=v1102;
-v1103=runJTramp(v1103);
-if (typeof v1103 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1104=new JTramp(v1103, [runJTramp(v1101)]);
-v1099=v1104;
-lglobal["dict:set!"]=runJTramp(v1099);
+var _v932;
+var _v933=((function (o, k, v) {
+  if (v === undefined) {
+    throw new Error("Not enough arguments passed to dict:set!");
+  }
+  o[k] = v;
+  return null;
+}));
+_v932=_v933;
+lglobal["dict:set!"]=runJTramp(_v932);
 })();
 (function () {
-var v1105;
-var v1106="(function (o, k) {\n  return _.has(o, k);\n})";
-var v1107=v1106;
-var v1108=lglobal["ffi"];
-var v1109=v1108;
-v1109=runJTramp(v1109);
-if (typeof v1109 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1110=new JTramp(v1109, [runJTramp(v1107)]);
-v1105=v1110;
-lglobal["dict:has?"]=runJTramp(v1105);
+var _v934;
+var _v935=((function (o, k) {
+  return _.has(o, k);
+}));
+_v934=_v935;
+lglobal["dict:has?"]=runJTramp(_v934);
 })();
 (function () {
-var v1111;
-var v1112=function () {
-var v1113 = new Nil();
-for (var v1115 = arguments.length - 1; v1115 >= 0; v1115--) {
-  v1113 = new Cons(arguments[v1115], v1113);
+var _v936;
+var _v937=function () {
+var _v938 = new Nil();
+for (var _v940 = arguments.length - 1; _v940 >= 0; _v940--) {
+  _v938 = new Cons(arguments[_v940], _v938);
 }
-var v1114;
-var v1116=function (v1117,v1118) {
+var _v939;
+var _v941=function (_v942,_v943) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1120=v1118;
-var v1121=lglobal["nil?"];
-var v1122=v1121;
-v1122=runJTramp(v1122);
-if (typeof v1122 !== "function") {
+var _v945=lglobal["nil?"];
+if (_v945 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v946=_v945;
+_v946=runJTramp(_v946);
+if (typeof _v946 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1123=new JTramp(v1122, [runJTramp(v1120)]);
-var v1124=v1123;
-var v1125=lglobal["not"];
-var v1126=v1125;
-v1126=runJTramp(v1126);
-if (typeof v1126 !== "function") {
+var _v947=new JTramp(_v946, [runJTramp(_v943)]);
+var _v948=_v947;
+var _v949=lglobal["not"];
+if (_v949 === undefined) { throw new Error("No such global: " + "not"); }
+var _v950=_v949;
+_v950=runJTramp(_v950);
+if (typeof _v950 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1127=new JTramp(v1126, [runJTramp(v1124)]);
-var v1128;
-if(runJTramp(v1127)) {
-var v1129=v1117;
-var v1130=v1118;
-var v1131=lglobal["head"];
-var v1132=v1131;
-v1132=runJTramp(v1132);
-if (typeof v1132 !== "function") {
+var _v951=new JTramp(_v950, [runJTramp(_v948)]);
+var _v952;
+if(runJTramp(_v951)) {
+var _v953=lglobal["head"];
+if (_v953 === undefined) { throw new Error("No such global: " + "head"); }
+var _v954=_v953;
+_v954=runJTramp(_v954);
+if (typeof _v954 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1133=new JTramp(v1132, [runJTramp(v1130)]);
-var v1134=v1133;
-var v1135=v1118;
-var v1136=lglobal["tail"];
-var v1137=v1136;
-v1137=runJTramp(v1137);
-if (typeof v1137 !== "function") {
+var _v955=new JTramp(_v954, [runJTramp(_v943)]);
+var _v956=_v955;
+var _v957=lglobal["tail"];
+if (_v957 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v958=_v957;
+_v958=runJTramp(_v958);
+if (typeof _v958 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1138=new JTramp(v1137, [runJTramp(v1135)]);
-var v1139=v1138;
-var v1140=lglobal["head"];
-var v1141=v1140;
-v1141=runJTramp(v1141);
-if (typeof v1141 !== "function") {
+var _v959=new JTramp(_v958, [runJTramp(_v943)]);
+var _v960=_v959;
+var _v961=lglobal["head"];
+if (_v961 === undefined) { throw new Error("No such global: " + "head"); }
+var _v962=_v961;
+_v962=runJTramp(_v962);
+if (typeof _v962 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1142=new JTramp(v1141, [runJTramp(v1139)]);
-var v1143=v1142;
-var v1144=lglobal["dict:set!"];
-var v1145=v1144;
-v1145=runJTramp(v1145);
-if (typeof v1145 !== "function") {
+var _v963=new JTramp(_v962, [runJTramp(_v960)]);
+var _v964=_v963;
+var _v965=lglobal["dict:set!"];
+if (_v965 === undefined) { throw new Error("No such global: " + "dict:set!"); }
+var _v966=_v965;
+_v966=runJTramp(_v966);
+if (typeof _v966 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1146=new JTramp(v1145, [runJTramp(v1129),runJTramp(v1134),runJTramp(v1143)]);
-v1146=runJTramp(v1146);
-var v1147=v1117;
-var v1148=v1118;
-var v1149=lglobal["tail"];
-var v1150=v1149;
-v1150=runJTramp(v1150);
-if (typeof v1150 !== "function") {
+var _v967=new JTramp(_v966, [runJTramp(_v942),runJTramp(_v956),runJTramp(_v964)]);
+_v967=runJTramp(_v967);
+var _v968=lglobal["tail"];
+if (_v968 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v969=_v968;
+_v969=runJTramp(_v969);
+if (typeof _v969 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1151=new JTramp(v1150, [runJTramp(v1148)]);
-var v1152=v1151;
-var v1153=lglobal["tail"];
-var v1154=v1153;
-v1154=runJTramp(v1154);
-if (typeof v1154 !== "function") {
+var _v970=new JTramp(_v969, [runJTramp(_v943)]);
+var _v971=_v970;
+var _v972=lglobal["tail"];
+if (_v972 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v973=_v972;
+_v973=runJTramp(_v973);
+if (typeof _v973 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1155=new JTramp(v1154, [runJTramp(v1152)]);
-var v1156=v1155;
-var v1157=v1114;
-v1157=runJTramp(v1157);
-if (typeof v1157 !== "function") {
+var _v974=new JTramp(_v973, [runJTramp(_v971)]);
+var _v975=_v974;
+_v939=runJTramp(_v939);
+if (typeof _v939 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1158=new JTramp(v1157, [runJTramp(v1147),runJTramp(v1156)]);
-v1128=v1158;
+var _v976=new JTramp(_v939, [runJTramp(_v942),runJTramp(_v975)]);
+_v952=_v976;
 } else {
-var v1159=null;
-v1128=v1159;
+var _v977=null;
+_v952=_v977;
 }
-return v1128;
+return _v952;
 };
-var v1160=v1114=runJTramp(v1116);
-var v1161=lglobal["js:makeDict"];
-var v1162=v1161;
-v1162=runJTramp(v1162);
-if (typeof v1162 !== "function") {
+var _v978=_v939=runJTramp(_v941);
+var _v979=lglobal["js:makeDict"];
+if (_v979 === undefined) { throw new Error("No such global: " + "js:makeDict"); }
+var _v980=_v979;
+_v980=runJTramp(_v980);
+if (typeof _v980 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1163=new JTramp(v1162, []);
-var v1164=v1163;
-var v1165=function (v1166) {
+var _v981=new JTramp(_v980, []);
+var _v982=_v981;
+var _v983=function (_v984) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1168=v1166;
-var v1169=v1113;
-var v1170=v1114;
-v1170=runJTramp(v1170);
-if (typeof v1170 !== "function") {
+_v939=runJTramp(_v939);
+if (typeof _v939 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1171=new JTramp(v1170, [runJTramp(v1168),runJTramp(v1169)]);
-v1171=runJTramp(v1171);
-return v1166;
+var _v986=new JTramp(_v939, [runJTramp(_v984),runJTramp(_v938)]);
+_v986=runJTramp(_v986);
+return _v984;
 };
-var v1172=v1165;
-v1172=runJTramp(v1172);
-if (typeof v1172 !== "function") {
+var _v987=_v983;
+_v987=runJTramp(_v987);
+if (typeof _v987 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1173=new JTramp(v1172, [runJTramp(v1164)]);
-return v1173;
+var _v988=new JTramp(_v987, [runJTramp(_v982)]);
+return _v988;
 };
-v1111=v1112;
-lglobal["dict"]=runJTramp(v1111);
+_v936=_v937;
+lglobal["dict"]=runJTramp(_v936);
 })();
 (function () {
-var v1278;
-var v1279=function (v1280) {
+var _v1081;
+var _v1082=function (_v1083) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1282;
-if(runJTramp(v1280)) {
-var v1283=lglobal["false"];
-v1282=v1283;
+var _v1085;
+if(runJTramp(_v1083)) {
+var _v1086=lglobal["false"];
+if (_v1086 === undefined) { throw new Error("No such global: " + "false"); }
+_v1085=_v1086;
 } else {
-var v1284=lglobal["true"];
-v1282=v1284;
+var _v1087=lglobal["true"];
+if (_v1087 === undefined) { throw new Error("No such global: " + "true"); }
+_v1085=_v1087;
 }
-return v1282;
+return _v1085;
 };
-v1278=v1279;
-lglobal["not"]=runJTramp(v1278);
+_v1081=_v1082;
+lglobal["not"]=runJTramp(_v1081);
 })();
 (function () {
-var v1285;
-var v1286=function (v1287,v1288) {
+var _v1088;
+var _v1089=function (_v1090,_v1091) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1290=v1287;
-var v1291=v1288;
-var v1292=lglobal["="];
-var v1293=v1292;
-v1293=runJTramp(v1293);
-if (typeof v1293 !== "function") {
+var _v1093=lglobal["="];
+if (_v1093 === undefined) { throw new Error("No such global: " + "="); }
+var _v1094=_v1093;
+_v1094=runJTramp(_v1094);
+if (typeof _v1094 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1294=new JTramp(v1293, [runJTramp(v1290),runJTramp(v1291)]);
-var v1295=v1294;
-var v1296=lglobal["not"];
-var v1297=v1296;
-v1297=runJTramp(v1297);
-if (typeof v1297 !== "function") {
+var _v1095=new JTramp(_v1094, [runJTramp(_v1090),runJTramp(_v1091)]);
+var _v1096=_v1095;
+var _v1097=lglobal["not"];
+if (_v1097 === undefined) { throw new Error("No such global: " + "not"); }
+var _v1098=_v1097;
+_v1098=runJTramp(_v1098);
+if (typeof _v1098 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1298=new JTramp(v1297, [runJTramp(v1295)]);
-return v1298;
+var _v1099=new JTramp(_v1098, [runJTramp(_v1096)]);
+return _v1099;
 };
-v1285=v1286;
-lglobal["!="]=runJTramp(v1285);
+_v1088=_v1089;
+lglobal["!="]=runJTramp(_v1088);
 })();
 (function () {
-var v1299;
-var v1300=function (v1301) {
+var _v1100;
+var _v1101=function (_v1102) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1303=v1301;
-var v1304=lglobal["head"];
-var v1305=v1304;
-v1305=runJTramp(v1305);
-if (typeof v1305 !== "function") {
+var _v1104=lglobal["head"];
+if (_v1104 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1105=_v1104;
+_v1105=runJTramp(_v1105);
+if (typeof _v1105 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1306=new JTramp(v1305, [runJTramp(v1303)]);
-var v1307=v1306;
-var v1308=function (v1309) {
+var _v1106=new JTramp(_v1105, [runJTramp(_v1102)]);
+var _v1107=_v1106;
+var _v1108=function (_v1109) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1311;
-if(runJTramp(v1309)) {
-var v1312=v1301;
-var v1313=lglobal["tail"];
-var v1314=v1313;
-v1314=runJTramp(v1314);
-if (typeof v1314 !== "function") {
+var _v1111;
+if(runJTramp(_v1109)) {
+var _v1112=lglobal["tail"];
+if (_v1112 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1113=_v1112;
+_v1113=runJTramp(_v1113);
+if (typeof _v1113 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1315=new JTramp(v1314, [runJTramp(v1312)]);
-var v1316=v1315;
-var v1317=lglobal["all"];
-var v1318=v1317;
-v1318=runJTramp(v1318);
-if (typeof v1318 !== "function") {
+var _v1114=new JTramp(_v1113, [runJTramp(_v1102)]);
+var _v1115=_v1114;
+var _v1116=lglobal["all"];
+if (_v1116 === undefined) { throw new Error("No such global: " + "all"); }
+var _v1117=_v1116;
+_v1117=runJTramp(_v1117);
+if (typeof _v1117 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1319=new JTramp(v1318, [runJTramp(v1316)]);
-v1311=v1319;
+var _v1118=new JTramp(_v1117, [runJTramp(_v1115)]);
+_v1111=_v1118;
 } else {
-v1311=v1309;
+_v1111=_v1109;
 }
-return v1311;
+return _v1111;
 };
-var v1320=v1308;
-v1320=runJTramp(v1320);
-if (typeof v1320 !== "function") {
+var _v1119=_v1108;
+_v1119=runJTramp(_v1119);
+if (typeof _v1119 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1321=new JTramp(v1320, [runJTramp(v1307)]);
-return v1321;
+var _v1120=new JTramp(_v1119, [runJTramp(_v1107)]);
+return _v1120;
 };
-v1299=v1300;
-lglobal["all"]=runJTramp(v1299);
+_v1100=_v1101;
+lglobal["all"]=runJTramp(_v1100);
 })();
 (function () {
-var v1322;
-var v1323=function (v1324) {
+var _v1121;
+var _v1122=function (_v1123) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1326=v1324;
-var v1327=lglobal["head"];
-var v1328=v1327;
-v1328=runJTramp(v1328);
-if (typeof v1328 !== "function") {
+var _v1125=lglobal["head"];
+if (_v1125 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1126=_v1125;
+_v1126=runJTramp(_v1126);
+if (typeof _v1126 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1329=new JTramp(v1328, [runJTramp(v1326)]);
-var v1330=v1329;
-var v1331=function (v1332) {
+var _v1127=new JTramp(_v1126, [runJTramp(_v1123)]);
+var _v1128=_v1127;
+var _v1129=function (_v1130) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1334;
-if(runJTramp(v1332)) {
-v1334=v1332;
+var _v1132;
+if(runJTramp(_v1130)) {
+_v1132=_v1130;
 } else {
-var v1335=v1324;
-var v1336=lglobal["tail"];
-var v1337=v1336;
-v1337=runJTramp(v1337);
-if (typeof v1337 !== "function") {
+var _v1133=lglobal["tail"];
+if (_v1133 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1134=_v1133;
+_v1134=runJTramp(_v1134);
+if (typeof _v1134 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1338=new JTramp(v1337, [runJTramp(v1335)]);
-var v1339=v1338;
-var v1340=lglobal["any"];
-var v1341=v1340;
-v1341=runJTramp(v1341);
-if (typeof v1341 !== "function") {
+var _v1135=new JTramp(_v1134, [runJTramp(_v1123)]);
+var _v1136=_v1135;
+var _v1137=lglobal["any"];
+if (_v1137 === undefined) { throw new Error("No such global: " + "any"); }
+var _v1138=_v1137;
+_v1138=runJTramp(_v1138);
+if (typeof _v1138 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1342=new JTramp(v1341, [runJTramp(v1339)]);
-v1334=v1342;
+var _v1139=new JTramp(_v1138, [runJTramp(_v1136)]);
+_v1132=_v1139;
 }
-return v1334;
+return _v1132;
 };
-var v1343=v1331;
-v1343=runJTramp(v1343);
-if (typeof v1343 !== "function") {
+var _v1140=_v1129;
+_v1140=runJTramp(_v1140);
+if (typeof _v1140 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1344=new JTramp(v1343, [runJTramp(v1330)]);
-return v1344;
+var _v1141=new JTramp(_v1140, [runJTramp(_v1128)]);
+return _v1141;
 };
-v1322=v1323;
-lglobal["any"]=runJTramp(v1322);
+_v1121=_v1122;
+lglobal["any"]=runJTramp(_v1121);
 })();
 (function () {
-var v1345;
-var v1346=function (v1347) {
+var _v1142;
+var _v1143=function (_v1144) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1349;
-var v1350=function (v1351,v1352) {
+var _v1146;
+var _v1147=function (_v1148,_v1149) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1354=v1351;
-var v1355=lglobal["nil?"];
-var v1356=v1355;
-v1356=runJTramp(v1356);
-if (typeof v1356 !== "function") {
+var _v1151=lglobal["nil?"];
+if (_v1151 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1152=_v1151;
+_v1152=runJTramp(_v1152);
+if (typeof _v1152 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1357=new JTramp(v1356, [runJTramp(v1354)]);
-var v1358;
-if(runJTramp(v1357)) {
-v1358=v1352;
+var _v1153=new JTramp(_v1152, [runJTramp(_v1148)]);
+var _v1154;
+if(runJTramp(_v1153)) {
+_v1154=_v1149;
 } else {
-var v1359=v1351;
-var v1360=lglobal["tail"];
-var v1361=v1360;
-v1361=runJTramp(v1361);
-if (typeof v1361 !== "function") {
+var _v1155=lglobal["tail"];
+if (_v1155 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1156=_v1155;
+_v1156=runJTramp(_v1156);
+if (typeof _v1156 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1362=new JTramp(v1361, [runJTramp(v1359)]);
-var v1363=v1362;
-var v1364=v1352;
-var v1365=1;
-var v1366=v1365;
-var v1367=lglobal["+"];
-var v1368=v1367;
-v1368=runJTramp(v1368);
-if (typeof v1368 !== "function") {
+var _v1157=new JTramp(_v1156, [runJTramp(_v1148)]);
+var _v1158=_v1157;
+var _v1159=1;
+var _v1160=_v1159;
+var _v1161=lglobal["+"];
+if (_v1161 === undefined) { throw new Error("No such global: " + "+"); }
+var _v1162=_v1161;
+_v1162=runJTramp(_v1162);
+if (typeof _v1162 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1369=new JTramp(v1368, [runJTramp(v1364),runJTramp(v1366)]);
-var v1370=v1369;
-var v1371=v1349;
-v1371=runJTramp(v1371);
-if (typeof v1371 !== "function") {
+var _v1163=new JTramp(_v1162, [runJTramp(_v1149),runJTramp(_v1160)]);
+var _v1164=_v1163;
+_v1146=runJTramp(_v1146);
+if (typeof _v1146 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1372=new JTramp(v1371, [runJTramp(v1363),runJTramp(v1370)]);
-v1358=v1372;
+var _v1165=new JTramp(_v1146, [runJTramp(_v1158),runJTramp(_v1164)]);
+_v1154=_v1165;
 }
-return v1358;
+return _v1154;
 };
-var v1373=v1349=runJTramp(v1350);
-var v1374=v1347;
-var v1375=0;
-var v1376=v1375;
-var v1377=v1349;
-v1377=runJTramp(v1377);
-if (typeof v1377 !== "function") {
+var _v1166=_v1146=runJTramp(_v1147);
+var _v1167=0;
+var _v1168=_v1167;
+_v1146=runJTramp(_v1146);
+if (typeof _v1146 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1378=new JTramp(v1377, [runJTramp(v1374),runJTramp(v1376)]);
-return v1378;
+var _v1169=new JTramp(_v1146, [runJTramp(_v1144),runJTramp(_v1168)]);
+return _v1169;
 };
-v1345=v1346;
-lglobal["length"]=runJTramp(v1345);
+_v1142=_v1143;
+lglobal["length"]=runJTramp(_v1142);
 })();
 (function () {
-var v1379;
-var v1380=function (v1381,v1382) {
+var _v1170;
+var _v1171=function (_v1172,_v1173) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1384=v1382;
-var v1385=0;
-var v1386=v1385;
-var v1387=lglobal["<"];
-var v1388=v1387;
-v1388=runJTramp(v1388);
-if (typeof v1388 !== "function") {
+var _v1175=0;
+var _v1176=_v1175;
+var _v1177=lglobal["<"];
+if (_v1177 === undefined) { throw new Error("No such global: " + "<"); }
+var _v1178=_v1177;
+_v1178=runJTramp(_v1178);
+if (typeof _v1178 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1389=new JTramp(v1388, [runJTramp(v1384),runJTramp(v1386)]);
-var v1390;
-if(runJTramp(v1389)) {
-var v1391=v1381;
-var v1392=v1382;
-var v1393=v1381;
-var v1394=lglobal["length"];
-var v1395=v1394;
-v1395=runJTramp(v1395);
-if (typeof v1395 !== "function") {
+var _v1179=new JTramp(_v1178, [runJTramp(_v1173),runJTramp(_v1176)]);
+var _v1180;
+if(runJTramp(_v1179)) {
+var _v1181=lglobal["length"];
+if (_v1181 === undefined) { throw new Error("No such global: " + "length"); }
+var _v1182=_v1181;
+_v1182=runJTramp(_v1182);
+if (typeof _v1182 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1396=new JTramp(v1395, [runJTramp(v1393)]);
-var v1397=v1396;
-var v1398=lglobal["+"];
-var v1399=v1398;
-v1399=runJTramp(v1399);
-if (typeof v1399 !== "function") {
+var _v1183=new JTramp(_v1182, [runJTramp(_v1172)]);
+var _v1184=_v1183;
+var _v1185=lglobal["+"];
+if (_v1185 === undefined) { throw new Error("No such global: " + "+"); }
+var _v1186=_v1185;
+_v1186=runJTramp(_v1186);
+if (typeof _v1186 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1400=new JTramp(v1399, [runJTramp(v1392),runJTramp(v1397)]);
-var v1401=v1400;
-var v1402=lglobal["nth"];
-var v1403=v1402;
-v1403=runJTramp(v1403);
-if (typeof v1403 !== "function") {
+var _v1187=new JTramp(_v1186, [runJTramp(_v1173),runJTramp(_v1184)]);
+var _v1188=_v1187;
+var _v1189=lglobal["nth"];
+if (_v1189 === undefined) { throw new Error("No such global: " + "nth"); }
+var _v1190=_v1189;
+_v1190=runJTramp(_v1190);
+if (typeof _v1190 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1404=new JTramp(v1403, [runJTramp(v1391),runJTramp(v1401)]);
-v1390=v1404;
+var _v1191=new JTramp(_v1190, [runJTramp(_v1172),runJTramp(_v1188)]);
+_v1180=_v1191;
 } else {
-var v1405=v1381;
-var v1406=lglobal["nil?"];
-var v1407=v1406;
-v1407=runJTramp(v1407);
-if (typeof v1407 !== "function") {
+var _v1192=lglobal["nil?"];
+if (_v1192 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1193=_v1192;
+_v1193=runJTramp(_v1193);
+if (typeof _v1193 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1408=new JTramp(v1407, [runJTramp(v1405)]);
-var v1409;
-if(runJTramp(v1408)) {
-var v1410="List index out of bounds.";
-var v1411=v1410;
-var v1412=lglobal["error"];
-var v1413=v1412;
-v1413=runJTramp(v1413);
-if (typeof v1413 !== "function") {
+var _v1194=new JTramp(_v1193, [runJTramp(_v1172)]);
+var _v1195;
+if(runJTramp(_v1194)) {
+var _v1196="List index out of bounds.";
+var _v1197=_v1196;
+var _v1198=lglobal["error"];
+if (_v1198 === undefined) { throw new Error("No such global: " + "error"); }
+var _v1199=_v1198;
+_v1199=runJTramp(_v1199);
+if (typeof _v1199 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1414=new JTramp(v1413, [runJTramp(v1411)]);
-v1409=v1414;
+var _v1200=new JTramp(_v1199, [runJTramp(_v1197)]);
+_v1195=_v1200;
 } else {
-var v1415=v1382;
-var v1416=0;
-var v1417=v1416;
-var v1418=lglobal["="];
-var v1419=v1418;
-v1419=runJTramp(v1419);
-if (typeof v1419 !== "function") {
+var _v1201=0;
+var _v1202=_v1201;
+var _v1203=lglobal["="];
+if (_v1203 === undefined) { throw new Error("No such global: " + "="); }
+var _v1204=_v1203;
+_v1204=runJTramp(_v1204);
+if (typeof _v1204 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1420=new JTramp(v1419, [runJTramp(v1415),runJTramp(v1417)]);
-var v1421;
-if(runJTramp(v1420)) {
-var v1422=v1381;
-var v1423=lglobal["head"];
-var v1424=v1423;
-v1424=runJTramp(v1424);
-if (typeof v1424 !== "function") {
+var _v1205=new JTramp(_v1204, [runJTramp(_v1173),runJTramp(_v1202)]);
+var _v1206;
+if(runJTramp(_v1205)) {
+var _v1207=lglobal["head"];
+if (_v1207 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1208=_v1207;
+_v1208=runJTramp(_v1208);
+if (typeof _v1208 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1425=new JTramp(v1424, [runJTramp(v1422)]);
-v1421=v1425;
+var _v1209=new JTramp(_v1208, [runJTramp(_v1172)]);
+_v1206=_v1209;
 } else {
-var v1426=lglobal["otherwise"];
-var v1427;
-if(runJTramp(v1426)) {
-var v1428=v1381;
-var v1429=lglobal["tail"];
-var v1430=v1429;
-v1430=runJTramp(v1430);
-if (typeof v1430 !== "function") {
+var _v1210=lglobal["otherwise"];
+if (_v1210 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v1211;
+if(runJTramp(_v1210)) {
+var _v1212=lglobal["tail"];
+if (_v1212 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1213=_v1212;
+_v1213=runJTramp(_v1213);
+if (typeof _v1213 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1431=new JTramp(v1430, [runJTramp(v1428)]);
-var v1432=v1431;
-var v1433=v1382;
-var v1434=1;
-var v1435=v1434;
-var v1436=lglobal["-"];
-var v1437=v1436;
-v1437=runJTramp(v1437);
-if (typeof v1437 !== "function") {
+var _v1214=new JTramp(_v1213, [runJTramp(_v1172)]);
+var _v1215=_v1214;
+var _v1216=1;
+var _v1217=_v1216;
+var _v1218=lglobal["-"];
+if (_v1218 === undefined) { throw new Error("No such global: " + "-"); }
+var _v1219=_v1218;
+_v1219=runJTramp(_v1219);
+if (typeof _v1219 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1438=new JTramp(v1437, [runJTramp(v1433),runJTramp(v1435)]);
-var v1439=v1438;
-var v1440=lglobal["nth"];
-var v1441=v1440;
-v1441=runJTramp(v1441);
-if (typeof v1441 !== "function") {
+var _v1220=new JTramp(_v1219, [runJTramp(_v1173),runJTramp(_v1217)]);
+var _v1221=_v1220;
+var _v1222=lglobal["nth"];
+if (_v1222 === undefined) { throw new Error("No such global: " + "nth"); }
+var _v1223=_v1222;
+_v1223=runJTramp(_v1223);
+if (typeof _v1223 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1442=new JTramp(v1441, [runJTramp(v1432),runJTramp(v1439)]);
-v1427=v1442;
+var _v1224=new JTramp(_v1223, [runJTramp(_v1215),runJTramp(_v1221)]);
+_v1211=_v1224;
 } else {
-var v1443=null;
-v1427=v1443;
+var _v1225=null;
+_v1211=_v1225;
 }
-v1421=v1427;
+_v1206=_v1211;
 }
-v1409=v1421;
+_v1195=_v1206;
 }
-v1390=v1409;
+_v1180=_v1195;
 }
-return v1390;
+return _v1180;
 };
-v1379=v1380;
-lglobal["nth"]=runJTramp(v1379);
+_v1170=_v1171;
+lglobal["nth"]=runJTramp(_v1170);
 })();
 (function () {
-var v1444;
-var v1445=function (v1446) {
+var _v1226;
+var _v1227=function (_v1228) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v1447 = new Nil();
-for (var v1448 = arguments.length - 1; v1448 >= 1; v1448--) {
-  v1447 = new Cons(arguments[v1448], v1447);
+var _v1229 = new Nil();
+for (var _v1230 = arguments.length - 1; _v1230 >= 1; _v1230--) {
+  _v1229 = new Cons(arguments[_v1230], _v1229);
 }
-var v1449=v1447;
-var v1450=lglobal["nil?"];
-var v1451=v1450;
-v1451=runJTramp(v1451);
-if (typeof v1451 !== "function") {
+var _v1231=lglobal["nil?"];
+if (_v1231 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1232=_v1231;
+_v1232=runJTramp(_v1232);
+if (typeof _v1232 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1452=new JTramp(v1451, [runJTramp(v1449)]);
-var v1453;
-if(runJTramp(v1452)) {
-v1453=v1446;
+var _v1233=new JTramp(_v1232, [runJTramp(_v1229)]);
+var _v1234;
+if(runJTramp(_v1233)) {
+_v1234=_v1228;
 } else {
-var v1454=lglobal["."];
-var v1455=v1454;
-var v1456=v1447;
-var v1457=lglobal["apply"];
-var v1458=v1457;
-v1458=runJTramp(v1458);
-if (typeof v1458 !== "function") {
+var _v1235=lglobal["."];
+if (_v1235 === undefined) { throw new Error("No such global: " + "."); }
+var _v1236=_v1235;
+var _v1237=lglobal["apply"];
+if (_v1237 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1238=_v1237;
+_v1238=runJTramp(_v1238);
+if (typeof _v1238 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1459=new JTramp(v1458, [runJTramp(v1455),runJTramp(v1456)]);
-var v1460=v1459;
-var v1461=function (v1462) {
+var _v1239=new JTramp(_v1238, [runJTramp(_v1236),runJTramp(_v1229)]);
+var _v1240=_v1239;
+var _v1241=function (_v1242) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1464=function () {
-var v1465 = new Nil();
-for (var v1466 = arguments.length - 1; v1466 >= 0; v1466--) {
-  v1465 = new Cons(arguments[v1466], v1465);
+var _v1244=function () {
+var _v1245 = new Nil();
+for (var _v1246 = arguments.length - 1; _v1246 >= 0; _v1246--) {
+  _v1245 = new Cons(arguments[_v1246], _v1245);
 }
-var v1467=v1462;
-var v1468=v1465;
-var v1469=lglobal["apply"];
-var v1470=v1469;
-v1470=runJTramp(v1470);
-if (typeof v1470 !== "function") {
+var _v1247=lglobal["apply"];
+if (_v1247 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1248=_v1247;
+_v1248=runJTramp(_v1248);
+if (typeof _v1248 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1471=new JTramp(v1470, [runJTramp(v1467),runJTramp(v1468)]);
-var v1472=v1471;
-var v1473=v1446;
-v1473=runJTramp(v1473);
-if (typeof v1473 !== "function") {
+var _v1249=new JTramp(_v1248, [runJTramp(_v1242),runJTramp(_v1245)]);
+var _v1250=_v1249;
+_v1228=runJTramp(_v1228);
+if (typeof _v1228 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1474=new JTramp(v1473, [runJTramp(v1472)]);
-return v1474;
+var _v1251=new JTramp(_v1228, [runJTramp(_v1250)]);
+return _v1251;
 };
-return v1464;
+return _v1244;
 };
-var v1475=v1461;
-v1475=runJTramp(v1475);
-if (typeof v1475 !== "function") {
+var _v1252=_v1241;
+_v1252=runJTramp(_v1252);
+if (typeof _v1252 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1476=new JTramp(v1475, [runJTramp(v1460)]);
-v1453=v1476;
+var _v1253=new JTramp(_v1252, [runJTramp(_v1240)]);
+_v1234=_v1253;
 }
-return v1453;
+return _v1234;
 };
-v1444=v1445;
-lglobal["."]=runJTramp(v1444);
+_v1226=_v1227;
+lglobal["."]=runJTramp(_v1226);
 })();
 (function () {
-var v1477;
-var v1478=function (v1479) {
+var _v1254;
+var _v1255=function (_v1256) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1481=function (v1482) {
+var _v1258=function (_v1259) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1484=function (v1485) {
+var _v1261=function (_v1262) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1487=v1482;
-var v1488=v1485;
-var v1489=v1479;
-v1489=runJTramp(v1489);
-if (typeof v1489 !== "function") {
+_v1256=runJTramp(_v1256);
+if (typeof _v1256 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1490=new JTramp(v1489, [runJTramp(v1487),runJTramp(v1488)]);
-return v1490;
+var _v1264=new JTramp(_v1256, [runJTramp(_v1259),runJTramp(_v1262)]);
+return _v1264;
 };
-return v1484;
+return _v1261;
 };
-return v1481;
+return _v1258;
 };
-v1477=v1478;
-lglobal["curry"]=runJTramp(v1477);
+_v1254=_v1255;
+lglobal["curry"]=runJTramp(_v1254);
 })();
 (function () {
-var v1491;
-var v1492=function (v1493) {
+var _v1265;
+var _v1266=function (_v1267) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1495=function (v1496,v1497) {
+var _v1269=function (_v1270,_v1271) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1499=v1497;
-var v1500=v1496;
-var v1501=v1493;
-v1501=runJTramp(v1501);
-if (typeof v1501 !== "function") {
+_v1267=runJTramp(_v1267);
+if (typeof _v1267 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1502=new JTramp(v1501, [runJTramp(v1500)]);
-var v1503=v1502;
-v1503=runJTramp(v1503);
-if (typeof v1503 !== "function") {
+var _v1273=new JTramp(_v1267, [runJTramp(_v1270)]);
+var _v1274=_v1273;
+_v1274=runJTramp(_v1274);
+if (typeof _v1274 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1504=new JTramp(v1503, [runJTramp(v1499)]);
-return v1504;
+var _v1275=new JTramp(_v1274, [runJTramp(_v1271)]);
+return _v1275;
 };
-return v1495;
+return _v1269;
 };
-v1491=v1492;
-lglobal["uncurry"]=runJTramp(v1491);
+_v1265=_v1266;
+lglobal["uncurry"]=runJTramp(_v1265);
 })();
 (function () {
-var v1505;
-var v1506=function (v1507) {
+var _v1276;
+var _v1277=function (_v1278) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v1508 = new Nil();
-for (var v1509 = arguments.length - 1; v1509 >= 1; v1509--) {
-  v1508 = new Cons(arguments[v1509], v1508);
+var _v1279 = new Nil();
+for (var _v1280 = arguments.length - 1; _v1280 >= 1; _v1280--) {
+  _v1279 = new Cons(arguments[_v1280], _v1279);
 }
-var v1510=function () {
-var v1511 = new Nil();
-for (var v1512 = arguments.length - 1; v1512 >= 0; v1512--) {
-  v1511 = new Cons(arguments[v1512], v1511);
+var _v1281=function () {
+var _v1282 = new Nil();
+for (var _v1283 = arguments.length - 1; _v1283 >= 0; _v1283--) {
+  _v1282 = new Cons(arguments[_v1283], _v1282);
 }
-var v1513=v1507;
-var v1514=v1508;
-var v1515=v1511;
-var v1516=lglobal["append"];
-var v1517=v1516;
-v1517=runJTramp(v1517);
-if (typeof v1517 !== "function") {
+var _v1284=lglobal["append"];
+if (_v1284 === undefined) { throw new Error("No such global: " + "append"); }
+var _v1285=_v1284;
+_v1285=runJTramp(_v1285);
+if (typeof _v1285 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1518=new JTramp(v1517, [runJTramp(v1514),runJTramp(v1515)]);
-var v1519=v1518;
-var v1520=lglobal["apply"];
-var v1521=v1520;
-v1521=runJTramp(v1521);
-if (typeof v1521 !== "function") {
+var _v1286=new JTramp(_v1285, [runJTramp(_v1279),runJTramp(_v1282)]);
+var _v1287=_v1286;
+var _v1288=lglobal["apply"];
+if (_v1288 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1289=_v1288;
+_v1289=runJTramp(_v1289);
+if (typeof _v1289 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1522=new JTramp(v1521, [runJTramp(v1513),runJTramp(v1519)]);
-return v1522;
+var _v1290=new JTramp(_v1289, [runJTramp(_v1278),runJTramp(_v1287)]);
+return _v1290;
 };
-return v1510;
+return _v1281;
 };
-v1505=v1506;
-lglobal["partial"]=runJTramp(v1505);
+_v1276=_v1277;
+lglobal["partial"]=runJTramp(_v1276);
 })();
 (function () {
-var v1523;
-var v1524=function (v1525) {
+var _v1291;
+var _v1292=function (_v1293) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1527=function (v1528,v1529) {
+var _v1295=function (_v1296,_v1297) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v1531=v1529;
-var v1532=v1528;
-var v1533=v1525;
-v1533=runJTramp(v1533);
-if (typeof v1533 !== "function") {
+_v1293=runJTramp(_v1293);
+if (typeof _v1293 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1534=new JTramp(v1533, [runJTramp(v1531),runJTramp(v1532)]);
-return v1534;
+var _v1299=new JTramp(_v1293, [runJTramp(_v1297),runJTramp(_v1296)]);
+return _v1299;
 };
-return v1527;
+return _v1295;
 };
-v1523=v1524;
-lglobal["flip"]=runJTramp(v1523);
+_v1291=_v1292;
+lglobal["flip"]=runJTramp(_v1291);
 })();
 (function () {
-var v1535;
-var v1536=function (v1537) {
+var _v1300;
+var _v1301=function (_v1302) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v1538 = new Nil();
-for (var v1539 = arguments.length - 1; v1539 >= 1; v1539--) {
-  v1538 = new Cons(arguments[v1539], v1538);
+var _v1303 = new Nil();
+for (var _v1304 = arguments.length - 1; _v1304 >= 1; _v1304--) {
+  _v1303 = new Cons(arguments[_v1304], _v1303);
 }
-var v1540=v1537;
-var v1541=v1538;
-var v1542=lglobal["apply"];
-var v1543=v1542;
-v1543=runJTramp(v1543);
-if (typeof v1543 !== "function") {
+var _v1305=lglobal["apply"];
+if (_v1305 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1306=_v1305;
+_v1306=runJTramp(_v1306);
+if (typeof _v1306 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1544=new JTramp(v1543, [runJTramp(v1540),runJTramp(v1541)]);
-return v1544;
+var _v1307=new JTramp(_v1306, [runJTramp(_v1302),runJTramp(_v1303)]);
+return _v1307;
 };
-v1535=v1536;
-lglobal["$"]=runJTramp(v1535);
+_v1300=_v1301;
+lglobal["$"]=runJTramp(_v1300);
 })();
 (function () {
-var v1545;
-var v1546=function (v1547) {
+var _v1308;
+var _v1309=function (_v1310) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v1548 = new Nil();
-for (var v1549 = arguments.length - 1; v1549 >= 1; v1549--) {
-  v1548 = new Cons(arguments[v1549], v1548);
+var _v1311 = new Nil();
+for (var _v1312 = arguments.length - 1; _v1312 >= 1; _v1312--) {
+  _v1311 = new Cons(arguments[_v1312], _v1311);
 }
-var v1550=v1548;
-var v1551=lglobal["nil?"];
-var v1552=v1551;
-v1552=runJTramp(v1552);
-if (typeof v1552 !== "function") {
+var _v1313=lglobal["nil?"];
+if (_v1313 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1314=_v1313;
+_v1314=runJTramp(_v1314);
+if (typeof _v1314 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1553=new JTramp(v1552, [runJTramp(v1550)]);
-var v1554;
-if(runJTramp(v1553)) {
-v1554=v1547;
+var _v1315=new JTramp(_v1314, [runJTramp(_v1311)]);
+var _v1316;
+if(runJTramp(_v1315)) {
+_v1316=_v1310;
 } else {
-var v1555=lglobal["|>"];
-var v1556=v1555;
-var v1557=v1547;
-var v1558=v1548;
-var v1559=lglobal["head"];
-var v1560=v1559;
-v1560=runJTramp(v1560);
-if (typeof v1560 !== "function") {
+var _v1317=lglobal["|>"];
+if (_v1317 === undefined) { throw new Error("No such global: " + "|>"); }
+var _v1318=_v1317;
+var _v1319=lglobal["head"];
+if (_v1319 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1320=_v1319;
+_v1320=runJTramp(_v1320);
+if (typeof _v1320 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1561=new JTramp(v1560, [runJTramp(v1558)]);
-var v1562=v1561;
-v1562=runJTramp(v1562);
-if (typeof v1562 !== "function") {
+var _v1321=new JTramp(_v1320, [runJTramp(_v1311)]);
+var _v1322=_v1321;
+_v1322=runJTramp(_v1322);
+if (typeof _v1322 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1563=new JTramp(v1562, [runJTramp(v1557)]);
-var v1564=v1563;
-var v1565=v1548;
-var v1566=lglobal["tail"];
-var v1567=v1566;
-v1567=runJTramp(v1567);
-if (typeof v1567 !== "function") {
+var _v1323=new JTramp(_v1322, [runJTramp(_v1310)]);
+var _v1324=_v1323;
+var _v1325=lglobal["tail"];
+if (_v1325 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1326=_v1325;
+_v1326=runJTramp(_v1326);
+if (typeof _v1326 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1568=new JTramp(v1567, [runJTramp(v1565)]);
-var v1569=v1568;
-var v1570=lglobal["cons"];
-var v1571=v1570;
-v1571=runJTramp(v1571);
-if (typeof v1571 !== "function") {
+var _v1327=new JTramp(_v1326, [runJTramp(_v1311)]);
+var _v1328=_v1327;
+var _v1329=lglobal["cons"];
+if (_v1329 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v1330=_v1329;
+_v1330=runJTramp(_v1330);
+if (typeof _v1330 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1572=new JTramp(v1571, [runJTramp(v1564),runJTramp(v1569)]);
-var v1573=v1572;
-var v1574=lglobal["apply"];
-var v1575=v1574;
-v1575=runJTramp(v1575);
-if (typeof v1575 !== "function") {
+var _v1331=new JTramp(_v1330, [runJTramp(_v1324),runJTramp(_v1328)]);
+var _v1332=_v1331;
+var _v1333=lglobal["apply"];
+if (_v1333 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1334=_v1333;
+_v1334=runJTramp(_v1334);
+if (typeof _v1334 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1576=new JTramp(v1575, [runJTramp(v1556),runJTramp(v1573)]);
-v1554=v1576;
+var _v1335=new JTramp(_v1334, [runJTramp(_v1318),runJTramp(_v1332)]);
+_v1316=_v1335;
 }
-return v1554;
+return _v1316;
 };
-v1545=v1546;
-lglobal["|>"]=runJTramp(v1545);
+_v1308=_v1309;
+lglobal["|>"]=runJTramp(_v1308);
 })();
 (function () {
-var v1577;
-var v1578=function (v1579) {
+var _v1336;
+var _v1337=function (_v1338) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-return v1579;
+return _v1338;
 };
-v1577=v1578;
-lglobal["id"]=runJTramp(v1577);
+_v1336=_v1337;
+lglobal["id"]=runJTramp(_v1336);
 })();
 (function () {
-var v1581;
-var v1582=function (v1583) {
+var _v1340;
+var _v1341=function (_v1342) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1585=function (v1586) {
+var _v1344=function (_v1345) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-return v1583;
+return _v1342;
 };
-return v1585;
+return _v1344;
 };
-v1581=v1582;
-lglobal["const"]=runJTramp(v1581);
+_v1340=_v1341;
+lglobal["const"]=runJTramp(_v1340);
 })();
 (function () {
-var v1852;
-var v1853="(function () { _.each(arguments, output); return null; })";
-var v1854=v1853;
-var v1855=lglobal["ffi"];
-var v1856=v1855;
-v1856=runJTramp(v1856);
-if (typeof v1856 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1857=new JTramp(v1856, [runJTramp(v1854)]);
-v1852=v1857;
-lglobal["js:print"]=runJTramp(v1852);
+var _v1583;
+var _v1584=((function () { _.each(arguments, output); return null; }));
+_v1583=_v1584;
+lglobal["js:print"]=runJTramp(_v1583);
 })();
 (function () {
-var v1858;
-var v1859=function () {
-var v1860 = new Nil();
-for (var v1861 = arguments.length - 1; v1861 >= 0; v1861--) {
-  v1860 = new Cons(arguments[v1861], v1860);
+var _v1585;
+var _v1586=function () {
+var _v1587 = new Nil();
+for (var _v1588 = arguments.length - 1; _v1588 >= 0; _v1588--) {
+  _v1587 = new Cons(arguments[_v1588], _v1587);
 }
-var v1862=function (v1863) {
+var _v1589=function (_v1590) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1865=v1863;
-var v1866=lglobal["repr"];
-var v1867=v1866;
-v1867=runJTramp(v1867);
-if (typeof v1867 !== "function") {
+var _v1592=lglobal["repr"];
+if (_v1592 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1593=_v1592;
+_v1593=runJTramp(_v1593);
+if (typeof _v1593 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1868=new JTramp(v1867, [runJTramp(v1865)]);
-var v1869=v1868;
-var v1870=lglobal["js:print"];
-var v1871=v1870;
-v1871=runJTramp(v1871);
-if (typeof v1871 !== "function") {
+var _v1594=new JTramp(_v1593, [runJTramp(_v1590)]);
+var _v1595=_v1594;
+var _v1596=lglobal["js:print"];
+if (_v1596 === undefined) { throw new Error("No such global: " + "js:print"); }
+var _v1597=_v1596;
+_v1597=runJTramp(_v1597);
+if (typeof _v1597 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1872=new JTramp(v1871, [runJTramp(v1869)]);
-return v1872;
+var _v1598=new JTramp(_v1597, [runJTramp(_v1595)]);
+return _v1598;
 };
-var v1873=v1862;
-var v1874=v1860;
-var v1875=lglobal["each"];
-var v1876=v1875;
-v1876=runJTramp(v1876);
-if (typeof v1876 !== "function") {
+var _v1599=_v1589;
+var _v1600=lglobal["each"];
+if (_v1600 === undefined) { throw new Error("No such global: " + "each"); }
+var _v1601=_v1600;
+_v1601=runJTramp(_v1601);
+if (typeof _v1601 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1877=new JTramp(v1876, [runJTramp(v1873),runJTramp(v1874)]);
-return v1877;
+var _v1602=new JTramp(_v1601, [runJTramp(_v1599),runJTramp(_v1587)]);
+return _v1602;
 };
-v1858=v1859;
-lglobal["print"]=runJTramp(v1858);
+_v1585=_v1586;
+lglobal["print"]=runJTramp(_v1585);
 })();
 (function () {
-var v1878;
-var v1879=function (v1880) {
+var _v1603;
+var _v1604=function (_v1605) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1882;
-var v1883=function (v1884) {
+var _v1607="Scope: ";
+var _v1608=_v1607;
+var _v1609="\n";
+var _v1610=_v1609;
+var _v1611=lglobal["print"];
+if (_v1611 === undefined) { throw new Error("No such global: " + "print"); }
+var _v1612=_v1611;
+_v1612=runJTramp(_v1612);
+if (typeof _v1612 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1613=new JTramp(_v1612, [runJTramp(_v1608),runJTramp(_v1605),runJTramp(_v1610)]);
+_v1613=runJTramp(_v1613);
+return _v1605;
+};
+_v1603=_v1604;
+lglobal["scope"]=runJTramp(_v1603);
+})();
+(function () {
+var _v1614;
+var _v1615=function (_v1616) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1886=v1884;
-var v1887=lglobal["tail"];
-var v1888=v1887;
-v1888=runJTramp(v1888);
-if (typeof v1888 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1889=new JTramp(v1888, [runJTramp(v1886)]);
-var v1890=v1889;
-var v1891=lglobal["nil?"];
-var v1892=v1891;
-v1892=runJTramp(v1892);
-if (typeof v1892 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1893=new JTramp(v1892, [runJTramp(v1890)]);
-var v1894;
-if(runJTramp(v1893)) {
-var v1895=v1884;
-var v1896=lglobal["head"];
-var v1897=v1896;
-v1897=runJTramp(v1897);
-if (typeof v1897 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1898=new JTramp(v1897, [runJTramp(v1895)]);
-var v1899=v1898;
-var v1900=lglobal["repr"];
-var v1901=v1900;
-v1901=runJTramp(v1901);
-if (typeof v1901 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1902=new JTramp(v1901, [runJTramp(v1899)]);
-var v1903=v1902;
-var v1904=")";
-var v1905=v1904;
-var v1906=lglobal["++"];
-var v1907=v1906;
-v1907=runJTramp(v1907);
-if (typeof v1907 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1908=new JTramp(v1907, [runJTramp(v1903),runJTramp(v1905)]);
-v1894=v1908;
-} else {
-var v1909=v1884;
-var v1910=lglobal["tail"];
-var v1911=v1910;
-v1911=runJTramp(v1911);
-if (typeof v1911 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1912=new JTramp(v1911, [runJTramp(v1909)]);
-var v1913=v1912;
-var v1914=lglobal["cons?"];
-var v1915=v1914;
-v1915=runJTramp(v1915);
-if (typeof v1915 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1916=new JTramp(v1915, [runJTramp(v1913)]);
-var v1917;
-if(runJTramp(v1916)) {
-var v1918=v1884;
-var v1919=lglobal["head"];
-var v1920=v1919;
-v1920=runJTramp(v1920);
-if (typeof v1920 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1921=new JTramp(v1920, [runJTramp(v1918)]);
-var v1922=v1921;
-var v1923=lglobal["repr"];
-var v1924=v1923;
-v1924=runJTramp(v1924);
-if (typeof v1924 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1925=new JTramp(v1924, [runJTramp(v1922)]);
-var v1926=v1925;
-var v1927=" ";
-var v1928=v1927;
-var v1929=v1884;
-var v1930=lglobal["tail"];
-var v1931=v1930;
-v1931=runJTramp(v1931);
-if (typeof v1931 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1932=new JTramp(v1931, [runJTramp(v1929)]);
-var v1933=v1932;
-var v1934=v1882;
-v1934=runJTramp(v1934);
-if (typeof v1934 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1935=new JTramp(v1934, [runJTramp(v1933)]);
-var v1936=v1935;
-var v1937=lglobal["++"];
-var v1938=v1937;
-v1938=runJTramp(v1938);
-if (typeof v1938 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1939=new JTramp(v1938, [runJTramp(v1926),runJTramp(v1928),runJTramp(v1936)]);
-v1917=v1939;
-} else {
-var v1940=lglobal["otherwise"];
-var v1941;
-if(runJTramp(v1940)) {
-var v1942=v1884;
-var v1943=lglobal["head"];
-var v1944=v1943;
-v1944=runJTramp(v1944);
-if (typeof v1944 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1945=new JTramp(v1944, [runJTramp(v1942)]);
-var v1946=v1945;
-var v1947=lglobal["repr"];
-var v1948=v1947;
-v1948=runJTramp(v1948);
-if (typeof v1948 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1949=new JTramp(v1948, [runJTramp(v1946)]);
-var v1950=v1949;
-var v1951=" # ";
-var v1952=v1951;
-var v1953=v1884;
-var v1954=lglobal["tail"];
-var v1955=v1954;
-v1955=runJTramp(v1955);
-if (typeof v1955 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1956=new JTramp(v1955, [runJTramp(v1953)]);
-var v1957=v1956;
-var v1958=lglobal["repr"];
-var v1959=v1958;
-v1959=runJTramp(v1959);
-if (typeof v1959 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1960=new JTramp(v1959, [runJTramp(v1957)]);
-var v1961=v1960;
-var v1962=")";
-var v1963=v1962;
-var v1964=lglobal["++"];
-var v1965=v1964;
-v1965=runJTramp(v1965);
-if (typeof v1965 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1966=new JTramp(v1965, [runJTramp(v1950),runJTramp(v1952),runJTramp(v1961),runJTramp(v1963)]);
-v1941=v1966;
-} else {
-var v1967=null;
-v1941=v1967;
-}
-v1917=v1941;
-}
-v1894=v1917;
-}
-return v1894;
-};
-var v1968=v1882=runJTramp(v1883);
-var v1969=v1880;
-var v1970=lglobal["nil?"];
-var v1971=v1970;
-v1971=runJTramp(v1971);
-if (typeof v1971 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1972=new JTramp(v1971, [runJTramp(v1969)]);
-var v1973;
-if(runJTramp(v1972)) {
-var v1974="()";
-v1973=v1974;
-} else {
-var v1975=v1880;
-var v1976=lglobal["cons?"];
-var v1977=v1976;
-v1977=runJTramp(v1977);
-if (typeof v1977 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1978=new JTramp(v1977, [runJTramp(v1975)]);
-var v1979;
-if(runJTramp(v1978)) {
-var v1980=v1880;
-var v1981=lglobal["head"];
-var v1982=v1981;
-v1982=runJTramp(v1982);
-if (typeof v1982 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v1983=new JTramp(v1982, [runJTramp(v1980)]);
-var v1984=v1983;
-var v1985=function (v1986) {
+var _v1618;
+var _v1619=function (_v1620) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v1988=v1986;
-var v1989="quote";
-var v1990=v1989;
-var v1991=lglobal["="];
-var v1992=v1991;
-v1992=runJTramp(v1992);
-if (typeof v1992 !== "function") {
+var _v1622=lglobal["tail"];
+if (_v1622 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1623=_v1622;
+_v1623=runJTramp(_v1623);
+if (typeof _v1623 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v1993=new JTramp(v1992, [runJTramp(v1988),runJTramp(v1990)]);
-var v1994;
-if(runJTramp(v1993)) {
-var v1995="'";
-var v1996=v1995;
-var v1997=v1880;
-var v1998=lglobal["tail"];
-var v1999=v1998;
-v1999=runJTramp(v1999);
-if (typeof v1999 !== "function") {
+var _v1624=new JTramp(_v1623, [runJTramp(_v1620)]);
+var _v1625=_v1624;
+var _v1626=lglobal["nil?"];
+if (_v1626 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1627=_v1626;
+_v1627=runJTramp(_v1627);
+if (typeof _v1627 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2000=new JTramp(v1999, [runJTramp(v1997)]);
-var v2001=v2000;
-var v2002=lglobal["head"];
-var v2003=v2002;
-v2003=runJTramp(v2003);
-if (typeof v2003 !== "function") {
+var _v1628=new JTramp(_v1627, [runJTramp(_v1625)]);
+var _v1629;
+if(runJTramp(_v1628)) {
+var _v1630=lglobal["head"];
+if (_v1630 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1631=_v1630;
+_v1631=runJTramp(_v1631);
+if (typeof _v1631 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2004=new JTramp(v2003, [runJTramp(v2001)]);
-var v2005=v2004;
-var v2006=lglobal["repr"];
-var v2007=v2006;
-v2007=runJTramp(v2007);
-if (typeof v2007 !== "function") {
+var _v1632=new JTramp(_v1631, [runJTramp(_v1620)]);
+var _v1633=_v1632;
+var _v1634=lglobal["repr"];
+if (_v1634 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1635=_v1634;
+_v1635=runJTramp(_v1635);
+if (typeof _v1635 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2008=new JTramp(v2007, [runJTramp(v2005)]);
-var v2009=v2008;
-var v2010=lglobal["++"];
-var v2011=v2010;
-v2011=runJTramp(v2011);
-if (typeof v2011 !== "function") {
+var _v1636=new JTramp(_v1635, [runJTramp(_v1633)]);
+var _v1637=_v1636;
+var _v1638=")";
+var _v1639=_v1638;
+var _v1640=lglobal["++"];
+if (_v1640 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1641=_v1640;
+_v1641=runJTramp(_v1641);
+if (typeof _v1641 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2012=new JTramp(v2011, [runJTramp(v1996),runJTramp(v2009)]);
-v1994=v2012;
+var _v1642=new JTramp(_v1641, [runJTramp(_v1637),runJTramp(_v1639)]);
+_v1629=_v1642;
 } else {
-var v2013="(";
-var v2014=v2013;
-var v2015=v1880;
-var v2016=v1882;
-v2016=runJTramp(v2016);
-if (typeof v2016 !== "function") {
+var _v1643=lglobal["tail"];
+if (_v1643 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1644=_v1643;
+_v1644=runJTramp(_v1644);
+if (typeof _v1644 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2017=new JTramp(v2016, [runJTramp(v2015)]);
-var v2018=v2017;
-var v2019=lglobal["++"];
-var v2020=v2019;
-v2020=runJTramp(v2020);
-if (typeof v2020 !== "function") {
+var _v1645=new JTramp(_v1644, [runJTramp(_v1620)]);
+var _v1646=_v1645;
+var _v1647=lglobal["cons?"];
+if (_v1647 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v1648=_v1647;
+_v1648=runJTramp(_v1648);
+if (typeof _v1648 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2021=new JTramp(v2020, [runJTramp(v2014),runJTramp(v2018)]);
-v1994=v2021;
+var _v1649=new JTramp(_v1648, [runJTramp(_v1646)]);
+var _v1650;
+if(runJTramp(_v1649)) {
+var _v1651=lglobal["head"];
+if (_v1651 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1652=_v1651;
+_v1652=runJTramp(_v1652);
+if (typeof _v1652 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-return v1994;
+var _v1653=new JTramp(_v1652, [runJTramp(_v1620)]);
+var _v1654=_v1653;
+var _v1655=lglobal["repr"];
+if (_v1655 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1656=_v1655;
+_v1656=runJTramp(_v1656);
+if (typeof _v1656 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1657=new JTramp(_v1656, [runJTramp(_v1654)]);
+var _v1658=_v1657;
+var _v1659=" ";
+var _v1660=_v1659;
+var _v1661=lglobal["tail"];
+if (_v1661 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1662=_v1661;
+_v1662=runJTramp(_v1662);
+if (typeof _v1662 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1663=new JTramp(_v1662, [runJTramp(_v1620)]);
+var _v1664=_v1663;
+_v1618=runJTramp(_v1618);
+if (typeof _v1618 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1665=new JTramp(_v1618, [runJTramp(_v1664)]);
+var _v1666=_v1665;
+var _v1667=lglobal["++"];
+if (_v1667 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1668=_v1667;
+_v1668=runJTramp(_v1668);
+if (typeof _v1668 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1669=new JTramp(_v1668, [runJTramp(_v1658),runJTramp(_v1660),runJTramp(_v1666)]);
+_v1650=_v1669;
+} else {
+var _v1670=lglobal["otherwise"];
+if (_v1670 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v1671;
+if(runJTramp(_v1670)) {
+var _v1672=lglobal["head"];
+if (_v1672 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1673=_v1672;
+_v1673=runJTramp(_v1673);
+if (typeof _v1673 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1674=new JTramp(_v1673, [runJTramp(_v1620)]);
+var _v1675=_v1674;
+var _v1676=lglobal["repr"];
+if (_v1676 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1677=_v1676;
+_v1677=runJTramp(_v1677);
+if (typeof _v1677 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1678=new JTramp(_v1677, [runJTramp(_v1675)]);
+var _v1679=_v1678;
+var _v1680=" # ";
+var _v1681=_v1680;
+var _v1682=lglobal["tail"];
+if (_v1682 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1683=_v1682;
+_v1683=runJTramp(_v1683);
+if (typeof _v1683 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1684=new JTramp(_v1683, [runJTramp(_v1620)]);
+var _v1685=_v1684;
+var _v1686=lglobal["repr"];
+if (_v1686 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1687=_v1686;
+_v1687=runJTramp(_v1687);
+if (typeof _v1687 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1688=new JTramp(_v1687, [runJTramp(_v1685)]);
+var _v1689=_v1688;
+var _v1690=")";
+var _v1691=_v1690;
+var _v1692=lglobal["++"];
+if (_v1692 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1693=_v1692;
+_v1693=runJTramp(_v1693);
+if (typeof _v1693 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1694=new JTramp(_v1693, [runJTramp(_v1679),runJTramp(_v1681),runJTramp(_v1689),runJTramp(_v1691)]);
+_v1671=_v1694;
+} else {
+var _v1695=null;
+_v1671=_v1695;
+}
+_v1650=_v1671;
+}
+_v1629=_v1650;
+}
+return _v1629;
 };
-var v2022=v1985;
-v2022=runJTramp(v2022);
-if (typeof v2022 !== "function") {
+var _v1696=_v1618=runJTramp(_v1619);
+var _v1697=lglobal["nil?"];
+if (_v1697 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v1698=_v1697;
+_v1698=runJTramp(_v1698);
+if (typeof _v1698 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2023=new JTramp(v2022, [runJTramp(v1984)]);
-v1979=v2023;
+var _v1699=new JTramp(_v1698, [runJTramp(_v1616)]);
+var _v1700;
+if(runJTramp(_v1699)) {
+var _v1701="()";
+_v1700=_v1701;
 } else {
-var v2024=lglobal["otherwise"];
-var v2025;
-if(runJTramp(v2024)) {
-var v2026=v1880;
-var v2027=lglobal["js:toString"];
-var v2028=v2027;
-v2028=runJTramp(v2028);
-if (typeof v2028 !== "function") {
+var _v1702=lglobal["cons?"];
+if (_v1702 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v1703=_v1702;
+_v1703=runJTramp(_v1703);
+if (typeof _v1703 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2029=new JTramp(v2028, [runJTramp(v2026)]);
-v2025=v2029;
-} else {
-var v2030=null;
-v2025=v2030;
-}
-v1979=v2025;
-}
-v1973=v1979;
-}
-return v1973;
-};
-v1878=v1879;
-lglobal["repr"]=runJTramp(v1878);
-})();
-(function () {
-var v2031;
-var v2032="\n  (function (x) {\n    console.log(x);\n    return null;\n  })\n";
-var v2033=v2032;
-var v2034=lglobal["ffi"];
-var v2035=v2034;
-v2035=runJTramp(v2035);
-if (typeof v2035 !== "function") {
+var _v1704=new JTramp(_v1703, [runJTramp(_v1616)]);
+var _v1705;
+if(runJTramp(_v1704)) {
+var _v1706=lglobal["head"];
+if (_v1706 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1707=_v1706;
+_v1707=runJTramp(_v1707);
+if (typeof _v1707 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2036=new JTramp(v2035, [runJTramp(v2033)]);
-v2031=v2036;
-lglobal["console"]=runJTramp(v2031);
-})();
-(function () {
-var v2037;
-var v2038=new Cons("eof", new Nil());
-v2037=v2038;
-lglobal["eof"]=runJTramp(v2037);
-})();
-(function () {
-var v2039;
-var v2040=function (v2041) {
+var _v1708=new JTramp(_v1707, [runJTramp(_v1616)]);
+var _v1709=_v1708;
+var _v1710=function (_v1711) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2043=v2041;
-var v2044=lglobal["eof"];
-var v2045=v2044;
-var v2046=lglobal["="];
-var v2047=v2046;
-v2047=runJTramp(v2047);
-if (typeof v2047 !== "function") {
+var _v1713="quote";
+var _v1714=_v1713;
+var _v1715=lglobal["="];
+if (_v1715 === undefined) { throw new Error("No such global: " + "="); }
+var _v1716=_v1715;
+_v1716=runJTramp(_v1716);
+if (typeof _v1716 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2048=new JTramp(v2047, [runJTramp(v2043),runJTramp(v2045)]);
-return v2048;
+var _v1717=new JTramp(_v1716, [runJTramp(_v1711),runJTramp(_v1714)]);
+var _v1718;
+if(runJTramp(_v1717)) {
+var _v1719="'";
+var _v1720=_v1719;
+var _v1721=lglobal["tail"];
+if (_v1721 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v1722=_v1721;
+_v1722=runJTramp(_v1722);
+if (typeof _v1722 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1723=new JTramp(_v1722, [runJTramp(_v1616)]);
+var _v1724=_v1723;
+var _v1725=lglobal["head"];
+if (_v1725 === undefined) { throw new Error("No such global: " + "head"); }
+var _v1726=_v1725;
+_v1726=runJTramp(_v1726);
+if (typeof _v1726 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1727=new JTramp(_v1726, [runJTramp(_v1724)]);
+var _v1728=_v1727;
+var _v1729=lglobal["repr"];
+if (_v1729 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v1730=_v1729;
+_v1730=runJTramp(_v1730);
+if (typeof _v1730 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1731=new JTramp(_v1730, [runJTramp(_v1728)]);
+var _v1732=_v1731;
+var _v1733=lglobal["++"];
+if (_v1733 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1734=_v1733;
+_v1734=runJTramp(_v1734);
+if (typeof _v1734 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1735=new JTramp(_v1734, [runJTramp(_v1720),runJTramp(_v1732)]);
+_v1718=_v1735;
+} else {
+var _v1736="(";
+var _v1737=_v1736;
+_v1618=runJTramp(_v1618);
+if (typeof _v1618 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1738=new JTramp(_v1618, [runJTramp(_v1616)]);
+var _v1739=_v1738;
+var _v1740=lglobal["++"];
+if (_v1740 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1741=_v1740;
+_v1741=runJTramp(_v1741);
+if (typeof _v1741 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1742=new JTramp(_v1741, [runJTramp(_v1737),runJTramp(_v1739)]);
+_v1718=_v1742;
+}
+return _v1718;
 };
-v2039=v2040;
-lglobal["eof?"]=runJTramp(v2039);
+var _v1743=_v1710;
+_v1743=runJTramp(_v1743);
+if (typeof _v1743 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1744=new JTramp(_v1743, [runJTramp(_v1709)]);
+_v1705=_v1744;
+} else {
+var _v1745=lglobal["otherwise"];
+if (_v1745 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v1746;
+if(runJTramp(_v1745)) {
+var _v1747=lglobal["js:toString"];
+if (_v1747 === undefined) { throw new Error("No such global: " + "js:toString"); }
+var _v1748=_v1747;
+_v1748=runJTramp(_v1748);
+if (typeof _v1748 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1749=new JTramp(_v1748, [runJTramp(_v1616)]);
+_v1746=_v1749;
+} else {
+var _v1750=null;
+_v1746=_v1750;
+}
+_v1705=_v1746;
+}
+_v1700=_v1705;
+}
+return _v1700;
+};
+_v1614=_v1615;
+lglobal["repr"]=runJTramp(_v1614);
 })();
 (function () {
-var v2049;
-var v2050=function (v2051,v2052) {
+var _v1751;
+var _v1752=(
+  (function (x) {
+    console.log(x);
+    return null;
+  })
+);
+_v1751=_v1752;
+lglobal["console"]=runJTramp(_v1751);
+})();
+(function () {
+var _v1753;
+var _v1754=new Cons("eof", new Nil());
+_v1753=_v1754;
+lglobal["eof"]=runJTramp(_v1753);
+})();
+(function () {
+var _v1755;
+var _v1756=function (_v1757) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v1759=lglobal["eof"];
+if (_v1759 === undefined) { throw new Error("No such global: " + "eof"); }
+var _v1760=_v1759;
+var _v1761=lglobal["="];
+if (_v1761 === undefined) { throw new Error("No such global: " + "="); }
+var _v1762=_v1761;
+_v1762=runJTramp(_v1762);
+if (typeof _v1762 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v1763=new JTramp(_v1762, [runJTramp(_v1757),runJTramp(_v1760)]);
+return _v1763;
+};
+_v1755=_v1756;
+lglobal["eof?"]=runJTramp(_v1755);
+})();
+(function () {
+var _v1764;
+var _v1765=function (_v1766,_v1767) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2054=0;
-var v2055=v2054;
-var v2056=v2052;
-var v2057=lglobal["s:length"];
-var v2058=v2057;
-v2058=runJTramp(v2058);
-if (typeof v2058 !== "function") {
+var _v1769=0;
+var _v1770=_v1769;
+var _v1771=lglobal["s:length"];
+if (_v1771 === undefined) { throw new Error("No such global: " + "s:length"); }
+var _v1772=_v1771;
+_v1772=runJTramp(_v1772);
+if (typeof _v1772 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2059=new JTramp(v2058, [runJTramp(v2056)]);
-var v2060=v2059;
-var v2061=1;
-var v2062=v2061;
-var v2063=0;
-var v2064=v2063;
-var v2065=function (v2066,v2067,v2068,v2069) {
+var _v1773=new JTramp(_v1772, [runJTramp(_v1767)]);
+var _v1774=_v1773;
+var _v1775=1;
+var _v1776=_v1775;
+var _v1777=0;
+var _v1778=_v1777;
+var _v1779=function (_v1780,_v1781,_v1782,_v1783) {
 if (arguments.length < 4) {
 throw new Error("Expecting at least 4 arguments.");
 }
 if (arguments.length > 4) {
 throw new Error("Expecting at most 4 arguments.");
 }
-var v2071;
-var v2072;
-var v2073=function () {
+var _v1785;
+var _v1786;
+var _v1787=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v2075=v2066;
-var v2076=v2067;
-var v2077=lglobal["<"];
-var v2078=v2077;
-v2078=runJTramp(v2078);
-if (typeof v2078 !== "function") {
+var _v1789=lglobal["<"];
+if (_v1789 === undefined) { throw new Error("No such global: " + "<"); }
+var _v1790=_v1789;
+_v1790=runJTramp(_v1790);
+if (typeof _v1790 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2079=new JTramp(v2078, [runJTramp(v2075),runJTramp(v2076)]);
-var v2080;
-if(runJTramp(v2079)) {
-var v2081=v2052;
-var v2082=v2066;
-var v2083=lglobal["s:charAt"];
-var v2084=v2083;
-v2084=runJTramp(v2084);
-if (typeof v2084 !== "function") {
+var _v1791=new JTramp(_v1790, [runJTramp(_v1780),runJTramp(_v1781)]);
+var _v1792;
+if(runJTramp(_v1791)) {
+var _v1793=lglobal["s:charAt"];
+if (_v1793 === undefined) { throw new Error("No such global: " + "s:charAt"); }
+var _v1794=_v1793;
+_v1794=runJTramp(_v1794);
+if (typeof _v1794 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2085=new JTramp(v2084, [runJTramp(v2081),runJTramp(v2082)]);
-v2080=v2085;
+var _v1795=new JTramp(_v1794, [runJTramp(_v1767),runJTramp(_v1780)]);
+_v1792=_v1795;
 } else {
-var v2086=lglobal["eof"];
-v2080=v2086;
+var _v1796=lglobal["eof"];
+if (_v1796 === undefined) { throw new Error("No such global: " + "eof"); }
+_v1792=_v1796;
 }
-return v2080;
+return _v1792;
 };
-var v2087=v2071=runJTramp(v2073);
-var v2088=function () {
+var _v1797=_v1785=runJTramp(_v1787);
+var _v1798=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v2090=v2066;
-var v2091=v2067;
-var v2092=lglobal["<"];
-var v2093=v2092;
-v2093=runJTramp(v2093);
-if (typeof v2093 !== "function") {
+var _v1800=lglobal["<"];
+if (_v1800 === undefined) { throw new Error("No such global: " + "<"); }
+var _v1801=_v1800;
+_v1801=runJTramp(_v1801);
+if (typeof _v1801 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2094=new JTramp(v2093, [runJTramp(v2090),runJTramp(v2091)]);
-var v2095;
-if(runJTramp(v2094)) {
-var v2096=v2052;
-var v2097=v2066;
-var v2098=lglobal["s:charAt"];
-var v2099=v2098;
-v2099=runJTramp(v2099);
-if (typeof v2099 !== "function") {
+var _v1802=new JTramp(_v1801, [runJTramp(_v1780),runJTramp(_v1781)]);
+var _v1803;
+if(runJTramp(_v1802)) {
+var _v1804=lglobal["s:charAt"];
+if (_v1804 === undefined) { throw new Error("No such global: " + "s:charAt"); }
+var _v1805=_v1804;
+_v1805=runJTramp(_v1805);
+if (typeof _v1805 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2100=new JTramp(v2099, [runJTramp(v2096),runJTramp(v2097)]);
-var v2101=v2100;
-var v2102=function (v2103) {
+var _v1806=new JTramp(_v1805, [runJTramp(_v1767),runJTramp(_v1780)]);
+var _v1807=_v1806;
+var _v1808=function (_v1809) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2105=v2103;
-var v2106=function (v2107) {
+var _v1811=function (_v1812) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2109=v2107;
-var v2110="\n";
-var v2111=v2110;
-var v2112=lglobal["="];
-var v2113=v2112;
-v2113=runJTramp(v2113);
-if (typeof v2113 !== "function") {
+var _v1814="\n";
+var _v1815=_v1814;
+var _v1816=lglobal["="];
+if (_v1816 === undefined) { throw new Error("No such global: " + "="); }
+var _v1817=_v1816;
+_v1817=runJTramp(_v1817);
+if (typeof _v1817 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2114=new JTramp(v2113, [runJTramp(v2109),runJTramp(v2111)]);
-var v2115;
-if(runJTramp(v2114)) {
-var v2116=1;
-var v2117=v2116;
-var v2118=v2068;
-var v2119=lglobal["+"];
-var v2120=v2119;
-v2120=runJTramp(v2120);
-if (typeof v2120 !== "function") {
+var _v1818=new JTramp(_v1817, [runJTramp(_v1812),runJTramp(_v1815)]);
+var _v1819;
+if(runJTramp(_v1818)) {
+var _v1820=1;
+var _v1821=_v1820;
+var _v1822=lglobal["+"];
+if (_v1822 === undefined) { throw new Error("No such global: " + "+"); }
+var _v1823=_v1822;
+_v1823=runJTramp(_v1823);
+if (typeof _v1823 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2121=new JTramp(v2120, [runJTramp(v2117),runJTramp(v2118)]);
-var v2122=v2068=runJTramp(v2121);
-v2122=runJTramp(v2122);
-var v2123=0;
-var v2124=v2069=runJTramp(v2123);
-v2115=v2124;
+var _v1824=new JTramp(_v1823, [runJTramp(_v1821),runJTramp(_v1782)]);
+var _v1825=_v1782=runJTramp(_v1824);
+_v1825=runJTramp(_v1825);
+var _v1826=0;
+var _v1827=_v1783=runJTramp(_v1826);
+_v1819=_v1827;
 } else {
-var v2125=1;
-var v2126=v2125;
-var v2127=v2069;
-var v2128=lglobal["+"];
-var v2129=v2128;
-v2129=runJTramp(v2129);
-if (typeof v2129 !== "function") {
+var _v1828=1;
+var _v1829=_v1828;
+var _v1830=lglobal["+"];
+if (_v1830 === undefined) { throw new Error("No such global: " + "+"); }
+var _v1831=_v1830;
+_v1831=runJTramp(_v1831);
+if (typeof _v1831 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2130=new JTramp(v2129, [runJTramp(v2126),runJTramp(v2127)]);
-var v2131=v2069=runJTramp(v2130);
-v2115=v2131;
+var _v1832=new JTramp(_v1831, [runJTramp(_v1829),runJTramp(_v1783)]);
+var _v1833=_v1783=runJTramp(_v1832);
+_v1819=_v1833;
 }
-return v2115;
+return _v1819;
 };
-var v2132=v2106;
-v2132=runJTramp(v2132);
-if (typeof v2132 !== "function") {
+var _v1834=_v1811;
+_v1834=runJTramp(_v1834);
+if (typeof _v1834 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2133=new JTramp(v2132, [runJTramp(v2105)]);
-v2133=runJTramp(v2133);
-var v2134=1;
-var v2135=v2134;
-var v2136=v2066;
-var v2137=lglobal["+"];
-var v2138=v2137;
-v2138=runJTramp(v2138);
-if (typeof v2138 !== "function") {
+var _v1835=new JTramp(_v1834, [runJTramp(_v1809)]);
+_v1835=runJTramp(_v1835);
+var _v1836=1;
+var _v1837=_v1836;
+var _v1838=lglobal["+"];
+if (_v1838 === undefined) { throw new Error("No such global: " + "+"); }
+var _v1839=_v1838;
+_v1839=runJTramp(_v1839);
+if (typeof _v1839 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2139=new JTramp(v2138, [runJTramp(v2135),runJTramp(v2136)]);
-var v2140=v2066=runJTramp(v2139);
-v2140=runJTramp(v2140);
-return v2103;
+var _v1840=new JTramp(_v1839, [runJTramp(_v1837),runJTramp(_v1780)]);
+var _v1841=_v1780=runJTramp(_v1840);
+_v1841=runJTramp(_v1841);
+return _v1809;
 };
-var v2141=v2102;
-v2141=runJTramp(v2141);
-if (typeof v2141 !== "function") {
+var _v1842=_v1808;
+_v1842=runJTramp(_v1842);
+if (typeof _v1842 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2142=new JTramp(v2141, [runJTramp(v2101)]);
-v2095=v2142;
+var _v1843=new JTramp(_v1842, [runJTramp(_v1807)]);
+_v1803=_v1843;
 } else {
-var v2143=lglobal["eof"];
-v2095=v2143;
+var _v1844=lglobal["eof"];
+if (_v1844 === undefined) { throw new Error("No such global: " + "eof"); }
+_v1803=_v1844;
 }
-return v2095;
+return _v1803;
 };
-var v2144=v2072=runJTramp(v2088);
-var v2145=function (v2146) {
+var _v1845=_v1786=runJTramp(_v1798);
+var _v1846=function (_v1847) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v2147 = new Nil();
-for (var v2148 = arguments.length - 1; v2148 >= 1; v2148--) {
-  v2147 = new Cons(arguments[v2148], v2147);
+var _v1848 = new Nil();
+for (var _v1849 = arguments.length - 1; _v1849 >= 1; _v1849--) {
+  _v1848 = new Cons(arguments[_v1849], _v1848);
 }
-var v2149=v2146;
-var v2150=function (v2151) {
+var _v1850=function (_v1851) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2153=v2151;
-var v2154="peek";
-var v2155=v2154;
-var v2156=lglobal["="];
-var v2157=v2156;
-v2157=runJTramp(v2157);
-if (typeof v2157 !== "function") {
+var _v1853="peek";
+var _v1854=_v1853;
+var _v1855=lglobal["="];
+if (_v1855 === undefined) { throw new Error("No such global: " + "="); }
+var _v1856=_v1855;
+_v1856=runJTramp(_v1856);
+if (typeof _v1856 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2158=new JTramp(v2157, [runJTramp(v2153),runJTramp(v2155)]);
-var v2159;
-if(runJTramp(v2158)) {
-v2159=v2071;
+var _v1857=new JTramp(_v1856, [runJTramp(_v1851),runJTramp(_v1854)]);
+var _v1858;
+if(runJTramp(_v1857)) {
+_v1858=_v1785;
 } else {
-var v2160=v2151;
-var v2161="read";
-var v2162=v2161;
-var v2163=lglobal["="];
-var v2164=v2163;
-v2164=runJTramp(v2164);
-if (typeof v2164 !== "function") {
+var _v1859="read";
+var _v1860=_v1859;
+var _v1861=lglobal["="];
+if (_v1861 === undefined) { throw new Error("No such global: " + "="); }
+var _v1862=_v1861;
+_v1862=runJTramp(_v1862);
+if (typeof _v1862 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2165=new JTramp(v2164, [runJTramp(v2160),runJTramp(v2162)]);
-var v2166;
-if(runJTramp(v2165)) {
-v2166=v2072;
+var _v1863=new JTramp(_v1862, [runJTramp(_v1851),runJTramp(_v1860)]);
+var _v1864;
+if(runJTramp(_v1863)) {
+_v1864=_v1786;
 } else {
-var v2167=v2151;
-var v2168="eof?";
-var v2169=v2168;
-var v2170=lglobal["="];
-var v2171=v2170;
-v2171=runJTramp(v2171);
-if (typeof v2171 !== "function") {
+var _v1865="eof?";
+var _v1866=_v1865;
+var _v1867=lglobal["="];
+if (_v1867 === undefined) { throw new Error("No such global: " + "="); }
+var _v1868=_v1867;
+_v1868=runJTramp(_v1868);
+if (typeof _v1868 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2172=new JTramp(v2171, [runJTramp(v2167),runJTramp(v2169)]);
-var v2173;
-if(runJTramp(v2172)) {
-var v2174=function () {
+var _v1869=new JTramp(_v1868, [runJTramp(_v1851),runJTramp(_v1866)]);
+var _v1870;
+if(runJTramp(_v1869)) {
+var _v1871=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v2176=v2066;
-var v2177=v2067;
-var v2178=lglobal[">="];
-var v2179=v2178;
-v2179=runJTramp(v2179);
-if (typeof v2179 !== "function") {
+var _v1873=lglobal[">="];
+if (_v1873 === undefined) { throw new Error("No such global: " + ">="); }
+var _v1874=_v1873;
+_v1874=runJTramp(_v1874);
+if (typeof _v1874 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2180=new JTramp(v2179, [runJTramp(v2176),runJTramp(v2177)]);
-return v2180;
+var _v1875=new JTramp(_v1874, [runJTramp(_v1780),runJTramp(_v1781)]);
+return _v1875;
 };
-v2173=v2174;
+_v1870=_v1871;
 } else {
-var v2181=v2151;
-var v2182="input";
-var v2183=v2182;
-var v2184=lglobal["="];
-var v2185=v2184;
-v2185=runJTramp(v2185);
-if (typeof v2185 !== "function") {
+var _v1876="input";
+var _v1877=_v1876;
+var _v1878=lglobal["="];
+if (_v1878 === undefined) { throw new Error("No such global: " + "="); }
+var _v1879=_v1878;
+_v1879=runJTramp(_v1879);
+if (typeof _v1879 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2186=new JTramp(v2185, [runJTramp(v2181),runJTramp(v2183)]);
-var v2187;
-if(runJTramp(v2186)) {
-var v2188=function () {
+var _v1880=new JTramp(_v1879, [runJTramp(_v1851),runJTramp(_v1877)]);
+var _v1881;
+if(runJTramp(_v1880)) {
+var _v1882=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-return v2052;
+return _v1767;
 };
-v2187=v2188;
+_v1881=_v1882;
 } else {
-var v2190=v2151;
-var v2191="source";
-var v2192=v2191;
-var v2193=lglobal["="];
-var v2194=v2193;
-v2194=runJTramp(v2194);
-if (typeof v2194 !== "function") {
+var _v1884="source";
+var _v1885=_v1884;
+var _v1886=lglobal["="];
+if (_v1886 === undefined) { throw new Error("No such global: " + "="); }
+var _v1887=_v1886;
+_v1887=runJTramp(_v1887);
+if (typeof _v1887 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2195=new JTramp(v2194, [runJTramp(v2190),runJTramp(v2192)]);
-var v2196;
-if(runJTramp(v2195)) {
-var v2197=function () {
+var _v1888=new JTramp(_v1887, [runJTramp(_v1851),runJTramp(_v1885)]);
+var _v1889;
+if(runJTramp(_v1888)) {
+var _v1890=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-return v2051;
+return _v1766;
 };
-v2196=v2197;
+_v1889=_v1890;
 } else {
-var v2199=v2151;
-var v2200="line";
-var v2201=v2200;
-var v2202=lglobal["="];
-var v2203=v2202;
-v2203=runJTramp(v2203);
-if (typeof v2203 !== "function") {
+var _v1892="line";
+var _v1893=_v1892;
+var _v1894=lglobal["="];
+if (_v1894 === undefined) { throw new Error("No such global: " + "="); }
+var _v1895=_v1894;
+_v1895=runJTramp(_v1895);
+if (typeof _v1895 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2204=new JTramp(v2203, [runJTramp(v2199),runJTramp(v2201)]);
-var v2205;
-if(runJTramp(v2204)) {
-var v2206=function () {
+var _v1896=new JTramp(_v1895, [runJTramp(_v1851),runJTramp(_v1893)]);
+var _v1897;
+if(runJTramp(_v1896)) {
+var _v1898=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-return v2068;
+return _v1782;
 };
-v2205=v2206;
+_v1897=_v1898;
 } else {
-var v2208=v2151;
-var v2209="col";
-var v2210=v2209;
-var v2211=lglobal["="];
-var v2212=v2211;
-v2212=runJTramp(v2212);
-if (typeof v2212 !== "function") {
+var _v1900="col";
+var _v1901=_v1900;
+var _v1902=lglobal["="];
+if (_v1902 === undefined) { throw new Error("No such global: " + "="); }
+var _v1903=_v1902;
+_v1903=runJTramp(_v1903);
+if (typeof _v1903 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2213=new JTramp(v2212, [runJTramp(v2208),runJTramp(v2210)]);
-var v2214;
-if(runJTramp(v2213)) {
-var v2215=function () {
+var _v1904=new JTramp(_v1903, [runJTramp(_v1851),runJTramp(_v1901)]);
+var _v1905;
+if(runJTramp(_v1904)) {
+var _v1906=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-return v2069;
+return _v1783;
 };
-v2214=v2215;
+_v1905=_v1906;
 } else {
-var v2217="No such message: ";
-var v2218=v2217;
-var v2219=v2146;
-var v2220=lglobal["++"];
-var v2221=v2220;
-v2221=runJTramp(v2221);
-if (typeof v2221 !== "function") {
+var _v1908="No such message: ";
+var _v1909=_v1908;
+var _v1910=lglobal["++"];
+if (_v1910 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1911=_v1910;
+_v1911=runJTramp(_v1911);
+if (typeof _v1911 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2222=new JTramp(v2221, [runJTramp(v2218),runJTramp(v2219)]);
-var v2223=v2222;
-var v2224=lglobal["error"];
-var v2225=v2224;
-v2225=runJTramp(v2225);
-if (typeof v2225 !== "function") {
+var _v1912=new JTramp(_v1911, [runJTramp(_v1909),runJTramp(_v1847)]);
+var _v1913=_v1912;
+var _v1914=lglobal["error"];
+if (_v1914 === undefined) { throw new Error("No such global: " + "error"); }
+var _v1915=_v1914;
+_v1915=runJTramp(_v1915);
+if (typeof _v1915 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2226=new JTramp(v2225, [runJTramp(v2223)]);
-v2214=v2226;
+var _v1916=new JTramp(_v1915, [runJTramp(_v1913)]);
+_v1905=_v1916;
 }
-v2205=v2214;
+_v1897=_v1905;
 }
-v2196=v2205;
+_v1889=_v1897;
 }
-v2187=v2196;
+_v1881=_v1889;
 }
-v2173=v2187;
+_v1870=_v1881;
 }
-v2166=v2173;
+_v1864=_v1870;
 }
-v2159=v2166;
+_v1858=_v1864;
 }
-return v2159;
+return _v1858;
 };
-var v2227=v2150;
-v2227=runJTramp(v2227);
-if (typeof v2227 !== "function") {
+var _v1917=_v1850;
+_v1917=runJTramp(_v1917);
+if (typeof _v1917 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2228=new JTramp(v2227, [runJTramp(v2149)]);
-var v2229=v2228;
-var v2230=v2147;
-var v2231=lglobal["apply"];
-var v2232=v2231;
-v2232=runJTramp(v2232);
-if (typeof v2232 !== "function") {
+var _v1918=new JTramp(_v1917, [runJTramp(_v1847)]);
+var _v1919=_v1918;
+var _v1920=lglobal["apply"];
+if (_v1920 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v1921=_v1920;
+_v1921=runJTramp(_v1921);
+if (typeof _v1921 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2233=new JTramp(v2232, [runJTramp(v2229),runJTramp(v2230)]);
-return v2233;
+var _v1922=new JTramp(_v1921, [runJTramp(_v1919),runJTramp(_v1848)]);
+return _v1922;
 };
-return v2145;
+return _v1846;
 };
-var v2234=v2065;
-v2234=runJTramp(v2234);
-if (typeof v2234 !== "function") {
+var _v1923=_v1779;
+_v1923=runJTramp(_v1923);
+if (typeof _v1923 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2235=new JTramp(v2234, [runJTramp(v2055),runJTramp(v2060),runJTramp(v2062),runJTramp(v2064)]);
-return v2235;
+var _v1924=new JTramp(_v1923, [runJTramp(_v1770),runJTramp(_v1774),runJTramp(_v1776),runJTramp(_v1778)]);
+return _v1924;
 };
-v2049=v2050;
-lglobal["stream:make"]=runJTramp(v2049);
+_v1764=_v1765;
+lglobal["stream:make"]=runJTramp(_v1764);
 })();
 (function () {
-var v2236;
-var v2237=function (v2238,v2239) {
+var _v1925;
+var _v1926=function (_v1927,_v1928) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2241="source";
-var v2242=v2241;
-var v2243=v2238;
-v2243=runJTramp(v2243);
-if (typeof v2243 !== "function") {
+var _v1930="source";
+var _v1931=_v1930;
+_v1927=runJTramp(_v1927);
+if (typeof _v1927 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2244=new JTramp(v2243, [runJTramp(v2242)]);
-var v2245=v2244;
-var v2246=":";
-var v2247=v2246;
-var v2248="line";
-var v2249=v2248;
-var v2250=v2238;
-v2250=runJTramp(v2250);
-if (typeof v2250 !== "function") {
+var _v1932=new JTramp(_v1927, [runJTramp(_v1931)]);
+var _v1933=_v1932;
+var _v1934=":";
+var _v1935=_v1934;
+var _v1936="line";
+var _v1937=_v1936;
+_v1927=runJTramp(_v1927);
+if (typeof _v1927 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2251=new JTramp(v2250, [runJTramp(v2249)]);
-var v2252=v2251;
-var v2253=":";
-var v2254=v2253;
-var v2255="col";
-var v2256=v2255;
-var v2257=v2238;
-v2257=runJTramp(v2257);
-if (typeof v2257 !== "function") {
+var _v1938=new JTramp(_v1927, [runJTramp(_v1937)]);
+var _v1939=_v1938;
+var _v1940=":";
+var _v1941=_v1940;
+var _v1942="col";
+var _v1943=_v1942;
+_v1927=runJTramp(_v1927);
+if (typeof _v1927 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2258=new JTramp(v2257, [runJTramp(v2256)]);
-var v2259=v2258;
-var v2260=": ";
-var v2261=v2260;
-var v2262=v2239;
-var v2263=lglobal["++"];
-var v2264=v2263;
-v2264=runJTramp(v2264);
-if (typeof v2264 !== "function") {
+var _v1944=new JTramp(_v1927, [runJTramp(_v1943)]);
+var _v1945=_v1944;
+var _v1946=": ";
+var _v1947=_v1946;
+var _v1948=lglobal["++"];
+if (_v1948 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1949=_v1948;
+_v1949=runJTramp(_v1949);
+if (typeof _v1949 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2265=new JTramp(v2264, [runJTramp(v2245),runJTramp(v2247),runJTramp(v2252),runJTramp(v2254),runJTramp(v2259),runJTramp(v2261),runJTramp(v2262)]);
-var v2266=v2265;
-var v2267=lglobal["error"];
-var v2268=v2267;
-v2268=runJTramp(v2268);
-if (typeof v2268 !== "function") {
+var _v1950=new JTramp(_v1949, [runJTramp(_v1933),runJTramp(_v1935),runJTramp(_v1939),runJTramp(_v1941),runJTramp(_v1945),runJTramp(_v1947),runJTramp(_v1928)]);
+var _v1951=_v1950;
+var _v1952=lglobal["error"];
+if (_v1952 === undefined) { throw new Error("No such global: " + "error"); }
+var _v1953=_v1952;
+_v1953=runJTramp(_v1953);
+if (typeof _v1953 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2269=new JTramp(v2268, [runJTramp(v2266)]);
-return v2269;
+var _v1954=new JTramp(_v1953, [runJTramp(_v1951)]);
+return _v1954;
 };
-v2236=v2237;
-lglobal["stream:error"]=runJTramp(v2236);
+_v1925=_v1926;
+lglobal["stream:error"]=runJTramp(_v1925);
 })();
 (function () {
-var v2270;
-var v2271=function (v2272,v2273) {
+var _v1955;
+var _v1956=function (_v1957,_v1958) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2275=v2272;
-var v2276="Expecting '";
-var v2277=v2276;
-var v2278=v2273;
-var v2279="'.";
-var v2280=v2279;
-var v2281=lglobal["++"];
-var v2282=v2281;
-v2282=runJTramp(v2282);
-if (typeof v2282 !== "function") {
+var _v1960="Expecting '";
+var _v1961=_v1960;
+var _v1962="'.";
+var _v1963=_v1962;
+var _v1964=lglobal["++"];
+if (_v1964 === undefined) { throw new Error("No such global: " + "++"); }
+var _v1965=_v1964;
+_v1965=runJTramp(_v1965);
+if (typeof _v1965 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2283=new JTramp(v2282, [runJTramp(v2277),runJTramp(v2278),runJTramp(v2280)]);
-var v2284=v2283;
-var v2285=lglobal["stream:error"];
-var v2286=v2285;
-v2286=runJTramp(v2286);
-if (typeof v2286 !== "function") {
+var _v1966=new JTramp(_v1965, [runJTramp(_v1961),runJTramp(_v1958),runJTramp(_v1963)]);
+var _v1967=_v1966;
+var _v1968=lglobal["stream:error"];
+if (_v1968 === undefined) { throw new Error("No such global: " + "stream:error"); }
+var _v1969=_v1968;
+_v1969=runJTramp(_v1969);
+if (typeof _v1969 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2287=new JTramp(v2286, [runJTramp(v2275),runJTramp(v2284)]);
-return v2287;
+var _v1970=new JTramp(_v1969, [runJTramp(_v1957),runJTramp(_v1967)]);
+return _v1970;
 };
-v2270=v2271;
-lglobal["stream:error-expecting"]=runJTramp(v2270);
+_v1955=_v1956;
+lglobal["stream:error-expecting"]=runJTramp(_v1955);
 })();
 (function () {
-var v2288;
-var v2289=function (v2290,v2291) {
+var _v1971;
+var _v1972=function (_v1973,_v1974) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2293=v2291;
-var v2294="peek";
-var v2295=v2294;
-var v2296=v2290;
-v2296=runJTramp(v2296);
-if (typeof v2296 !== "function") {
+var _v1976="peek";
+var _v1977=_v1976;
+_v1973=runJTramp(_v1973);
+if (typeof _v1973 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2297=new JTramp(v2296, [runJTramp(v2295)]);
-var v2298=v2297;
-var v2299=lglobal["="];
-var v2300=v2299;
-v2300=runJTramp(v2300);
-if (typeof v2300 !== "function") {
+var _v1978=new JTramp(_v1973, [runJTramp(_v1977)]);
+var _v1979=_v1978;
+var _v1980=lglobal["="];
+if (_v1980 === undefined) { throw new Error("No such global: " + "="); }
+var _v1981=_v1980;
+_v1981=runJTramp(_v1981);
+if (typeof _v1981 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2301=new JTramp(v2300, [runJTramp(v2293),runJTramp(v2298)]);
-var v2302=v2301;
-var v2303=function (v2304) {
+var _v1982=new JTramp(_v1981, [runJTramp(_v1974),runJTramp(_v1979)]);
+var _v1983=_v1982;
+var _v1984=function (_v1985) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2306;
-if(runJTramp(v2304)) {
-var v2307="read";
-var v2308=v2307;
-var v2309=v2290;
-v2309=runJTramp(v2309);
-if (typeof v2309 !== "function") {
+var _v1987;
+if(runJTramp(_v1985)) {
+var _v1988="read";
+var _v1989=_v1988;
+_v1973=runJTramp(_v1973);
+if (typeof _v1973 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2310=new JTramp(v2309, [runJTramp(v2308)]);
-v2310=runJTramp(v2310);
-var v2311=lglobal["true"];
-v2306=v2311;
+var _v1990=new JTramp(_v1973, [runJTramp(_v1989)]);
+_v1990=runJTramp(_v1990);
+var _v1991=lglobal["true"];
+if (_v1991 === undefined) { throw new Error("No such global: " + "true"); }
+_v1987=_v1991;
 } else {
-v2306=v2304;
+_v1987=_v1985;
 }
-return v2306;
+return _v1987;
 };
-var v2312=v2303;
-v2312=runJTramp(v2312);
-if (typeof v2312 !== "function") {
+var _v1992=_v1984;
+_v1992=runJTramp(_v1992);
+if (typeof _v1992 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2313=new JTramp(v2312, [runJTramp(v2302)]);
-return v2313;
+var _v1993=new JTramp(_v1992, [runJTramp(_v1983)]);
+return _v1993;
 };
-v2288=v2289;
-lglobal["stream:try-read"]=runJTramp(v2288);
+_v1971=_v1972;
+lglobal["stream:try-read"]=runJTramp(_v1971);
 })();
 (function () {
-var v2314;
-var v2315=function (v2316,v2317) {
+var _v1994;
+var _v1995=function (_v1996,_v1997) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2319=v2316;
-var v2320=v2317;
-var v2321=lglobal["stream:try-read"];
-var v2322=v2321;
-v2322=runJTramp(v2322);
-if (typeof v2322 !== "function") {
+var _v1999=lglobal["stream:try-read"];
+if (_v1999 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2000=_v1999;
+_v2000=runJTramp(_v2000);
+if (typeof _v2000 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2323=new JTramp(v2322, [runJTramp(v2319),runJTramp(v2320)]);
-var v2324=v2323;
-var v2325=function (v2326) {
+var _v2001=new JTramp(_v2000, [runJTramp(_v1996),runJTramp(_v1997)]);
+var _v2002=_v2001;
+var _v2003=function (_v2004) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2328;
-if(runJTramp(v2326)) {
-v2328=v2326;
+var _v2006;
+if(runJTramp(_v2004)) {
+_v2006=_v2004;
 } else {
-var v2329=v2316;
-var v2330=v2317;
-var v2331=lglobal["stream:error-expecting"];
-var v2332=v2331;
-v2332=runJTramp(v2332);
-if (typeof v2332 !== "function") {
+var _v2007=lglobal["stream:error-expecting"];
+if (_v2007 === undefined) { throw new Error("No such global: " + "stream:error-expecting"); }
+var _v2008=_v2007;
+_v2008=runJTramp(_v2008);
+if (typeof _v2008 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2333=new JTramp(v2332, [runJTramp(v2329),runJTramp(v2330)]);
-v2328=v2333;
+var _v2009=new JTramp(_v2008, [runJTramp(_v1996),runJTramp(_v1997)]);
+_v2006=_v2009;
 }
-return v2328;
+return _v2006;
 };
-var v2334=v2325;
-v2334=runJTramp(v2334);
-if (typeof v2334 !== "function") {
+var _v2010=_v2003;
+_v2010=runJTramp(_v2010);
+if (typeof _v2010 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2335=new JTramp(v2334, [runJTramp(v2324)]);
-return v2335;
+var _v2011=new JTramp(_v2010, [runJTramp(_v2002)]);
+return _v2011;
 };
-v2314=v2315;
-lglobal["stream:read-expect"]=runJTramp(v2314);
+_v1994=_v1995;
+lglobal["stream:read-expect"]=runJTramp(_v1994);
 })();
 (function () {
-var v2336;
-var v2337=function (v2338,v2339) {
+var _v2012;
+var _v2013=function (_v2014,_v2015) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2341=-1;
-var v2342=v2341;
-var v2343=v2338;
-var v2344=v2339;
-var v2345=lglobal["s:indexOf"];
-var v2346=v2345;
-v2346=runJTramp(v2346);
-if (typeof v2346 !== "function") {
+var _v2017=-1;
+var _v2018=_v2017;
+var _v2019=lglobal["s:indexOf"];
+if (_v2019 === undefined) { throw new Error("No such global: " + "s:indexOf"); }
+var _v2020=_v2019;
+_v2020=runJTramp(_v2020);
+if (typeof _v2020 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2347=new JTramp(v2346, [runJTramp(v2343),runJTramp(v2344)]);
-var v2348=v2347;
-var v2349=lglobal["!="];
-var v2350=v2349;
-v2350=runJTramp(v2350);
-if (typeof v2350 !== "function") {
+var _v2021=new JTramp(_v2020, [runJTramp(_v2014),runJTramp(_v2015)]);
+var _v2022=_v2021;
+var _v2023=lglobal["!="];
+if (_v2023 === undefined) { throw new Error("No such global: " + "!="); }
+var _v2024=_v2023;
+_v2024=runJTramp(_v2024);
+if (typeof _v2024 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2351=new JTramp(v2350, [runJTramp(v2342),runJTramp(v2348)]);
-return v2351;
+var _v2025=new JTramp(_v2024, [runJTramp(_v2018),runJTramp(_v2022)]);
+return _v2025;
 };
-v2336=v2337;
-lglobal["s:contains"]=runJTramp(v2336);
+_v2012=_v2013;
+lglobal["s:contains"]=runJTramp(_v2012);
 })();
 (function () {
-var v2352;
-var v2353=function (v2354) {
+var _v2026;
+var _v2027=function (_v2028) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2356="eof?";
-var v2357=v2356;
-var v2358=v2354;
-v2358=runJTramp(v2358);
-if (typeof v2358 !== "function") {
+var _v2030="eof?";
+var _v2031=_v2030;
+_v2028=runJTramp(_v2028);
+if (typeof _v2028 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2359=new JTramp(v2358, [runJTramp(v2357)]);
-var v2360;
-if(runJTramp(v2359)) {
-var v2361="pass";
-v2360=v2361;
+var _v2032=new JTramp(_v2028, [runJTramp(_v2031)]);
+var _v2033;
+if(runJTramp(_v2032)) {
+var _v2034="pass";
+_v2033=_v2034;
 } else {
-var v2362="\n";
-var v2363=v2362;
-var v2364="peek";
-var v2365=v2364;
-var v2366=v2354;
-v2366=runJTramp(v2366);
-if (typeof v2366 !== "function") {
+var _v2035="\n";
+var _v2036=_v2035;
+var _v2037="peek";
+var _v2038=_v2037;
+_v2028=runJTramp(_v2028);
+if (typeof _v2028 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2367=new JTramp(v2366, [runJTramp(v2365)]);
-var v2368=v2367;
-var v2369=lglobal["="];
-var v2370=v2369;
-v2370=runJTramp(v2370);
-if (typeof v2370 !== "function") {
+var _v2039=new JTramp(_v2028, [runJTramp(_v2038)]);
+var _v2040=_v2039;
+var _v2041=lglobal["="];
+if (_v2041 === undefined) { throw new Error("No such global: " + "="); }
+var _v2042=_v2041;
+_v2042=runJTramp(_v2042);
+if (typeof _v2042 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2371=new JTramp(v2370, [runJTramp(v2363),runJTramp(v2368)]);
-var v2372;
-if(runJTramp(v2371)) {
-var v2373=v2354;
-var v2374=lglobal["read:eat-spaces"];
-var v2375=v2374;
-v2375=runJTramp(v2375);
-if (typeof v2375 !== "function") {
+var _v2043=new JTramp(_v2042, [runJTramp(_v2036),runJTramp(_v2040)]);
+var _v2044;
+if(runJTramp(_v2043)) {
+var _v2045=lglobal["read:eat-spaces"];
+if (_v2045 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2046=_v2045;
+_v2046=runJTramp(_v2046);
+if (typeof _v2046 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2376=new JTramp(v2375, [runJTramp(v2373)]);
-v2372=v2376;
+var _v2047=new JTramp(_v2046, [runJTramp(_v2028)]);
+_v2044=_v2047;
 } else {
-var v2377=lglobal["otherwise"];
-var v2378;
-if(runJTramp(v2377)) {
-var v2379="read";
-var v2380=v2379;
-var v2381=v2354;
-v2381=runJTramp(v2381);
-if (typeof v2381 !== "function") {
+var _v2048=lglobal["otherwise"];
+if (_v2048 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v2049;
+if(runJTramp(_v2048)) {
+var _v2050="read";
+var _v2051=_v2050;
+_v2028=runJTramp(_v2028);
+if (typeof _v2028 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2382=new JTramp(v2381, [runJTramp(v2380)]);
-v2382=runJTramp(v2382);
-var v2383=v2354;
-var v2384=lglobal["read:eat-comment"];
-var v2385=v2384;
-v2385=runJTramp(v2385);
-if (typeof v2385 !== "function") {
+var _v2052=new JTramp(_v2028, [runJTramp(_v2051)]);
+_v2052=runJTramp(_v2052);
+var _v2053=lglobal["read:eat-comment"];
+if (_v2053 === undefined) { throw new Error("No such global: " + "read:eat-comment"); }
+var _v2054=_v2053;
+_v2054=runJTramp(_v2054);
+if (typeof _v2054 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2386=new JTramp(v2385, [runJTramp(v2383)]);
-v2378=v2386;
+var _v2055=new JTramp(_v2054, [runJTramp(_v2028)]);
+_v2049=_v2055;
 } else {
-var v2387=null;
-v2378=v2387;
+var _v2056=null;
+_v2049=_v2056;
 }
-v2372=v2378;
+_v2044=_v2049;
 }
-v2360=v2372;
+_v2033=_v2044;
 }
-return v2360;
+return _v2033;
 };
-v2352=v2353;
-lglobal["read:eat-comment"]=runJTramp(v2352);
+_v2026=_v2027;
+lglobal["read:eat-comment"]=runJTramp(_v2026);
 })();
 (function () {
-var v2388;
-var v2389=function (v2390) {
+var _v2057;
+var _v2058=function (_v2059) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2392="eof?";
-var v2393=v2392;
-var v2394=v2390;
-v2394=runJTramp(v2394);
-if (typeof v2394 !== "function") {
+var _v2061="eof?";
+var _v2062=_v2061;
+_v2059=runJTramp(_v2059);
+if (typeof _v2059 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2395=new JTramp(v2394, [runJTramp(v2393)]);
-var v2396;
-if(runJTramp(v2395)) {
-var v2397="pass";
-v2396=v2397;
+var _v2063=new JTramp(_v2059, [runJTramp(_v2062)]);
+var _v2064;
+if(runJTramp(_v2063)) {
+var _v2065="pass";
+_v2064=_v2065;
 } else {
-var v2398=" \t\n\r";
-var v2399=v2398;
-var v2400="peek";
-var v2401=v2400;
-var v2402=v2390;
-v2402=runJTramp(v2402);
-if (typeof v2402 !== "function") {
+var _v2066=" \t\n\r";
+var _v2067=_v2066;
+var _v2068="peek";
+var _v2069=_v2068;
+_v2059=runJTramp(_v2059);
+if (typeof _v2059 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2403=new JTramp(v2402, [runJTramp(v2401)]);
-var v2404=v2403;
-var v2405=lglobal["s:contains"];
-var v2406=v2405;
-v2406=runJTramp(v2406);
-if (typeof v2406 !== "function") {
+var _v2070=new JTramp(_v2059, [runJTramp(_v2069)]);
+var _v2071=_v2070;
+var _v2072=lglobal["s:contains"];
+if (_v2072 === undefined) { throw new Error("No such global: " + "s:contains"); }
+var _v2073=_v2072;
+_v2073=runJTramp(_v2073);
+if (typeof _v2073 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2407=new JTramp(v2406, [runJTramp(v2399),runJTramp(v2404)]);
-var v2408;
-if(runJTramp(v2407)) {
-var v2409="read";
-var v2410=v2409;
-var v2411=v2390;
-v2411=runJTramp(v2411);
-if (typeof v2411 !== "function") {
+var _v2074=new JTramp(_v2073, [runJTramp(_v2067),runJTramp(_v2071)]);
+var _v2075;
+if(runJTramp(_v2074)) {
+var _v2076="read";
+var _v2077=_v2076;
+_v2059=runJTramp(_v2059);
+if (typeof _v2059 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2412=new JTramp(v2411, [runJTramp(v2410)]);
-v2412=runJTramp(v2412);
-var v2413=v2390;
-var v2414=lglobal["read:eat-spaces"];
-var v2415=v2414;
-v2415=runJTramp(v2415);
-if (typeof v2415 !== "function") {
+var _v2078=new JTramp(_v2059, [runJTramp(_v2077)]);
+_v2078=runJTramp(_v2078);
+var _v2079=lglobal["read:eat-spaces"];
+if (_v2079 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2080=_v2079;
+_v2080=runJTramp(_v2080);
+if (typeof _v2080 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2416=new JTramp(v2415, [runJTramp(v2413)]);
-v2408=v2416;
+var _v2081=new JTramp(_v2080, [runJTramp(_v2059)]);
+_v2075=_v2081;
 } else {
-var v2417=";";
-var v2418=v2417;
-var v2419="peek";
-var v2420=v2419;
-var v2421=v2390;
-v2421=runJTramp(v2421);
-if (typeof v2421 !== "function") {
+var _v2082=";";
+var _v2083=_v2082;
+var _v2084="peek";
+var _v2085=_v2084;
+_v2059=runJTramp(_v2059);
+if (typeof _v2059 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2422=new JTramp(v2421, [runJTramp(v2420)]);
-var v2423=v2422;
-var v2424=lglobal["="];
-var v2425=v2424;
-v2425=runJTramp(v2425);
-if (typeof v2425 !== "function") {
+var _v2086=new JTramp(_v2059, [runJTramp(_v2085)]);
+var _v2087=_v2086;
+var _v2088=lglobal["="];
+if (_v2088 === undefined) { throw new Error("No such global: " + "="); }
+var _v2089=_v2088;
+_v2089=runJTramp(_v2089);
+if (typeof _v2089 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2426=new JTramp(v2425, [runJTramp(v2418),runJTramp(v2423)]);
-var v2427;
-if(runJTramp(v2426)) {
-var v2428=v2390;
-var v2429=lglobal["read:eat-comment"];
-var v2430=v2429;
-v2430=runJTramp(v2430);
-if (typeof v2430 !== "function") {
+var _v2090=new JTramp(_v2089, [runJTramp(_v2083),runJTramp(_v2087)]);
+var _v2091;
+if(runJTramp(_v2090)) {
+var _v2092=lglobal["read:eat-comment"];
+if (_v2092 === undefined) { throw new Error("No such global: " + "read:eat-comment"); }
+var _v2093=_v2092;
+_v2093=runJTramp(_v2093);
+if (typeof _v2093 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2431=new JTramp(v2430, [runJTramp(v2428)]);
-v2427=v2431;
+var _v2094=new JTramp(_v2093, [runJTramp(_v2059)]);
+_v2091=_v2094;
 } else {
-var v2432=null;
-v2427=v2432;
+var _v2095=null;
+_v2091=_v2095;
 }
-v2408=v2427;
+_v2075=_v2091;
 }
-v2396=v2408;
+_v2064=_v2075;
 }
-return v2396;
+return _v2064;
 };
-v2388=v2389;
-lglobal["read:eat-spaces"]=runJTramp(v2388);
+_v2057=_v2058;
+lglobal["read:eat-spaces"]=runJTramp(_v2057);
 })();
 (function () {
-var v2433;
-var v2434=function (v2435) {
+var _v2096;
+var _v2097=function (_v2098) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2437=v2435;
-var v2438=lglobal["read:eat-spaces"];
-var v2439=v2438;
-v2439=runJTramp(v2439);
-if (typeof v2439 !== "function") {
+var _v2100=lglobal["read:eat-spaces"];
+if (_v2100 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2101=_v2100;
+_v2101=runJTramp(_v2101);
+if (typeof _v2101 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2440=new JTramp(v2439, [runJTramp(v2437)]);
-v2440=runJTramp(v2440);
-var v2441="eof?";
-var v2442=v2441;
-var v2443=v2435;
-v2443=runJTramp(v2443);
-if (typeof v2443 !== "function") {
+var _v2102=new JTramp(_v2101, [runJTramp(_v2098)]);
+_v2102=runJTramp(_v2102);
+var _v2103="eof?";
+var _v2104=_v2103;
+_v2098=runJTramp(_v2098);
+if (typeof _v2098 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2444=new JTramp(v2443, [runJTramp(v2442)]);
-var v2445;
-if(runJTramp(v2444)) {
-var v2446=v2435;
-var v2447=")";
-var v2448=v2447;
-var v2449=lglobal["stream:error-expecting"];
-var v2450=v2449;
-v2450=runJTramp(v2450);
-if (typeof v2450 !== "function") {
+var _v2105=new JTramp(_v2098, [runJTramp(_v2104)]);
+var _v2106;
+if(runJTramp(_v2105)) {
+var _v2107=")";
+var _v2108=_v2107;
+var _v2109=lglobal["stream:error-expecting"];
+if (_v2109 === undefined) { throw new Error("No such global: " + "stream:error-expecting"); }
+var _v2110=_v2109;
+_v2110=runJTramp(_v2110);
+if (typeof _v2110 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2451=new JTramp(v2450, [runJTramp(v2446),runJTramp(v2448)]);
-v2445=v2451;
+var _v2111=new JTramp(_v2110, [runJTramp(_v2098),runJTramp(_v2108)]);
+_v2106=_v2111;
 } else {
-var v2452=v2435;
-var v2453=")";
-var v2454=v2453;
-var v2455=lglobal["stream:try-read"];
-var v2456=v2455;
-v2456=runJTramp(v2456);
-if (typeof v2456 !== "function") {
+var _v2112=")";
+var _v2113=_v2112;
+var _v2114=lglobal["stream:try-read"];
+if (_v2114 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2115=_v2114;
+_v2115=runJTramp(_v2115);
+if (typeof _v2115 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2457=new JTramp(v2456, [runJTramp(v2452),runJTramp(v2454)]);
-var v2458;
-if(runJTramp(v2457)) {
-var v2459=new Nil();
-v2458=v2459;
+var _v2116=new JTramp(_v2115, [runJTramp(_v2098),runJTramp(_v2113)]);
+var _v2117;
+if(runJTramp(_v2116)) {
+var _v2118=new Nil();
+_v2117=_v2118;
 } else {
-var v2460=lglobal["otherwise"];
-var v2461;
-if(runJTramp(v2460)) {
-var v2462=v2435;
-var v2463=lglobal["read:sexp"];
-var v2464=v2463;
-v2464=runJTramp(v2464);
-if (typeof v2464 !== "function") {
+var _v2119=lglobal["otherwise"];
+if (_v2119 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v2120;
+if(runJTramp(_v2119)) {
+var _v2121=lglobal["read:sexp"];
+if (_v2121 === undefined) { throw new Error("No such global: " + "read:sexp"); }
+var _v2122=_v2121;
+_v2122=runJTramp(_v2122);
+if (typeof _v2122 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2465=new JTramp(v2464, [runJTramp(v2462)]);
-var v2466=v2465;
-var v2467=function (v2468) {
+var _v2123=new JTramp(_v2122, [runJTramp(_v2098)]);
+var _v2124=_v2123;
+var _v2125=function (_v2126) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2470=v2435;
-var v2471=lglobal["read:eat-spaces"];
-var v2472=v2471;
-v2472=runJTramp(v2472);
-if (typeof v2472 !== "function") {
+var _v2128=lglobal["read:eat-spaces"];
+if (_v2128 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2129=_v2128;
+_v2129=runJTramp(_v2129);
+if (typeof _v2129 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2473=new JTramp(v2472, [runJTramp(v2470)]);
-v2473=runJTramp(v2473);
-var v2474=v2435;
-var v2475="#";
-var v2476=v2475;
-var v2477=lglobal["stream:try-read"];
-var v2478=v2477;
-v2478=runJTramp(v2478);
-if (typeof v2478 !== "function") {
+var _v2130=new JTramp(_v2129, [runJTramp(_v2098)]);
+_v2130=runJTramp(_v2130);
+var _v2131="#";
+var _v2132=_v2131;
+var _v2133=lglobal["stream:try-read"];
+if (_v2133 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2134=_v2133;
+_v2134=runJTramp(_v2134);
+if (typeof _v2134 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2479=new JTramp(v2478, [runJTramp(v2474),runJTramp(v2476)]);
-var v2480;
-if(runJTramp(v2479)) {
-var v2481=v2468;
-var v2482=v2435;
-var v2483=lglobal["read:sexp"];
-var v2484=v2483;
-v2484=runJTramp(v2484);
-if (typeof v2484 !== "function") {
+var _v2135=new JTramp(_v2134, [runJTramp(_v2098),runJTramp(_v2132)]);
+var _v2136;
+if(runJTramp(_v2135)) {
+var _v2137=lglobal["read:sexp"];
+if (_v2137 === undefined) { throw new Error("No such global: " + "read:sexp"); }
+var _v2138=_v2137;
+_v2138=runJTramp(_v2138);
+if (typeof _v2138 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2485=new JTramp(v2484, [runJTramp(v2482)]);
-var v2486=v2485;
-var v2487=lglobal["cons"];
-var v2488=v2487;
-v2488=runJTramp(v2488);
-if (typeof v2488 !== "function") {
+var _v2139=new JTramp(_v2138, [runJTramp(_v2098)]);
+var _v2140=_v2139;
+var _v2141=lglobal["cons"];
+if (_v2141 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v2142=_v2141;
+_v2142=runJTramp(_v2142);
+if (typeof _v2142 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2489=new JTramp(v2488, [runJTramp(v2481),runJTramp(v2486)]);
-var v2490=v2489;
-var v2491=function (v2492) {
+var _v2143=new JTramp(_v2142, [runJTramp(_v2126),runJTramp(_v2140)]);
+var _v2144=_v2143;
+var _v2145=function (_v2146) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2494=v2435;
-var v2495=lglobal["read:eat-spaces"];
-var v2496=v2495;
-v2496=runJTramp(v2496);
-if (typeof v2496 !== "function") {
+var _v2148=lglobal["read:eat-spaces"];
+if (_v2148 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2149=_v2148;
+_v2149=runJTramp(_v2149);
+if (typeof _v2149 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2497=new JTramp(v2496, [runJTramp(v2494)]);
-v2497=runJTramp(v2497);
-var v2498=v2435;
-var v2499=")";
-var v2500=v2499;
-var v2501=lglobal["stream:read-expect"];
-var v2502=v2501;
-v2502=runJTramp(v2502);
-if (typeof v2502 !== "function") {
+var _v2150=new JTramp(_v2149, [runJTramp(_v2098)]);
+_v2150=runJTramp(_v2150);
+var _v2151=")";
+var _v2152=_v2151;
+var _v2153=lglobal["stream:read-expect"];
+if (_v2153 === undefined) { throw new Error("No such global: " + "stream:read-expect"); }
+var _v2154=_v2153;
+_v2154=runJTramp(_v2154);
+if (typeof _v2154 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2503=new JTramp(v2502, [runJTramp(v2498),runJTramp(v2500)]);
-v2503=runJTramp(v2503);
-return v2492;
+var _v2155=new JTramp(_v2154, [runJTramp(_v2098),runJTramp(_v2152)]);
+_v2155=runJTramp(_v2155);
+return _v2146;
 };
-var v2504=v2491;
-v2504=runJTramp(v2504);
-if (typeof v2504 !== "function") {
+var _v2156=_v2145;
+_v2156=runJTramp(_v2156);
+if (typeof _v2156 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2505=new JTramp(v2504, [runJTramp(v2490)]);
-v2480=v2505;
+var _v2157=new JTramp(_v2156, [runJTramp(_v2144)]);
+_v2136=_v2157;
 } else {
-var v2506=v2468;
-var v2507=v2435;
-var v2508=lglobal["read:sexp-tail"];
-var v2509=v2508;
-v2509=runJTramp(v2509);
-if (typeof v2509 !== "function") {
+var _v2158=lglobal["read:sexp-tail"];
+if (_v2158 === undefined) { throw new Error("No such global: " + "read:sexp-tail"); }
+var _v2159=_v2158;
+_v2159=runJTramp(_v2159);
+if (typeof _v2159 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2510=new JTramp(v2509, [runJTramp(v2507)]);
-var v2511=v2510;
-var v2512=lglobal["cons"];
-var v2513=v2512;
-v2513=runJTramp(v2513);
-if (typeof v2513 !== "function") {
+var _v2160=new JTramp(_v2159, [runJTramp(_v2098)]);
+var _v2161=_v2160;
+var _v2162=lglobal["cons"];
+if (_v2162 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v2163=_v2162;
+_v2163=runJTramp(_v2163);
+if (typeof _v2163 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2514=new JTramp(v2513, [runJTramp(v2506),runJTramp(v2511)]);
-v2480=v2514;
+var _v2164=new JTramp(_v2163, [runJTramp(_v2126),runJTramp(_v2161)]);
+_v2136=_v2164;
 }
-return v2480;
+return _v2136;
 };
-var v2515=v2467;
-v2515=runJTramp(v2515);
-if (typeof v2515 !== "function") {
+var _v2165=_v2125;
+_v2165=runJTramp(_v2165);
+if (typeof _v2165 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2516=new JTramp(v2515, [runJTramp(v2466)]);
-v2461=v2516;
+var _v2166=new JTramp(_v2165, [runJTramp(_v2124)]);
+_v2120=_v2166;
 } else {
-var v2517=null;
-v2461=v2517;
+var _v2167=null;
+_v2120=_v2167;
 }
-v2458=v2461;
+_v2117=_v2120;
 }
-v2445=v2458;
+_v2106=_v2117;
 }
-return v2445;
+return _v2106;
 };
-v2433=v2434;
-lglobal["read:sexp-tail"]=runJTramp(v2433);
+_v2096=_v2097;
+lglobal["read:sexp-tail"]=runJTramp(_v2096);
 })();
 (function () {
-var v2518;
-var v2519=function (v2520) {
+var _v2168;
+var _v2169=function (_v2170) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2522="eof?";
-var v2523=v2522;
-var v2524=v2520;
-v2524=runJTramp(v2524);
-if (typeof v2524 !== "function") {
+var _v2172="eof?";
+var _v2173=_v2172;
+_v2170=runJTramp(_v2170);
+if (typeof _v2170 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2525=new JTramp(v2524, [runJTramp(v2523)]);
-var v2526;
-if(runJTramp(v2525)) {
-var v2527=v2520;
-var v2528="\"";
-var v2529=v2528;
-var v2530=lglobal["stream:error-expecting"];
-var v2531=v2530;
-v2531=runJTramp(v2531);
-if (typeof v2531 !== "function") {
+var _v2174=new JTramp(_v2170, [runJTramp(_v2173)]);
+var _v2175;
+if(runJTramp(_v2174)) {
+var _v2176="\"";
+var _v2177=_v2176;
+var _v2178=lglobal["stream:error-expecting"];
+if (_v2178 === undefined) { throw new Error("No such global: " + "stream:error-expecting"); }
+var _v2179=_v2178;
+_v2179=runJTramp(_v2179);
+if (typeof _v2179 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2532=new JTramp(v2531, [runJTramp(v2527),runJTramp(v2529)]);
-v2526=v2532;
+var _v2180=new JTramp(_v2179, [runJTramp(_v2170),runJTramp(_v2177)]);
+_v2175=_v2180;
 } else {
-var v2533="read";
-var v2534=v2533;
-var v2535=v2520;
-v2535=runJTramp(v2535);
-if (typeof v2535 !== "function") {
+var _v2181="read";
+var _v2182=_v2181;
+_v2170=runJTramp(_v2170);
+if (typeof _v2170 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2536=new JTramp(v2535, [runJTramp(v2534)]);
-var v2537=v2536;
-var v2538=function (v2539) {
+var _v2183=new JTramp(_v2170, [runJTramp(_v2182)]);
+var _v2184=_v2183;
+var _v2185=function (_v2186) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2541=v2539;
-var v2542=function (v2543) {
+var _v2188=function (_v2189) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2545=v2543;
-var v2546="\"";
-var v2547=v2546;
-var v2548=lglobal["="];
-var v2549=v2548;
-v2549=runJTramp(v2549);
-if (typeof v2549 !== "function") {
+var _v2191="\"";
+var _v2192=_v2191;
+var _v2193=lglobal["="];
+if (_v2193 === undefined) { throw new Error("No such global: " + "="); }
+var _v2194=_v2193;
+_v2194=runJTramp(_v2194);
+if (typeof _v2194 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2550=new JTramp(v2549, [runJTramp(v2545),runJTramp(v2547)]);
-var v2551;
-if(runJTramp(v2550)) {
-var v2552="";
-v2551=v2552;
+var _v2195=new JTramp(_v2194, [runJTramp(_v2189),runJTramp(_v2192)]);
+var _v2196;
+if(runJTramp(_v2195)) {
+var _v2197="";
+_v2196=_v2197;
 } else {
-var v2553=v2543;
-var v2554="\\";
-var v2555=v2554;
-var v2556=lglobal["="];
-var v2557=v2556;
-v2557=runJTramp(v2557);
-if (typeof v2557 !== "function") {
+var _v2198="\\";
+var _v2199=_v2198;
+var _v2200=lglobal["="];
+if (_v2200 === undefined) { throw new Error("No such global: " + "="); }
+var _v2201=_v2200;
+_v2201=runJTramp(_v2201);
+if (typeof _v2201 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2558=new JTramp(v2557, [runJTramp(v2553),runJTramp(v2555)]);
-var v2559;
-if(runJTramp(v2558)) {
-var v2560="read";
-var v2561=v2560;
-var v2562=v2520;
-v2562=runJTramp(v2562);
-if (typeof v2562 !== "function") {
+var _v2202=new JTramp(_v2201, [runJTramp(_v2189),runJTramp(_v2199)]);
+var _v2203;
+if(runJTramp(_v2202)) {
+var _v2204="read";
+var _v2205=_v2204;
+_v2170=runJTramp(_v2170);
+if (typeof _v2170 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2563=new JTramp(v2562, [runJTramp(v2561)]);
-var v2564=v2563;
-var v2565=function (v2566) {
+var _v2206=new JTramp(_v2170, [runJTramp(_v2205)]);
+var _v2207=_v2206;
+var _v2208=function (_v2209) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2568=v2566;
-var v2569="\\";
-var v2570=v2569;
-var v2571=lglobal["="];
-var v2572=v2571;
-v2572=runJTramp(v2572);
-if (typeof v2572 !== "function") {
+var _v2211="\\";
+var _v2212=_v2211;
+var _v2213=lglobal["="];
+if (_v2213 === undefined) { throw new Error("No such global: " + "="); }
+var _v2214=_v2213;
+_v2214=runJTramp(_v2214);
+if (typeof _v2214 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2573=new JTramp(v2572, [runJTramp(v2568),runJTramp(v2570)]);
-var v2574;
-if(runJTramp(v2573)) {
-var v2575="\\";
-v2574=v2575;
+var _v2215=new JTramp(_v2214, [runJTramp(_v2209),runJTramp(_v2212)]);
+var _v2216;
+if(runJTramp(_v2215)) {
+var _v2217="\\";
+_v2216=_v2217;
 } else {
-var v2576=v2566;
-var v2577="\"";
-var v2578=v2577;
-var v2579=lglobal["="];
-var v2580=v2579;
-v2580=runJTramp(v2580);
-if (typeof v2580 !== "function") {
+var _v2218="\"";
+var _v2219=_v2218;
+var _v2220=lglobal["="];
+if (_v2220 === undefined) { throw new Error("No such global: " + "="); }
+var _v2221=_v2220;
+_v2221=runJTramp(_v2221);
+if (typeof _v2221 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2581=new JTramp(v2580, [runJTramp(v2576),runJTramp(v2578)]);
-var v2582;
-if(runJTramp(v2581)) {
-var v2583="\"";
-v2582=v2583;
+var _v2222=new JTramp(_v2221, [runJTramp(_v2209),runJTramp(_v2219)]);
+var _v2223;
+if(runJTramp(_v2222)) {
+var _v2224="\"";
+_v2223=_v2224;
 } else {
-var v2584=v2566;
-var v2585="n";
-var v2586=v2585;
-var v2587=lglobal["="];
-var v2588=v2587;
-v2588=runJTramp(v2588);
-if (typeof v2588 !== "function") {
+var _v2225="n";
+var _v2226=_v2225;
+var _v2227=lglobal["="];
+if (_v2227 === undefined) { throw new Error("No such global: " + "="); }
+var _v2228=_v2227;
+_v2228=runJTramp(_v2228);
+if (typeof _v2228 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2589=new JTramp(v2588, [runJTramp(v2584),runJTramp(v2586)]);
-var v2590;
-if(runJTramp(v2589)) {
-var v2591="\n";
-v2590=v2591;
+var _v2229=new JTramp(_v2228, [runJTramp(_v2209),runJTramp(_v2226)]);
+var _v2230;
+if(runJTramp(_v2229)) {
+var _v2231="\n";
+_v2230=_v2231;
 } else {
-var v2592=v2566;
-var v2593="t";
-var v2594=v2593;
-var v2595=lglobal["="];
-var v2596=v2595;
-v2596=runJTramp(v2596);
-if (typeof v2596 !== "function") {
+var _v2232="t";
+var _v2233=_v2232;
+var _v2234=lglobal["="];
+if (_v2234 === undefined) { throw new Error("No such global: " + "="); }
+var _v2235=_v2234;
+_v2235=runJTramp(_v2235);
+if (typeof _v2235 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2597=new JTramp(v2596, [runJTramp(v2592),runJTramp(v2594)]);
-var v2598;
-if(runJTramp(v2597)) {
-var v2599="\t";
-v2598=v2599;
+var _v2236=new JTramp(_v2235, [runJTramp(_v2209),runJTramp(_v2233)]);
+var _v2237;
+if(runJTramp(_v2236)) {
+var _v2238="\t";
+_v2237=_v2238;
 } else {
-var v2600=v2566;
-var v2601="r";
-var v2602=v2601;
-var v2603=lglobal["="];
-var v2604=v2603;
-v2604=runJTramp(v2604);
-if (typeof v2604 !== "function") {
+var _v2239="r";
+var _v2240=_v2239;
+var _v2241=lglobal["="];
+if (_v2241 === undefined) { throw new Error("No such global: " + "="); }
+var _v2242=_v2241;
+_v2242=runJTramp(_v2242);
+if (typeof _v2242 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2605=new JTramp(v2604, [runJTramp(v2600),runJTramp(v2602)]);
-var v2606;
-if(runJTramp(v2605)) {
-var v2607="\r";
-v2606=v2607;
+var _v2243=new JTramp(_v2242, [runJTramp(_v2209),runJTramp(_v2240)]);
+var _v2244;
+if(runJTramp(_v2243)) {
+var _v2245="\r";
+_v2244=_v2245;
 } else {
-var v2608=v2520;
-var v2609="Unknown escape code.";
-var v2610=v2609;
-var v2611=lglobal["stream:error"];
-var v2612=v2611;
-v2612=runJTramp(v2612);
-if (typeof v2612 !== "function") {
+var _v2246="Unknown escape code.";
+var _v2247=_v2246;
+var _v2248=lglobal["stream:error"];
+if (_v2248 === undefined) { throw new Error("No such global: " + "stream:error"); }
+var _v2249=_v2248;
+_v2249=runJTramp(_v2249);
+if (typeof _v2249 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2613=new JTramp(v2612, [runJTramp(v2608),runJTramp(v2610)]);
-v2606=v2613;
+var _v2250=new JTramp(_v2249, [runJTramp(_v2170),runJTramp(_v2247)]);
+_v2244=_v2250;
 }
-v2598=v2606;
+_v2237=_v2244;
 }
-v2590=v2598;
+_v2230=_v2237;
 }
-v2582=v2590;
+_v2223=_v2230;
 }
-v2574=v2582;
+_v2216=_v2223;
 }
-return v2574;
+return _v2216;
 };
-var v2614=v2565;
-v2614=runJTramp(v2614);
-if (typeof v2614 !== "function") {
+var _v2251=_v2208;
+_v2251=runJTramp(_v2251);
+if (typeof _v2251 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2615=new JTramp(v2614, [runJTramp(v2564)]);
-var v2616=v2615;
-var v2617=function (v2618) {
+var _v2252=new JTramp(_v2251, [runJTramp(_v2207)]);
+var _v2253=_v2252;
+var _v2254=function (_v2255) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2620=v2618;
-var v2621=v2520;
-var v2622=lglobal["read:string"];
-var v2623=v2622;
-v2623=runJTramp(v2623);
-if (typeof v2623 !== "function") {
+var _v2257=lglobal["read:string"];
+if (_v2257 === undefined) { throw new Error("No such global: " + "read:string"); }
+var _v2258=_v2257;
+_v2258=runJTramp(_v2258);
+if (typeof _v2258 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2624=new JTramp(v2623, [runJTramp(v2621)]);
-var v2625=v2624;
-var v2626=lglobal["++"];
-var v2627=v2626;
-v2627=runJTramp(v2627);
-if (typeof v2627 !== "function") {
+var _v2259=new JTramp(_v2258, [runJTramp(_v2170)]);
+var _v2260=_v2259;
+var _v2261=lglobal["++"];
+if (_v2261 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2262=_v2261;
+_v2262=runJTramp(_v2262);
+if (typeof _v2262 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2628=new JTramp(v2627, [runJTramp(v2620),runJTramp(v2625)]);
-return v2628;
+var _v2263=new JTramp(_v2262, [runJTramp(_v2255),runJTramp(_v2260)]);
+return _v2263;
 };
-var v2629=v2617;
-v2629=runJTramp(v2629);
-if (typeof v2629 !== "function") {
+var _v2264=_v2254;
+_v2264=runJTramp(_v2264);
+if (typeof _v2264 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2630=new JTramp(v2629, [runJTramp(v2616)]);
-v2559=v2630;
+var _v2265=new JTramp(_v2264, [runJTramp(_v2253)]);
+_v2203=_v2265;
 } else {
-var v2631=v2539;
-var v2632=v2520;
-var v2633=lglobal["read:string"];
-var v2634=v2633;
-v2634=runJTramp(v2634);
-if (typeof v2634 !== "function") {
+var _v2266=lglobal["read:string"];
+if (_v2266 === undefined) { throw new Error("No such global: " + "read:string"); }
+var _v2267=_v2266;
+_v2267=runJTramp(_v2267);
+if (typeof _v2267 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2635=new JTramp(v2634, [runJTramp(v2632)]);
-var v2636=v2635;
-var v2637=lglobal["++"];
-var v2638=v2637;
-v2638=runJTramp(v2638);
-if (typeof v2638 !== "function") {
+var _v2268=new JTramp(_v2267, [runJTramp(_v2170)]);
+var _v2269=_v2268;
+var _v2270=lglobal["++"];
+if (_v2270 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2271=_v2270;
+_v2271=runJTramp(_v2271);
+if (typeof _v2271 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2639=new JTramp(v2638, [runJTramp(v2631),runJTramp(v2636)]);
-v2559=v2639;
+var _v2272=new JTramp(_v2271, [runJTramp(_v2186),runJTramp(_v2269)]);
+_v2203=_v2272;
 }
-v2551=v2559;
+_v2196=_v2203;
 }
-return v2551;
+return _v2196;
 };
-var v2640=v2542;
-v2640=runJTramp(v2640);
-if (typeof v2640 !== "function") {
+var _v2273=_v2188;
+_v2273=runJTramp(_v2273);
+if (typeof _v2273 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2641=new JTramp(v2640, [runJTramp(v2541)]);
-return v2641;
+var _v2274=new JTramp(_v2273, [runJTramp(_v2186)]);
+return _v2274;
 };
-var v2642=v2538;
-v2642=runJTramp(v2642);
-if (typeof v2642 !== "function") {
+var _v2275=_v2185;
+_v2275=runJTramp(_v2275);
+if (typeof _v2275 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2643=new JTramp(v2642, [runJTramp(v2537)]);
-v2526=v2643;
+var _v2276=new JTramp(_v2275, [runJTramp(_v2184)]);
+_v2175=_v2276;
 }
-return v2526;
+return _v2175;
 };
-v2518=v2519;
-lglobal["read:string"]=runJTramp(v2518);
+_v2168=_v2169;
+lglobal["read:string"]=runJTramp(_v2168);
 })();
 (function () {
-var v2644;
-var v2645=function (v2646) {
+var _v2277;
+var _v2278=function (_v2279) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2648;
-var v2649=function () {
+var _v2281;
+var _v2282=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v2651="peek";
-var v2652=v2651;
-var v2653=v2646;
-v2653=runJTramp(v2653);
-if (typeof v2653 !== "function") {
+var _v2284="peek";
+var _v2285=_v2284;
+_v2279=runJTramp(_v2279);
+if (typeof _v2279 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2654=new JTramp(v2653, [runJTramp(v2652)]);
-var v2655=v2654;
-var v2656=function (v2657) {
+var _v2286=new JTramp(_v2279, [runJTramp(_v2285)]);
+var _v2287=_v2286;
+var _v2288=function (_v2289) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2659=v2657;
-var v2660=lglobal["eof?"];
-var v2661=v2660;
-v2661=runJTramp(v2661);
-if (typeof v2661 !== "function") {
+var _v2291=lglobal["eof?"];
+if (_v2291 === undefined) { throw new Error("No such global: " + "eof?"); }
+var _v2292=_v2291;
+_v2292=runJTramp(_v2292);
+if (typeof _v2292 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2662=new JTramp(v2661, [runJTramp(v2659)]);
-var v2663=v2662;
-var v2664=function (v2665) {
+var _v2293=new JTramp(_v2292, [runJTramp(_v2289)]);
+var _v2294=_v2293;
+var _v2295=function (_v2296) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2667;
-if(runJTramp(v2665)) {
-v2667=v2665;
+var _v2298;
+if(runJTramp(_v2296)) {
+_v2298=_v2296;
 } else {
-var v2668="'\"()#; \t\n\r";
-var v2669=v2668;
-var v2670=v2657;
-var v2671=lglobal["s:contains"];
-var v2672=v2671;
-v2672=runJTramp(v2672);
-if (typeof v2672 !== "function") {
+var _v2299="'\"()#; \t\n\r";
+var _v2300=_v2299;
+var _v2301=lglobal["s:contains"];
+if (_v2301 === undefined) { throw new Error("No such global: " + "s:contains"); }
+var _v2302=_v2301;
+_v2302=runJTramp(_v2302);
+if (typeof _v2302 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2673=new JTramp(v2672, [runJTramp(v2669),runJTramp(v2670)]);
-v2667=v2673;
+var _v2303=new JTramp(_v2302, [runJTramp(_v2300),runJTramp(_v2289)]);
+_v2298=_v2303;
 }
-return v2667;
+return _v2298;
 };
-var v2674=v2664;
-v2674=runJTramp(v2674);
-if (typeof v2674 !== "function") {
+var _v2304=_v2295;
+_v2304=runJTramp(_v2304);
+if (typeof _v2304 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2675=new JTramp(v2674, [runJTramp(v2663)]);
-var v2676;
-if(runJTramp(v2675)) {
-var v2677="";
-v2676=v2677;
+var _v2305=new JTramp(_v2304, [runJTramp(_v2294)]);
+var _v2306;
+if(runJTramp(_v2305)) {
+var _v2307="";
+_v2306=_v2307;
 } else {
-var v2678="read";
-var v2679=v2678;
-var v2680=v2646;
-v2680=runJTramp(v2680);
-if (typeof v2680 !== "function") {
+var _v2308="read";
+var _v2309=_v2308;
+_v2279=runJTramp(_v2279);
+if (typeof _v2279 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2681=new JTramp(v2680, [runJTramp(v2679)]);
-v2681=runJTramp(v2681);
-var v2682=v2657;
-var v2683=v2648;
-v2683=runJTramp(v2683);
-if (typeof v2683 !== "function") {
+var _v2310=new JTramp(_v2279, [runJTramp(_v2309)]);
+_v2310=runJTramp(_v2310);
+_v2281=runJTramp(_v2281);
+if (typeof _v2281 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2684=new JTramp(v2683, []);
-var v2685=v2684;
-var v2686=lglobal["++"];
-var v2687=v2686;
-v2687=runJTramp(v2687);
-if (typeof v2687 !== "function") {
+var _v2311=new JTramp(_v2281, []);
+var _v2312=_v2311;
+var _v2313=lglobal["++"];
+if (_v2313 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2314=_v2313;
+_v2314=runJTramp(_v2314);
+if (typeof _v2314 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2688=new JTramp(v2687, [runJTramp(v2682),runJTramp(v2685)]);
-v2676=v2688;
+var _v2315=new JTramp(_v2314, [runJTramp(_v2289),runJTramp(_v2312)]);
+_v2306=_v2315;
 }
-return v2676;
+return _v2306;
 };
-var v2689=v2656;
-v2689=runJTramp(v2689);
-if (typeof v2689 !== "function") {
+var _v2316=_v2288;
+_v2316=runJTramp(_v2316);
+if (typeof _v2316 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2690=new JTramp(v2689, [runJTramp(v2655)]);
-return v2690;
+var _v2317=new JTramp(_v2316, [runJTramp(_v2287)]);
+return _v2317;
 };
-var v2691=v2648=runJTramp(v2649);
-var v2692=v2648;
-v2692=runJTramp(v2692);
-if (typeof v2692 !== "function") {
+var _v2318=_v2281=runJTramp(_v2282);
+_v2281=runJTramp(_v2281);
+if (typeof _v2281 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2693=new JTramp(v2692, []);
-var v2694=v2693;
-var v2695=function (v2696) {
+var _v2319=new JTramp(_v2281, []);
+var _v2320=_v2319;
+var _v2321=function (_v2322) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2698="";
-var v2699=v2698;
-var v2700=v2696;
-var v2701=lglobal["="];
-var v2702=v2701;
-v2702=runJTramp(v2702);
-if (typeof v2702 !== "function") {
+var _v2324="";
+var _v2325=_v2324;
+var _v2326=lglobal["="];
+if (_v2326 === undefined) { throw new Error("No such global: " + "="); }
+var _v2327=_v2326;
+_v2327=runJTramp(_v2327);
+if (typeof _v2327 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2703=new JTramp(v2702, [runJTramp(v2699),runJTramp(v2700)]);
-var v2704;
-if(runJTramp(v2703)) {
-var v2705=v2646;
-var v2706="Expecting identifier or number.";
-var v2707=v2706;
-var v2708=lglobal["stream:error"];
-var v2709=v2708;
-v2709=runJTramp(v2709);
-if (typeof v2709 !== "function") {
+var _v2328=new JTramp(_v2327, [runJTramp(_v2325),runJTramp(_v2322)]);
+var _v2329;
+if(runJTramp(_v2328)) {
+var _v2330="Expecting identifier or number.";
+var _v2331=_v2330;
+var _v2332=lglobal["stream:error"];
+if (_v2332 === undefined) { throw new Error("No such global: " + "stream:error"); }
+var _v2333=_v2332;
+_v2333=runJTramp(_v2333);
+if (typeof _v2333 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2710=new JTramp(v2709, [runJTramp(v2705),runJTramp(v2707)]);
-v2704=v2710;
+var _v2334=new JTramp(_v2333, [runJTramp(_v2279),runJTramp(_v2331)]);
+_v2329=_v2334;
 } else {
-var v2711=v2696;
-var v2712=lglobal["js:toNum"];
-var v2713=v2712;
-v2713=runJTramp(v2713);
-if (typeof v2713 !== "function") {
+var _v2335=lglobal["js:toNum"];
+if (_v2335 === undefined) { throw new Error("No such global: " + "js:toNum"); }
+var _v2336=_v2335;
+_v2336=runJTramp(_v2336);
+if (typeof _v2336 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2714=new JTramp(v2713, [runJTramp(v2711)]);
-var v2715=v2714;
-var v2716=function (v2717) {
+var _v2337=new JTramp(_v2336, [runJTramp(_v2322)]);
+var _v2338=_v2337;
+var _v2339=function (_v2340) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2719=v2717;
-var v2720=lglobal["NaN?"];
-var v2721=v2720;
-v2721=runJTramp(v2721);
-if (typeof v2721 !== "function") {
+var _v2342=lglobal["NaN?"];
+if (_v2342 === undefined) { throw new Error("No such global: " + "NaN?"); }
+var _v2343=_v2342;
+_v2343=runJTramp(_v2343);
+if (typeof _v2343 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2722=new JTramp(v2721, [runJTramp(v2719)]);
-var v2723;
-if(runJTramp(v2722)) {
-v2723=v2696;
+var _v2344=new JTramp(_v2343, [runJTramp(_v2340)]);
+var _v2345;
+if(runJTramp(_v2344)) {
+_v2345=_v2322;
 } else {
-v2723=v2717;
+_v2345=_v2340;
 }
-return v2723;
+return _v2345;
 };
-var v2724=v2716;
-v2724=runJTramp(v2724);
-if (typeof v2724 !== "function") {
+var _v2346=_v2339;
+_v2346=runJTramp(_v2346);
+if (typeof _v2346 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2725=new JTramp(v2724, [runJTramp(v2715)]);
-v2704=v2725;
+var _v2347=new JTramp(_v2346, [runJTramp(_v2338)]);
+_v2329=_v2347;
 }
-return v2704;
+return _v2329;
 };
-var v2726=v2695;
-v2726=runJTramp(v2726);
-if (typeof v2726 !== "function") {
+var _v2348=_v2321;
+_v2348=runJTramp(_v2348);
+if (typeof _v2348 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2727=new JTramp(v2726, [runJTramp(v2694)]);
-return v2727;
+var _v2349=new JTramp(_v2348, [runJTramp(_v2320)]);
+return _v2349;
 };
-v2644=v2645;
-lglobal["read:token"]=runJTramp(v2644);
+_v2277=_v2278;
+lglobal["read:token"]=runJTramp(_v2277);
 })();
 (function () {
-var v2728;
-var v2729=function (v2730) {
+var _v2350;
+var _v2351=function (_v2352) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2732=v2730;
-var v2733=lglobal["read:eat-spaces"];
-var v2734=v2733;
-v2734=runJTramp(v2734);
-if (typeof v2734 !== "function") {
+var _v2354=lglobal["read:eat-spaces"];
+if (_v2354 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2355=_v2354;
+_v2355=runJTramp(_v2355);
+if (typeof _v2355 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2735=new JTramp(v2734, [runJTramp(v2732)]);
-v2735=runJTramp(v2735);
-var v2736="eof?";
-var v2737=v2736;
-var v2738=v2730;
-v2738=runJTramp(v2738);
-if (typeof v2738 !== "function") {
+var _v2356=new JTramp(_v2355, [runJTramp(_v2352)]);
+_v2356=runJTramp(_v2356);
+var _v2357="eof?";
+var _v2358=_v2357;
+_v2352=runJTramp(_v2352);
+if (typeof _v2352 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2739=new JTramp(v2738, [runJTramp(v2737)]);
-var v2740;
-if(runJTramp(v2739)) {
-var v2741=v2730;
-var v2742="Unexpected end of input.";
-var v2743=v2742;
-var v2744=lglobal["stream:error"];
-var v2745=v2744;
-v2745=runJTramp(v2745);
-if (typeof v2745 !== "function") {
+var _v2359=new JTramp(_v2352, [runJTramp(_v2358)]);
+var _v2360;
+if(runJTramp(_v2359)) {
+var _v2361="Unexpected end of input.";
+var _v2362=_v2361;
+var _v2363=lglobal["stream:error"];
+if (_v2363 === undefined) { throw new Error("No such global: " + "stream:error"); }
+var _v2364=_v2363;
+_v2364=runJTramp(_v2364);
+if (typeof _v2364 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2746=new JTramp(v2745, [runJTramp(v2741),runJTramp(v2743)]);
-v2740=v2746;
+var _v2365=new JTramp(_v2364, [runJTramp(_v2352),runJTramp(_v2362)]);
+_v2360=_v2365;
 } else {
-var v2747=v2730;
-var v2748="(";
-var v2749=v2748;
-var v2750=lglobal["stream:try-read"];
-var v2751=v2750;
-v2751=runJTramp(v2751);
-if (typeof v2751 !== "function") {
+var _v2366="(";
+var _v2367=_v2366;
+var _v2368=lglobal["stream:try-read"];
+if (_v2368 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2369=_v2368;
+_v2369=runJTramp(_v2369);
+if (typeof _v2369 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2752=new JTramp(v2751, [runJTramp(v2747),runJTramp(v2749)]);
-var v2753;
-if(runJTramp(v2752)) {
-var v2754=v2730;
-var v2755=lglobal["read:sexp-tail"];
-var v2756=v2755;
-v2756=runJTramp(v2756);
-if (typeof v2756 !== "function") {
+var _v2370=new JTramp(_v2369, [runJTramp(_v2352),runJTramp(_v2367)]);
+var _v2371;
+if(runJTramp(_v2370)) {
+var _v2372=lglobal["read:sexp-tail"];
+if (_v2372 === undefined) { throw new Error("No such global: " + "read:sexp-tail"); }
+var _v2373=_v2372;
+_v2373=runJTramp(_v2373);
+if (typeof _v2373 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2757=new JTramp(v2756, [runJTramp(v2754)]);
-v2753=v2757;
+var _v2374=new JTramp(_v2373, [runJTramp(_v2352)]);
+_v2371=_v2374;
 } else {
-var v2758=v2730;
-var v2759="'";
-var v2760=v2759;
-var v2761=lglobal["stream:try-read"];
-var v2762=v2761;
-v2762=runJTramp(v2762);
-if (typeof v2762 !== "function") {
+var _v2375="'";
+var _v2376=_v2375;
+var _v2377=lglobal["stream:try-read"];
+if (_v2377 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2378=_v2377;
+_v2378=runJTramp(_v2378);
+if (typeof _v2378 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2763=new JTramp(v2762, [runJTramp(v2758),runJTramp(v2760)]);
-var v2764;
-if(runJTramp(v2763)) {
-var v2765="quote";
-var v2766=v2765;
-var v2767=v2730;
-var v2768=lglobal["read:sexp"];
-var v2769=v2768;
-v2769=runJTramp(v2769);
-if (typeof v2769 !== "function") {
+var _v2379=new JTramp(_v2378, [runJTramp(_v2352),runJTramp(_v2376)]);
+var _v2380;
+if(runJTramp(_v2379)) {
+var _v2381="quote";
+var _v2382=_v2381;
+var _v2383=lglobal["read:sexp"];
+if (_v2383 === undefined) { throw new Error("No such global: " + "read:sexp"); }
+var _v2384=_v2383;
+_v2384=runJTramp(_v2384);
+if (typeof _v2384 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2770=new JTramp(v2769, [runJTramp(v2767)]);
-var v2771=v2770;
-var v2772=lglobal["list"];
-var v2773=v2772;
-v2773=runJTramp(v2773);
-if (typeof v2773 !== "function") {
+var _v2385=new JTramp(_v2384, [runJTramp(_v2352)]);
+var _v2386=_v2385;
+var _v2387=lglobal["list"];
+if (_v2387 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2388=_v2387;
+_v2388=runJTramp(_v2388);
+if (typeof _v2388 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2774=new JTramp(v2773, [runJTramp(v2766),runJTramp(v2771)]);
-v2764=v2774;
+var _v2389=new JTramp(_v2388, [runJTramp(_v2382),runJTramp(_v2386)]);
+_v2380=_v2389;
 } else {
-var v2775=v2730;
-var v2776="\"";
-var v2777=v2776;
-var v2778=lglobal["stream:try-read"];
-var v2779=v2778;
-v2779=runJTramp(v2779);
-if (typeof v2779 !== "function") {
+var _v2390="\"";
+var _v2391=_v2390;
+var _v2392=lglobal["stream:try-read"];
+if (_v2392 === undefined) { throw new Error("No such global: " + "stream:try-read"); }
+var _v2393=_v2392;
+_v2393=runJTramp(_v2393);
+if (typeof _v2393 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2780=new JTramp(v2779, [runJTramp(v2775),runJTramp(v2777)]);
-var v2781;
-if(runJTramp(v2780)) {
-var v2782="quote";
-var v2783=v2782;
-var v2784=v2730;
-var v2785=lglobal["read:string"];
-var v2786=v2785;
-v2786=runJTramp(v2786);
-if (typeof v2786 !== "function") {
+var _v2394=new JTramp(_v2393, [runJTramp(_v2352),runJTramp(_v2391)]);
+var _v2395;
+if(runJTramp(_v2394)) {
+var _v2396="quote";
+var _v2397=_v2396;
+var _v2398=lglobal["read:string"];
+if (_v2398 === undefined) { throw new Error("No such global: " + "read:string"); }
+var _v2399=_v2398;
+_v2399=runJTramp(_v2399);
+if (typeof _v2399 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2787=new JTramp(v2786, [runJTramp(v2784)]);
-var v2788=v2787;
-var v2789=lglobal["list"];
-var v2790=v2789;
-v2790=runJTramp(v2790);
-if (typeof v2790 !== "function") {
+var _v2400=new JTramp(_v2399, [runJTramp(_v2352)]);
+var _v2401=_v2400;
+var _v2402=lglobal["list"];
+if (_v2402 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2403=_v2402;
+_v2403=runJTramp(_v2403);
+if (typeof _v2403 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2791=new JTramp(v2790, [runJTramp(v2783),runJTramp(v2788)]);
-v2781=v2791;
+var _v2404=new JTramp(_v2403, [runJTramp(_v2397),runJTramp(_v2401)]);
+_v2395=_v2404;
 } else {
-var v2792=lglobal["otherwise"];
-var v2793;
-if(runJTramp(v2792)) {
-var v2794=v2730;
-var v2795=lglobal["read:token"];
-var v2796=v2795;
-v2796=runJTramp(v2796);
-if (typeof v2796 !== "function") {
+var _v2405=lglobal["otherwise"];
+if (_v2405 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v2406;
+if(runJTramp(_v2405)) {
+var _v2407=lglobal["read:token"];
+if (_v2407 === undefined) { throw new Error("No such global: " + "read:token"); }
+var _v2408=_v2407;
+_v2408=runJTramp(_v2408);
+if (typeof _v2408 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2797=new JTramp(v2796, [runJTramp(v2794)]);
-v2793=v2797;
+var _v2409=new JTramp(_v2408, [runJTramp(_v2352)]);
+_v2406=_v2409;
 } else {
-var v2798=null;
-v2793=v2798;
+var _v2410=null;
+_v2406=_v2410;
 }
-v2781=v2793;
+_v2395=_v2406;
 }
-v2764=v2781;
+_v2380=_v2395;
 }
-v2753=v2764;
+_v2371=_v2380;
 }
-v2740=v2753;
+_v2360=_v2371;
 }
-return v2740;
+return _v2360;
 };
-v2728=v2729;
-lglobal["read:sexp"]=runJTramp(v2728);
+_v2350=_v2351;
+lglobal["read:sexp"]=runJTramp(_v2350);
 })();
 (function () {
-var v2799;
-var v2800=function (v2801) {
+var _v2411;
+var _v2412=function (_v2413) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2803=v2801;
-var v2804=lglobal["read:eat-spaces"];
-var v2805=v2804;
-v2805=runJTramp(v2805);
-if (typeof v2805 !== "function") {
+var _v2415=lglobal["read:eat-spaces"];
+if (_v2415 === undefined) { throw new Error("No such global: " + "read:eat-spaces"); }
+var _v2416=_v2415;
+_v2416=runJTramp(_v2416);
+if (typeof _v2416 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2806=new JTramp(v2805, [runJTramp(v2803)]);
-v2806=runJTramp(v2806);
-var v2807="eof?";
-var v2808=v2807;
-var v2809=v2801;
-v2809=runJTramp(v2809);
-if (typeof v2809 !== "function") {
+var _v2417=new JTramp(_v2416, [runJTramp(_v2413)]);
+_v2417=runJTramp(_v2417);
+var _v2418="eof?";
+var _v2419=_v2418;
+_v2413=runJTramp(_v2413);
+if (typeof _v2413 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2810=new JTramp(v2809, [runJTramp(v2808)]);
-var v2811=v2810;
-var v2812=lglobal["not"];
-var v2813=v2812;
-v2813=runJTramp(v2813);
-if (typeof v2813 !== "function") {
+var _v2420=new JTramp(_v2413, [runJTramp(_v2419)]);
+var _v2421=_v2420;
+var _v2422=lglobal["not"];
+if (_v2422 === undefined) { throw new Error("No such global: " + "not"); }
+var _v2423=_v2422;
+_v2423=runJTramp(_v2423);
+if (typeof _v2423 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2814=new JTramp(v2813, [runJTramp(v2811)]);
-return v2814;
+var _v2424=new JTramp(_v2423, [runJTramp(_v2421)]);
+return _v2424;
 };
-v2799=v2800;
-lglobal["read:has-another?"]=runJTramp(v2799);
+_v2411=_v2412;
+lglobal["read:has-another?"]=runJTramp(_v2411);
 })();
 (function () {
-var v2815;
-var v2816=function (v2817) {
+var _v2425;
+var _v2426=function (_v2427) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
-var v2818 = new Nil();
-for (var v2819 = arguments.length - 1; v2819 >= 1; v2819--) {
-  v2818 = new Cons(arguments[v2819], v2818);
+var _v2428 = new Nil();
+for (var _v2429 = arguments.length - 1; _v2429 >= 1; _v2429--) {
+  _v2428 = new Cons(arguments[_v2429], _v2428);
 }
-var v2820=lglobal["dict"];
-var v2821=v2820;
-var v2822=v2818;
-var v2823=lglobal["apply"];
-var v2824=v2823;
-v2824=runJTramp(v2824);
-if (typeof v2824 !== "function") {
+var _v2430=lglobal["dict"];
+if (_v2430 === undefined) { throw new Error("No such global: " + "dict"); }
+var _v2431=_v2430;
+var _v2432=lglobal["apply"];
+if (_v2432 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v2433=_v2432;
+_v2433=runJTramp(_v2433);
+if (typeof _v2433 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2825=new JTramp(v2824, [runJTramp(v2821),runJTramp(v2822)]);
-var v2826=v2825;
-var v2827=function (v2828) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v2830=function (v2831) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-var v2832 = new Nil();
-for (var v2833 = arguments.length - 1; v2833 >= 1; v2833--) {
-  v2832 = new Cons(arguments[v2833], v2832);
-}
-var v2834=v2831;
-var v2835=function (v2836) {
+var _v2434=new JTramp(_v2433, [runJTramp(_v2431),runJTramp(_v2428)]);
+var _v2435=_v2434;
+var _v2436=function (_v2437) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2838=v2836;
-var v2839="lookup";
-var v2840=v2839;
-var v2841=lglobal["="];
-var v2842=v2841;
-v2842=runJTramp(v2842);
-if (typeof v2842 !== "function") {
-throw new Error("Cannot call non-function.");
+var _v2439=function (_v2440) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
 }
-var v2843=new JTramp(v2842, [runJTramp(v2838),runJTramp(v2840)]);
-var v2844;
-if(runJTramp(v2843)) {
-var v2845=function (v2846) {
+var _v2441 = new Nil();
+for (var _v2442 = arguments.length - 1; _v2442 >= 1; _v2442--) {
+  _v2441 = new Cons(arguments[_v2442], _v2441);
+}
+var _v2443=function (_v2444) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2848=v2828;
-var v2849=v2846;
-var v2850=lglobal["dict:has?"];
-var v2851=v2850;
-v2851=runJTramp(v2851);
-if (typeof v2851 !== "function") {
+var _v2446="lookup";
+var _v2447=_v2446;
+var _v2448=lglobal["="];
+if (_v2448 === undefined) { throw new Error("No such global: " + "="); }
+var _v2449=_v2448;
+_v2449=runJTramp(_v2449);
+if (typeof _v2449 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2852=new JTramp(v2851, [runJTramp(v2848),runJTramp(v2849)]);
-var v2853;
-if(runJTramp(v2852)) {
-var v2854=v2828;
-var v2855=v2846;
-var v2856=lglobal["dict:get"];
-var v2857=v2856;
-v2857=runJTramp(v2857);
-if (typeof v2857 !== "function") {
+var _v2450=new JTramp(_v2449, [runJTramp(_v2444),runJTramp(_v2447)]);
+var _v2451;
+if(runJTramp(_v2450)) {
+var _v2452=function (_v2453) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v2455=lglobal["dict:has?"];
+if (_v2455 === undefined) { throw new Error("No such global: " + "dict:has?"); }
+var _v2456=_v2455;
+_v2456=runJTramp(_v2456);
+if (typeof _v2456 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2858=new JTramp(v2857, [runJTramp(v2854),runJTramp(v2855)]);
-v2853=v2858;
+var _v2457=new JTramp(_v2456, [runJTramp(_v2437),runJTramp(_v2453)]);
+var _v2458;
+if(runJTramp(_v2457)) {
+var _v2459=lglobal["dict:get"];
+if (_v2459 === undefined) { throw new Error("No such global: " + "dict:get"); }
+var _v2460=_v2459;
+_v2460=runJTramp(_v2460);
+if (typeof _v2460 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v2461=new JTramp(_v2460, [runJTramp(_v2437),runJTramp(_v2453)]);
+_v2458=_v2461;
 } else {
-var v2859=v2817;
-var v2860=lglobal["null?"];
-var v2861=v2860;
-v2861=runJTramp(v2861);
-if (typeof v2861 !== "function") {
+var _v2462=lglobal["null?"];
+if (_v2462 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v2463=_v2462;
+_v2463=runJTramp(_v2463);
+if (typeof _v2463 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2862=new JTramp(v2861, [runJTramp(v2859)]);
-var v2863;
-if(runJTramp(v2862)) {
-var v2864="Environment key error: ";
-var v2865=v2864;
-var v2866=v2846;
-var v2867=lglobal["repr"];
-var v2868=v2867;
-v2868=runJTramp(v2868);
-if (typeof v2868 !== "function") {
+var _v2464=new JTramp(_v2463, [runJTramp(_v2427)]);
+var _v2465;
+if(runJTramp(_v2464)) {
+var _v2466="Environment key error: ";
+var _v2467=_v2466;
+var _v2468=lglobal["repr"];
+if (_v2468 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v2469=_v2468;
+_v2469=runJTramp(_v2469);
+if (typeof _v2469 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2869=new JTramp(v2868, [runJTramp(v2866)]);
-var v2870=v2869;
-var v2871=lglobal["++"];
-var v2872=v2871;
-v2872=runJTramp(v2872);
-if (typeof v2872 !== "function") {
+var _v2470=new JTramp(_v2469, [runJTramp(_v2453)]);
+var _v2471=_v2470;
+var _v2472=lglobal["++"];
+if (_v2472 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2473=_v2472;
+_v2473=runJTramp(_v2473);
+if (typeof _v2473 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2873=new JTramp(v2872, [runJTramp(v2865),runJTramp(v2870)]);
-var v2874=v2873;
-var v2875=lglobal["error"];
-var v2876=v2875;
-v2876=runJTramp(v2876);
-if (typeof v2876 !== "function") {
+var _v2474=new JTramp(_v2473, [runJTramp(_v2467),runJTramp(_v2471)]);
+var _v2475=_v2474;
+var _v2476=lglobal["error"];
+if (_v2476 === undefined) { throw new Error("No such global: " + "error"); }
+var _v2477=_v2476;
+_v2477=runJTramp(_v2477);
+if (typeof _v2477 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2877=new JTramp(v2876, [runJTramp(v2874)]);
-v2863=v2877;
+var _v2478=new JTramp(_v2477, [runJTramp(_v2475)]);
+_v2465=_v2478;
 } else {
-var v2878=lglobal["otherwise"];
-var v2879;
-if(runJTramp(v2878)) {
-var v2880="lookup";
-var v2881=v2880;
-var v2882=v2846;
-var v2883=v2817;
-v2883=runJTramp(v2883);
-if (typeof v2883 !== "function") {
+var _v2479=lglobal["otherwise"];
+if (_v2479 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v2480;
+if(runJTramp(_v2479)) {
+var _v2481="lookup";
+var _v2482=_v2481;
+_v2427=runJTramp(_v2427);
+if (typeof _v2427 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2884=new JTramp(v2883, [runJTramp(v2881),runJTramp(v2882)]);
-v2879=v2884;
+var _v2483=new JTramp(_v2427, [runJTramp(_v2482),runJTramp(_v2453)]);
+_v2480=_v2483;
 } else {
-var v2885=null;
-v2879=v2885;
+var _v2484=null;
+_v2480=_v2484;
 }
-v2863=v2879;
+_v2465=_v2480;
 }
-v2853=v2863;
+_v2458=_v2465;
 }
-return v2853;
+return _v2458;
 };
-v2844=v2845;
+_v2451=_v2452;
 } else {
-var v2886=v2836;
-var v2887="has?";
-var v2888=v2887;
-var v2889=lglobal["="];
-var v2890=v2889;
-v2890=runJTramp(v2890);
-if (typeof v2890 !== "function") {
+var _v2485="has?";
+var _v2486=_v2485;
+var _v2487=lglobal["="];
+if (_v2487 === undefined) { throw new Error("No such global: " + "="); }
+var _v2488=_v2487;
+_v2488=runJTramp(_v2488);
+if (typeof _v2488 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2891=new JTramp(v2890, [runJTramp(v2886),runJTramp(v2888)]);
-var v2892;
-if(runJTramp(v2891)) {
-var v2893=function (v2894) {
+var _v2489=new JTramp(_v2488, [runJTramp(_v2444),runJTramp(_v2486)]);
+var _v2490;
+if(runJTramp(_v2489)) {
+var _v2491=function (_v2492) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2896=v2828;
-var v2897=v2894;
-var v2898=lglobal["dict:has?"];
-var v2899=v2898;
-v2899=runJTramp(v2899);
-if (typeof v2899 !== "function") {
+var _v2494=lglobal["dict:has?"];
+if (_v2494 === undefined) { throw new Error("No such global: " + "dict:has?"); }
+var _v2495=_v2494;
+_v2495=runJTramp(_v2495);
+if (typeof _v2495 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2900=new JTramp(v2899, [runJTramp(v2896),runJTramp(v2897)]);
-var v2901;
-if(runJTramp(v2900)) {
-var v2902=lglobal["true"];
-v2901=v2902;
+var _v2496=new JTramp(_v2495, [runJTramp(_v2437),runJTramp(_v2492)]);
+var _v2497;
+if(runJTramp(_v2496)) {
+var _v2498=lglobal["true"];
+if (_v2498 === undefined) { throw new Error("No such global: " + "true"); }
+_v2497=_v2498;
 } else {
-var v2903=v2817;
-var v2904=lglobal["null?"];
-var v2905=v2904;
-v2905=runJTramp(v2905);
-if (typeof v2905 !== "function") {
+var _v2499=lglobal["null?"];
+if (_v2499 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v2500=_v2499;
+_v2500=runJTramp(_v2500);
+if (typeof _v2500 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2906=new JTramp(v2905, [runJTramp(v2903)]);
-var v2907;
-if(runJTramp(v2906)) {
-var v2908=lglobal["false"];
-v2907=v2908;
+var _v2501=new JTramp(_v2500, [runJTramp(_v2427)]);
+var _v2502;
+if(runJTramp(_v2501)) {
+var _v2503=lglobal["false"];
+if (_v2503 === undefined) { throw new Error("No such global: " + "false"); }
+_v2502=_v2503;
 } else {
-var v2909="has?";
-var v2910=v2909;
-var v2911=v2894;
-var v2912=v2817;
-v2912=runJTramp(v2912);
-if (typeof v2912 !== "function") {
+var _v2504="has?";
+var _v2505=_v2504;
+_v2427=runJTramp(_v2427);
+if (typeof _v2427 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2913=new JTramp(v2912, [runJTramp(v2910),runJTramp(v2911)]);
-v2907=v2913;
+var _v2506=new JTramp(_v2427, [runJTramp(_v2505),runJTramp(_v2492)]);
+_v2502=_v2506;
 }
-v2901=v2907;
+_v2497=_v2502;
 }
-return v2901;
+return _v2497;
 };
-v2892=v2893;
+_v2490=_v2491;
 } else {
-var v2914=v2836;
-var v2915="set!";
-var v2916=v2915;
-var v2917=lglobal["="];
-var v2918=v2917;
-v2918=runJTramp(v2918);
-if (typeof v2918 !== "function") {
+var _v2507="set!";
+var _v2508=_v2507;
+var _v2509=lglobal["="];
+if (_v2509 === undefined) { throw new Error("No such global: " + "="); }
+var _v2510=_v2509;
+_v2510=runJTramp(_v2510);
+if (typeof _v2510 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2919=new JTramp(v2918, [runJTramp(v2914),runJTramp(v2916)]);
-var v2920;
-if(runJTramp(v2919)) {
-var v2921=function (v2922,v2923) {
+var _v2511=new JTramp(_v2510, [runJTramp(_v2444),runJTramp(_v2508)]);
+var _v2512;
+if(runJTramp(_v2511)) {
+var _v2513=function (_v2514,_v2515) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v2925=v2828;
-var v2926=v2922;
-var v2927=v2923;
-var v2928=lglobal["dict:set!"];
-var v2929=v2928;
-v2929=runJTramp(v2929);
-if (typeof v2929 !== "function") {
+var _v2517=lglobal["dict:set!"];
+if (_v2517 === undefined) { throw new Error("No such global: " + "dict:set!"); }
+var _v2518=_v2517;
+_v2518=runJTramp(_v2518);
+if (typeof _v2518 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2930=new JTramp(v2929, [runJTramp(v2925),runJTramp(v2926),runJTramp(v2927)]);
-return v2930;
+var _v2519=new JTramp(_v2518, [runJTramp(_v2437),runJTramp(_v2514),runJTramp(_v2515)]);
+return _v2519;
 };
-v2920=v2921;
+_v2512=_v2513;
 } else {
-var v2931="No such message: ";
-var v2932=v2931;
-var v2933=v2831;
-var v2934=lglobal["++"];
-var v2935=v2934;
-v2935=runJTramp(v2935);
-if (typeof v2935 !== "function") {
+var _v2520="No such message: ";
+var _v2521=_v2520;
+var _v2522=lglobal["++"];
+if (_v2522 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2523=_v2522;
+_v2523=runJTramp(_v2523);
+if (typeof _v2523 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2936=new JTramp(v2935, [runJTramp(v2932),runJTramp(v2933)]);
-var v2937=v2936;
-var v2938=lglobal["error"];
-var v2939=v2938;
-v2939=runJTramp(v2939);
-if (typeof v2939 !== "function") {
+var _v2524=new JTramp(_v2523, [runJTramp(_v2521),runJTramp(_v2440)]);
+var _v2525=_v2524;
+var _v2526=lglobal["error"];
+if (_v2526 === undefined) { throw new Error("No such global: " + "error"); }
+var _v2527=_v2526;
+_v2527=runJTramp(_v2527);
+if (typeof _v2527 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2940=new JTramp(v2939, [runJTramp(v2937)]);
-v2920=v2940;
+var _v2528=new JTramp(_v2527, [runJTramp(_v2525)]);
+_v2512=_v2528;
 }
-v2892=v2920;
+_v2490=_v2512;
 }
-v2844=v2892;
+_v2451=_v2490;
 }
-return v2844;
+return _v2451;
 };
-var v2941=v2835;
-v2941=runJTramp(v2941);
-if (typeof v2941 !== "function") {
+var _v2529=_v2443;
+_v2529=runJTramp(_v2529);
+if (typeof _v2529 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2942=new JTramp(v2941, [runJTramp(v2834)]);
-var v2943=v2942;
-var v2944=v2832;
-var v2945=lglobal["apply"];
-var v2946=v2945;
-v2946=runJTramp(v2946);
-if (typeof v2946 !== "function") {
+var _v2530=new JTramp(_v2529, [runJTramp(_v2440)]);
+var _v2531=_v2530;
+var _v2532=lglobal["apply"];
+if (_v2532 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v2533=_v2532;
+_v2533=runJTramp(_v2533);
+if (typeof _v2533 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2947=new JTramp(v2946, [runJTramp(v2943),runJTramp(v2944)]);
-return v2947;
+var _v2534=new JTramp(_v2533, [runJTramp(_v2531),runJTramp(_v2441)]);
+return _v2534;
 };
-return v2830;
+return _v2439;
 };
-var v2948=v2827;
-v2948=runJTramp(v2948);
-if (typeof v2948 !== "function") {
+var _v2535=_v2436;
+_v2535=runJTramp(_v2535);
+if (typeof _v2535 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2949=new JTramp(v2948, [runJTramp(v2826)]);
-return v2949;
+var _v2536=new JTramp(_v2535, [runJTramp(_v2435)]);
+return _v2536;
 };
-v2815=v2816;
-lglobal["make-env"]=runJTramp(v2815);
+_v2425=_v2426;
+lglobal["make-env"]=runJTramp(_v2425);
 })();
 (function () {
-var v2950;
-var v2951=0;
-var v2952=v2951;
-var v2953=function (v2954) {
+var _v2537;
+var _v2538=0;
+var _v2539=_v2538;
+var _v2540=function (_v2541) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2956=function (v2957) {
+var _v2543=function (_v2544) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v2959=v2954;
-var v2960=1;
-var v2961=v2960;
-var v2962=lglobal["+"];
-var v2963=v2962;
-v2963=runJTramp(v2963);
-if (typeof v2963 !== "function") {
+var _v2546=1;
+var _v2547=_v2546;
+var _v2548=lglobal["+"];
+if (_v2548 === undefined) { throw new Error("No such global: " + "+"); }
+var _v2549=_v2548;
+_v2549=runJTramp(_v2549);
+if (typeof _v2549 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2964=new JTramp(v2963, [runJTramp(v2959),runJTramp(v2961)]);
-var v2965=v2954=runJTramp(v2964);
-v2965=runJTramp(v2965);
-var v2966=v2957;
-var v2967="#";
-var v2968=v2967;
-var v2969=v2954;
-var v2970=lglobal["++"];
-var v2971=v2970;
-v2971=runJTramp(v2971);
-if (typeof v2971 !== "function") {
+var _v2550=new JTramp(_v2549, [runJTramp(_v2541),runJTramp(_v2547)]);
+var _v2551=_v2541=runJTramp(_v2550);
+_v2551=runJTramp(_v2551);
+var _v2552="#";
+var _v2553=_v2552;
+var _v2554=lglobal["++"];
+if (_v2554 === undefined) { throw new Error("No such global: " + "++"); }
+var _v2555=_v2554;
+_v2555=runJTramp(_v2555);
+if (typeof _v2555 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2972=new JTramp(v2971, [runJTramp(v2966),runJTramp(v2968),runJTramp(v2969)]);
-return v2972;
+var _v2556=new JTramp(_v2555, [runJTramp(_v2544),runJTramp(_v2553),runJTramp(_v2541)]);
+return _v2556;
 };
-return v2956;
+return _v2543;
 };
-var v2973=v2953;
-v2973=runJTramp(v2973);
-if (typeof v2973 !== "function") {
+var _v2557=_v2540;
+_v2557=runJTramp(_v2557);
+if (typeof _v2557 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v2974=new JTramp(v2973, [runJTramp(v2952)]);
-v2950=v2974;
-lglobal["new-var"]=runJTramp(v2950);
+var _v2558=new JTramp(_v2557, [runJTramp(_v2539)]);
+_v2537=_v2558;
+lglobal["new-var"]=runJTramp(_v2537);
 })();
 (function () {
-var v3226;
-var v3227=function (v3228,v3229) {
+var _v2785;
+var _v2786=function (_v2787,_v2788) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3231="midir:lit";
-var v3232=v3231;
-var v3233=v3228;
-var v3234=v3229;
-var v3235=lglobal["list"];
-var v3236=v3235;
-v3236=runJTramp(v3236);
-if (typeof v3236 !== "function") {
+var _v2790="midir:lit";
+var _v2791=_v2790;
+var _v2792=lglobal["list"];
+if (_v2792 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2793=_v2792;
+_v2793=runJTramp(_v2793);
+if (typeof _v2793 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3237=new JTramp(v3236, [runJTramp(v3232),runJTramp(v3233),runJTramp(v3234)]);
-return v3237;
+var _v2794=new JTramp(_v2793, [runJTramp(_v2791),runJTramp(_v2787),runJTramp(_v2788)]);
+return _v2794;
 };
-v3226=v3227;
-lglobal["midir:lit"]=runJTramp(v3226);
+_v2785=_v2786;
+lglobal["midir:lit"]=runJTramp(_v2785);
 })();
 (function () {
-var v3238;
-var v3239=function (v3240) {
+var _v2795;
+var _v2796=function (_v2797) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3242=v3240;
-var v3243=lglobal["cons?"];
-var v3244=v3243;
-v3244=runJTramp(v3244);
-if (typeof v3244 !== "function") {
+var _v2799=lglobal["cons?"];
+if (_v2799 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2800=_v2799;
+_v2800=runJTramp(_v2800);
+if (typeof _v2800 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3245=new JTramp(v3244, [runJTramp(v3242)]);
-var v3246=v3245;
-var v3247=function (v3248) {
+var _v2801=new JTramp(_v2800, [runJTramp(_v2797)]);
+var _v2802=_v2801;
+var _v2803=function (_v2804) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3250;
-if(runJTramp(v3248)) {
-var v3251=v3240;
-var v3252=lglobal["head"];
-var v3253=v3252;
-v3253=runJTramp(v3253);
-if (typeof v3253 !== "function") {
+var _v2806;
+if(runJTramp(_v2804)) {
+var _v2807=lglobal["head"];
+if (_v2807 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2808=_v2807;
+_v2808=runJTramp(_v2808);
+if (typeof _v2808 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3254=new JTramp(v3253, [runJTramp(v3251)]);
-var v3255=v3254;
-var v3256="midir:lit";
-var v3257=v3256;
-var v3258=lglobal["="];
-var v3259=v3258;
-v3259=runJTramp(v3259);
-if (typeof v3259 !== "function") {
+var _v2809=new JTramp(_v2808, [runJTramp(_v2797)]);
+var _v2810=_v2809;
+var _v2811="midir:lit";
+var _v2812=_v2811;
+var _v2813=lglobal["="];
+if (_v2813 === undefined) { throw new Error("No such global: " + "="); }
+var _v2814=_v2813;
+_v2814=runJTramp(_v2814);
+if (typeof _v2814 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3260=new JTramp(v3259, [runJTramp(v3255),runJTramp(v3257)]);
-v3250=v3260;
+var _v2815=new JTramp(_v2814, [runJTramp(_v2810),runJTramp(_v2812)]);
+_v2806=_v2815;
 } else {
-v3250=v3248;
+_v2806=_v2804;
 }
-return v3250;
+return _v2806;
 };
-var v3261=v3247;
-v3261=runJTramp(v3261);
-if (typeof v3261 !== "function") {
+var _v2816=_v2803;
+_v2816=runJTramp(_v2816);
+if (typeof _v2816 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3262=new JTramp(v3261, [runJTramp(v3246)]);
-return v3262;
+var _v2817=new JTramp(_v2816, [runJTramp(_v2802)]);
+return _v2817;
 };
-v3238=v3239;
-lglobal["midir:lit?"]=runJTramp(v3238);
+_v2795=_v2796;
+lglobal["midir:lit?"]=runJTramp(_v2795);
 })();
 (function () {
-var v3263;
-var v3264=function (v3265,v3266) {
+var _v2818;
+var _v2819=function (_v2820,_v2821) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3268="midir:lookup";
-var v3269=v3268;
-var v3270=v3265;
-var v3271=v3266;
-var v3272=lglobal["list"];
-var v3273=v3272;
-v3273=runJTramp(v3273);
-if (typeof v3273 !== "function") {
+var _v2823="midir:lookup";
+var _v2824=_v2823;
+var _v2825=lglobal["list"];
+if (_v2825 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2826=_v2825;
+_v2826=runJTramp(_v2826);
+if (typeof _v2826 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3274=new JTramp(v3273, [runJTramp(v3269),runJTramp(v3270),runJTramp(v3271)]);
-return v3274;
+var _v2827=new JTramp(_v2826, [runJTramp(_v2824),runJTramp(_v2820),runJTramp(_v2821)]);
+return _v2827;
 };
-v3263=v3264;
-lglobal["midir:lookup"]=runJTramp(v3263);
+_v2818=_v2819;
+lglobal["midir:lookup"]=runJTramp(_v2818);
 })();
 (function () {
-var v3275;
-var v3276=function (v3277) {
+var _v2828;
+var _v2829=function (_v2830) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3279=v3277;
-var v3280=lglobal["cons?"];
-var v3281=v3280;
-v3281=runJTramp(v3281);
-if (typeof v3281 !== "function") {
+var _v2832=lglobal["cons?"];
+if (_v2832 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2833=_v2832;
+_v2833=runJTramp(_v2833);
+if (typeof _v2833 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3282=new JTramp(v3281, [runJTramp(v3279)]);
-var v3283=v3282;
-var v3284=function (v3285) {
+var _v2834=new JTramp(_v2833, [runJTramp(_v2830)]);
+var _v2835=_v2834;
+var _v2836=function (_v2837) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3287;
-if(runJTramp(v3285)) {
-var v3288=v3277;
-var v3289=lglobal["head"];
-var v3290=v3289;
-v3290=runJTramp(v3290);
-if (typeof v3290 !== "function") {
+var _v2839;
+if(runJTramp(_v2837)) {
+var _v2840=lglobal["head"];
+if (_v2840 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2841=_v2840;
+_v2841=runJTramp(_v2841);
+if (typeof _v2841 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3291=new JTramp(v3290, [runJTramp(v3288)]);
-var v3292=v3291;
-var v3293="midir:lookup";
-var v3294=v3293;
-var v3295=lglobal["="];
-var v3296=v3295;
-v3296=runJTramp(v3296);
-if (typeof v3296 !== "function") {
+var _v2842=new JTramp(_v2841, [runJTramp(_v2830)]);
+var _v2843=_v2842;
+var _v2844="midir:lookup";
+var _v2845=_v2844;
+var _v2846=lglobal["="];
+if (_v2846 === undefined) { throw new Error("No such global: " + "="); }
+var _v2847=_v2846;
+_v2847=runJTramp(_v2847);
+if (typeof _v2847 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3297=new JTramp(v3296, [runJTramp(v3292),runJTramp(v3294)]);
-v3287=v3297;
+var _v2848=new JTramp(_v2847, [runJTramp(_v2843),runJTramp(_v2845)]);
+_v2839=_v2848;
 } else {
-v3287=v3285;
+_v2839=_v2837;
 }
-return v3287;
+return _v2839;
 };
-var v3298=v3284;
-v3298=runJTramp(v3298);
-if (typeof v3298 !== "function") {
+var _v2849=_v2836;
+_v2849=runJTramp(_v2849);
+if (typeof _v2849 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3299=new JTramp(v3298, [runJTramp(v3283)]);
-return v3299;
+var _v2850=new JTramp(_v2849, [runJTramp(_v2835)]);
+return _v2850;
 };
-v3275=v3276;
-lglobal["midir:lookup?"]=runJTramp(v3275);
+_v2828=_v2829;
+lglobal["midir:lookup?"]=runJTramp(_v2828);
 })();
 (function () {
-var v3300;
-var v3301=function (v3302,v3303) {
+var _v2851;
+var _v2852=function (_v2853,_v2854) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3305="midir:glookup";
-var v3306=v3305;
-var v3307=v3302;
-var v3308=v3303;
-var v3309=lglobal["list"];
-var v3310=v3309;
-v3310=runJTramp(v3310);
-if (typeof v3310 !== "function") {
+var _v2856="midir:glookup";
+var _v2857=_v2856;
+var _v2858=lglobal["list"];
+if (_v2858 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2859=_v2858;
+_v2859=runJTramp(_v2859);
+if (typeof _v2859 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3311=new JTramp(v3310, [runJTramp(v3306),runJTramp(v3307),runJTramp(v3308)]);
-return v3311;
+var _v2860=new JTramp(_v2859, [runJTramp(_v2857),runJTramp(_v2853),runJTramp(_v2854)]);
+return _v2860;
 };
-v3300=v3301;
-lglobal["midir:glookup"]=runJTramp(v3300);
+_v2851=_v2852;
+lglobal["midir:glookup"]=runJTramp(_v2851);
 })();
 (function () {
-var v3312;
-var v3313=function (v3314) {
+var _v2861;
+var _v2862=function (_v2863) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3316=v3314;
-var v3317=lglobal["cons?"];
-var v3318=v3317;
-v3318=runJTramp(v3318);
-if (typeof v3318 !== "function") {
+var _v2865=lglobal["cons?"];
+if (_v2865 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2866=_v2865;
+_v2866=runJTramp(_v2866);
+if (typeof _v2866 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3319=new JTramp(v3318, [runJTramp(v3316)]);
-var v3320=v3319;
-var v3321=function (v3322) {
+var _v2867=new JTramp(_v2866, [runJTramp(_v2863)]);
+var _v2868=_v2867;
+var _v2869=function (_v2870) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3324;
-if(runJTramp(v3322)) {
-var v3325=v3314;
-var v3326=lglobal["head"];
-var v3327=v3326;
-v3327=runJTramp(v3327);
-if (typeof v3327 !== "function") {
+var _v2872;
+if(runJTramp(_v2870)) {
+var _v2873=lglobal["head"];
+if (_v2873 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2874=_v2873;
+_v2874=runJTramp(_v2874);
+if (typeof _v2874 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3328=new JTramp(v3327, [runJTramp(v3325)]);
-var v3329=v3328;
-var v3330="midir:glookup";
-var v3331=v3330;
-var v3332=lglobal["="];
-var v3333=v3332;
-v3333=runJTramp(v3333);
-if (typeof v3333 !== "function") {
+var _v2875=new JTramp(_v2874, [runJTramp(_v2863)]);
+var _v2876=_v2875;
+var _v2877="midir:glookup";
+var _v2878=_v2877;
+var _v2879=lglobal["="];
+if (_v2879 === undefined) { throw new Error("No such global: " + "="); }
+var _v2880=_v2879;
+_v2880=runJTramp(_v2880);
+if (typeof _v2880 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3334=new JTramp(v3333, [runJTramp(v3329),runJTramp(v3331)]);
-v3324=v3334;
+var _v2881=new JTramp(_v2880, [runJTramp(_v2876),runJTramp(_v2878)]);
+_v2872=_v2881;
 } else {
-v3324=v3322;
+_v2872=_v2870;
 }
-return v3324;
+return _v2872;
 };
-var v3335=v3321;
-v3335=runJTramp(v3335);
-if (typeof v3335 !== "function") {
+var _v2882=_v2869;
+_v2882=runJTramp(_v2882);
+if (typeof _v2882 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3336=new JTramp(v3335, [runJTramp(v3320)]);
-return v3336;
+var _v2883=new JTramp(_v2882, [runJTramp(_v2868)]);
+return _v2883;
 };
-v3312=v3313;
-lglobal["midir:glookup?"]=runJTramp(v3312);
+_v2861=_v2862;
+lglobal["midir:glookup?"]=runJTramp(_v2861);
 })();
 (function () {
-var v3337;
-var v3338=function (v3339,v3340,v3341,v3342) {
+var _v2884;
+var _v2885=function (_v2886,_v2887,_v2888,_v2889) {
 if (arguments.length < 4) {
 throw new Error("Expecting at least 4 arguments.");
 }
 if (arguments.length > 4) {
 throw new Error("Expecting at most 4 arguments.");
 }
-var v3344="midir:enter";
-var v3345=v3344;
-var v3346=v3339;
-var v3347=v3340;
-var v3348=v3341;
-var v3349=v3342;
-var v3350=lglobal["list"];
-var v3351=v3350;
-v3351=runJTramp(v3351);
-if (typeof v3351 !== "function") {
+var _v2891="midir:enter";
+var _v2892=_v2891;
+var _v2893=lglobal["list"];
+if (_v2893 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2894=_v2893;
+_v2894=runJTramp(_v2894);
+if (typeof _v2894 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3352=new JTramp(v3351, [runJTramp(v3345),runJTramp(v3346),runJTramp(v3347),runJTramp(v3348),runJTramp(v3349)]);
-return v3352;
+var _v2895=new JTramp(_v2894, [runJTramp(_v2892),runJTramp(_v2886),runJTramp(_v2887),runJTramp(_v2888),runJTramp(_v2889)]);
+return _v2895;
 };
-v3337=v3338;
-lglobal["midir:enter"]=runJTramp(v3337);
+_v2884=_v2885;
+lglobal["midir:enter"]=runJTramp(_v2884);
 })();
 (function () {
-var v3353;
-var v3354=function (v3355) {
+var _v2896;
+var _v2897=function (_v2898) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3357=v3355;
-var v3358=lglobal["cons?"];
-var v3359=v3358;
-v3359=runJTramp(v3359);
-if (typeof v3359 !== "function") {
+var _v2900=lglobal["cons?"];
+if (_v2900 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2901=_v2900;
+_v2901=runJTramp(_v2901);
+if (typeof _v2901 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3360=new JTramp(v3359, [runJTramp(v3357)]);
-var v3361=v3360;
-var v3362=function (v3363) {
+var _v2902=new JTramp(_v2901, [runJTramp(_v2898)]);
+var _v2903=_v2902;
+var _v2904=function (_v2905) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3365;
-if(runJTramp(v3363)) {
-var v3366=v3355;
-var v3367=lglobal["head"];
-var v3368=v3367;
-v3368=runJTramp(v3368);
-if (typeof v3368 !== "function") {
+var _v2907;
+if(runJTramp(_v2905)) {
+var _v2908=lglobal["head"];
+if (_v2908 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2909=_v2908;
+_v2909=runJTramp(_v2909);
+if (typeof _v2909 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3369=new JTramp(v3368, [runJTramp(v3366)]);
-var v3370=v3369;
-var v3371="midir:enter";
-var v3372=v3371;
-var v3373=lglobal["="];
-var v3374=v3373;
-v3374=runJTramp(v3374);
-if (typeof v3374 !== "function") {
+var _v2910=new JTramp(_v2909, [runJTramp(_v2898)]);
+var _v2911=_v2910;
+var _v2912="midir:enter";
+var _v2913=_v2912;
+var _v2914=lglobal["="];
+if (_v2914 === undefined) { throw new Error("No such global: " + "="); }
+var _v2915=_v2914;
+_v2915=runJTramp(_v2915);
+if (typeof _v2915 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3375=new JTramp(v3374, [runJTramp(v3370),runJTramp(v3372)]);
-v3365=v3375;
+var _v2916=new JTramp(_v2915, [runJTramp(_v2911),runJTramp(_v2913)]);
+_v2907=_v2916;
 } else {
-v3365=v3363;
+_v2907=_v2905;
 }
-return v3365;
+return _v2907;
 };
-var v3376=v3362;
-v3376=runJTramp(v3376);
-if (typeof v3376 !== "function") {
+var _v2917=_v2904;
+_v2917=runJTramp(_v2917);
+if (typeof _v2917 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3377=new JTramp(v3376, [runJTramp(v3361)]);
-return v3377;
+var _v2918=new JTramp(_v2917, [runJTramp(_v2903)]);
+return _v2918;
 };
-v3353=v3354;
-lglobal["midir:enter?"]=runJTramp(v3353);
+_v2896=_v2897;
+lglobal["midir:enter?"]=runJTramp(_v2896);
 })();
 (function () {
-var v3378;
-var v3379=function () {
+var _v2919;
+var _v2920=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v3381="midir:return";
-var v3382=v3381;
-var v3383=lglobal["list"];
-var v3384=v3383;
-v3384=runJTramp(v3384);
-if (typeof v3384 !== "function") {
+var _v2922="midir:return";
+var _v2923=_v2922;
+var _v2924=lglobal["list"];
+if (_v2924 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2925=_v2924;
+_v2925=runJTramp(_v2925);
+if (typeof _v2925 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3385=new JTramp(v3384, [runJTramp(v3382)]);
-return v3385;
+var _v2926=new JTramp(_v2925, [runJTramp(_v2923)]);
+return _v2926;
 };
-v3378=v3379;
-lglobal["midir:return"]=runJTramp(v3378);
+_v2919=_v2920;
+lglobal["midir:return"]=runJTramp(_v2919);
 })();
 (function () {
-var v3386;
-var v3387=function (v3388) {
+var _v2927;
+var _v2928=function (_v2929) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3390=v3388;
-var v3391=lglobal["cons?"];
-var v3392=v3391;
-v3392=runJTramp(v3392);
-if (typeof v3392 !== "function") {
+var _v2931=lglobal["cons?"];
+if (_v2931 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2932=_v2931;
+_v2932=runJTramp(_v2932);
+if (typeof _v2932 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3393=new JTramp(v3392, [runJTramp(v3390)]);
-var v3394=v3393;
-var v3395=function (v3396) {
+var _v2933=new JTramp(_v2932, [runJTramp(_v2929)]);
+var _v2934=_v2933;
+var _v2935=function (_v2936) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3398;
-if(runJTramp(v3396)) {
-var v3399=v3388;
-var v3400=lglobal["head"];
-var v3401=v3400;
-v3401=runJTramp(v3401);
-if (typeof v3401 !== "function") {
+var _v2938;
+if(runJTramp(_v2936)) {
+var _v2939=lglobal["head"];
+if (_v2939 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2940=_v2939;
+_v2940=runJTramp(_v2940);
+if (typeof _v2940 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3402=new JTramp(v3401, [runJTramp(v3399)]);
-var v3403=v3402;
-var v3404="midir:return";
-var v3405=v3404;
-var v3406=lglobal["="];
-var v3407=v3406;
-v3407=runJTramp(v3407);
-if (typeof v3407 !== "function") {
+var _v2941=new JTramp(_v2940, [runJTramp(_v2929)]);
+var _v2942=_v2941;
+var _v2943="midir:return";
+var _v2944=_v2943;
+var _v2945=lglobal["="];
+if (_v2945 === undefined) { throw new Error("No such global: " + "="); }
+var _v2946=_v2945;
+_v2946=runJTramp(_v2946);
+if (typeof _v2946 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3408=new JTramp(v3407, [runJTramp(v3403),runJTramp(v3405)]);
-v3398=v3408;
+var _v2947=new JTramp(_v2946, [runJTramp(_v2942),runJTramp(_v2944)]);
+_v2938=_v2947;
 } else {
-v3398=v3396;
+_v2938=_v2936;
 }
-return v3398;
+return _v2938;
 };
-var v3409=v3395;
-v3409=runJTramp(v3409);
-if (typeof v3409 !== "function") {
+var _v2948=_v2935;
+_v2948=runJTramp(_v2948);
+if (typeof _v2948 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3410=new JTramp(v3409, [runJTramp(v3394)]);
-return v3410;
+var _v2949=new JTramp(_v2948, [runJTramp(_v2934)]);
+return _v2949;
 };
-v3386=v3387;
-lglobal["midir:return?"]=runJTramp(v3386);
+_v2927=_v2928;
+lglobal["midir:return?"]=runJTramp(_v2927);
 })();
 (function () {
-var v3411;
-var v3412=function (v3413,v3414) {
+var _v2950;
+var _v2951=function (_v2952,_v2953) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3416="midir:bind";
-var v3417=v3416;
-var v3418=v3413;
-var v3419=v3414;
-var v3420=lglobal["list"];
-var v3421=v3420;
-v3421=runJTramp(v3421);
-if (typeof v3421 !== "function") {
+var _v2955="midir:bind";
+var _v2956=_v2955;
+var _v2957=lglobal["list"];
+if (_v2957 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2958=_v2957;
+_v2958=runJTramp(_v2958);
+if (typeof _v2958 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3422=new JTramp(v3421, [runJTramp(v3417),runJTramp(v3418),runJTramp(v3419)]);
-return v3422;
+var _v2959=new JTramp(_v2958, [runJTramp(_v2956),runJTramp(_v2952),runJTramp(_v2953)]);
+return _v2959;
 };
-v3411=v3412;
-lglobal["midir:bind"]=runJTramp(v3411);
+_v2950=_v2951;
+lglobal["midir:bind"]=runJTramp(_v2950);
 })();
 (function () {
-var v3423;
-var v3424=function (v3425) {
+var _v2960;
+var _v2961=function (_v2962) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3427=v3425;
-var v3428=lglobal["cons?"];
-var v3429=v3428;
-v3429=runJTramp(v3429);
-if (typeof v3429 !== "function") {
+var _v2964=lglobal["cons?"];
+if (_v2964 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2965=_v2964;
+_v2965=runJTramp(_v2965);
+if (typeof _v2965 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3430=new JTramp(v3429, [runJTramp(v3427)]);
-var v3431=v3430;
-var v3432=function (v3433) {
+var _v2966=new JTramp(_v2965, [runJTramp(_v2962)]);
+var _v2967=_v2966;
+var _v2968=function (_v2969) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3435;
-if(runJTramp(v3433)) {
-var v3436=v3425;
-var v3437=lglobal["head"];
-var v3438=v3437;
-v3438=runJTramp(v3438);
-if (typeof v3438 !== "function") {
+var _v2971;
+if(runJTramp(_v2969)) {
+var _v2972=lglobal["head"];
+if (_v2972 === undefined) { throw new Error("No such global: " + "head"); }
+var _v2973=_v2972;
+_v2973=runJTramp(_v2973);
+if (typeof _v2973 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3439=new JTramp(v3438, [runJTramp(v3436)]);
-var v3440=v3439;
-var v3441="midir:bind";
-var v3442=v3441;
-var v3443=lglobal["="];
-var v3444=v3443;
-v3444=runJTramp(v3444);
-if (typeof v3444 !== "function") {
+var _v2974=new JTramp(_v2973, [runJTramp(_v2962)]);
+var _v2975=_v2974;
+var _v2976="midir:bind";
+var _v2977=_v2976;
+var _v2978=lglobal["="];
+if (_v2978 === undefined) { throw new Error("No such global: " + "="); }
+var _v2979=_v2978;
+_v2979=runJTramp(_v2979);
+if (typeof _v2979 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3445=new JTramp(v3444, [runJTramp(v3440),runJTramp(v3442)]);
-v3435=v3445;
+var _v2980=new JTramp(_v2979, [runJTramp(_v2975),runJTramp(_v2977)]);
+_v2971=_v2980;
 } else {
-v3435=v3433;
+_v2971=_v2969;
 }
-return v3435;
+return _v2971;
 };
-var v3446=v3432;
-v3446=runJTramp(v3446);
-if (typeof v3446 !== "function") {
+var _v2981=_v2968;
+_v2981=runJTramp(_v2981);
+if (typeof _v2981 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3447=new JTramp(v3446, [runJTramp(v3431)]);
-return v3447;
+var _v2982=new JTramp(_v2981, [runJTramp(_v2967)]);
+return _v2982;
 };
-v3423=v3424;
-lglobal["midir:bind?"]=runJTramp(v3423);
+_v2960=_v2961;
+lglobal["midir:bind?"]=runJTramp(_v2960);
 })();
 (function () {
-var v3448;
-var v3449=function (v3450) {
+var _v2983;
+var _v2984=function (_v2985) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3452="midir:bind-drop";
-var v3453=v3452;
-var v3454=v3450;
-var v3455=lglobal["list"];
-var v3456=v3455;
-v3456=runJTramp(v3456);
-if (typeof v3456 !== "function") {
+var _v2987="midir:bind-drop";
+var _v2988=_v2987;
+var _v2989=lglobal["list"];
+if (_v2989 === undefined) { throw new Error("No such global: " + "list"); }
+var _v2990=_v2989;
+_v2990=runJTramp(_v2990);
+if (typeof _v2990 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3457=new JTramp(v3456, [runJTramp(v3453),runJTramp(v3454)]);
-return v3457;
+var _v2991=new JTramp(_v2990, [runJTramp(_v2988),runJTramp(_v2985)]);
+return _v2991;
 };
-v3448=v3449;
-lglobal["midir:bind-drop"]=runJTramp(v3448);
+_v2983=_v2984;
+lglobal["midir:bind-drop"]=runJTramp(_v2983);
 })();
 (function () {
-var v3458;
-var v3459=function (v3460) {
+var _v2992;
+var _v2993=function (_v2994) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3462=v3460;
-var v3463=lglobal["cons?"];
-var v3464=v3463;
-v3464=runJTramp(v3464);
-if (typeof v3464 !== "function") {
+var _v2996=lglobal["cons?"];
+if (_v2996 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v2997=_v2996;
+_v2997=runJTramp(_v2997);
+if (typeof _v2997 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3465=new JTramp(v3464, [runJTramp(v3462)]);
-var v3466=v3465;
-var v3467=function (v3468) {
+var _v2998=new JTramp(_v2997, [runJTramp(_v2994)]);
+var _v2999=_v2998;
+var _v3000=function (_v3001) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3470;
-if(runJTramp(v3468)) {
-var v3471=v3460;
-var v3472=lglobal["head"];
-var v3473=v3472;
-v3473=runJTramp(v3473);
-if (typeof v3473 !== "function") {
+var _v3003;
+if(runJTramp(_v3001)) {
+var _v3004=lglobal["head"];
+if (_v3004 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3005=_v3004;
+_v3005=runJTramp(_v3005);
+if (typeof _v3005 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3474=new JTramp(v3473, [runJTramp(v3471)]);
-var v3475=v3474;
-var v3476="midir:bind-drop";
-var v3477=v3476;
-var v3478=lglobal["="];
-var v3479=v3478;
-v3479=runJTramp(v3479);
-if (typeof v3479 !== "function") {
+var _v3006=new JTramp(_v3005, [runJTramp(_v2994)]);
+var _v3007=_v3006;
+var _v3008="midir:bind-drop";
+var _v3009=_v3008;
+var _v3010=lglobal["="];
+if (_v3010 === undefined) { throw new Error("No such global: " + "="); }
+var _v3011=_v3010;
+_v3011=runJTramp(_v3011);
+if (typeof _v3011 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3480=new JTramp(v3479, [runJTramp(v3475),runJTramp(v3477)]);
-v3470=v3480;
+var _v3012=new JTramp(_v3011, [runJTramp(_v3007),runJTramp(_v3009)]);
+_v3003=_v3012;
 } else {
-v3470=v3468;
+_v3003=_v3001;
 }
-return v3470;
+return _v3003;
 };
-var v3481=v3467;
-v3481=runJTramp(v3481);
-if (typeof v3481 !== "function") {
+var _v3013=_v3000;
+_v3013=runJTramp(_v3013);
+if (typeof _v3013 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3482=new JTramp(v3481, [runJTramp(v3466)]);
-return v3482;
+var _v3014=new JTramp(_v3013, [runJTramp(_v2999)]);
+return _v3014;
 };
-v3458=v3459;
-lglobal["midir:bind-drop?"]=runJTramp(v3458);
+_v2992=_v2993;
+lglobal["midir:bind-drop?"]=runJTramp(_v2992);
 })();
 (function () {
-var v3483;
-var v3484=function (v3485,v3486,v3487) {
+var _v3015;
+var _v3016=function (_v3017,_v3018,_v3019) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v3489="midir:if";
-var v3490=v3489;
-var v3491=v3485;
-var v3492=v3486;
-var v3493=v3487;
-var v3494=lglobal["list"];
-var v3495=v3494;
-v3495=runJTramp(v3495);
-if (typeof v3495 !== "function") {
+var _v3021="midir:if";
+var _v3022=_v3021;
+var _v3023=lglobal["list"];
+if (_v3023 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3024=_v3023;
+_v3024=runJTramp(_v3024);
+if (typeof _v3024 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3496=new JTramp(v3495, [runJTramp(v3490),runJTramp(v3491),runJTramp(v3492),runJTramp(v3493)]);
-return v3496;
+var _v3025=new JTramp(_v3024, [runJTramp(_v3022),runJTramp(_v3017),runJTramp(_v3018),runJTramp(_v3019)]);
+return _v3025;
 };
-v3483=v3484;
-lglobal["midir:if"]=runJTramp(v3483);
+_v3015=_v3016;
+lglobal["midir:if"]=runJTramp(_v3015);
 })();
 (function () {
-var v3497;
-var v3498=function (v3499) {
+var _v3026;
+var _v3027=function (_v3028) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3501=v3499;
-var v3502=lglobal["cons?"];
-var v3503=v3502;
-v3503=runJTramp(v3503);
-if (typeof v3503 !== "function") {
+var _v3030=lglobal["cons?"];
+if (_v3030 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3031=_v3030;
+_v3031=runJTramp(_v3031);
+if (typeof _v3031 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3504=new JTramp(v3503, [runJTramp(v3501)]);
-var v3505=v3504;
-var v3506=function (v3507) {
+var _v3032=new JTramp(_v3031, [runJTramp(_v3028)]);
+var _v3033=_v3032;
+var _v3034=function (_v3035) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3509;
-if(runJTramp(v3507)) {
-var v3510=v3499;
-var v3511=lglobal["head"];
-var v3512=v3511;
-v3512=runJTramp(v3512);
-if (typeof v3512 !== "function") {
+var _v3037;
+if(runJTramp(_v3035)) {
+var _v3038=lglobal["head"];
+if (_v3038 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3039=_v3038;
+_v3039=runJTramp(_v3039);
+if (typeof _v3039 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3513=new JTramp(v3512, [runJTramp(v3510)]);
-var v3514=v3513;
-var v3515="midir:if";
-var v3516=v3515;
-var v3517=lglobal["="];
-var v3518=v3517;
-v3518=runJTramp(v3518);
-if (typeof v3518 !== "function") {
+var _v3040=new JTramp(_v3039, [runJTramp(_v3028)]);
+var _v3041=_v3040;
+var _v3042="midir:if";
+var _v3043=_v3042;
+var _v3044=lglobal["="];
+if (_v3044 === undefined) { throw new Error("No such global: " + "="); }
+var _v3045=_v3044;
+_v3045=runJTramp(_v3045);
+if (typeof _v3045 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3519=new JTramp(v3518, [runJTramp(v3514),runJTramp(v3516)]);
-v3509=v3519;
+var _v3046=new JTramp(_v3045, [runJTramp(_v3041),runJTramp(_v3043)]);
+_v3037=_v3046;
 } else {
-v3509=v3507;
+_v3037=_v3035;
 }
-return v3509;
+return _v3037;
 };
-var v3520=v3506;
-v3520=runJTramp(v3520);
-if (typeof v3520 !== "function") {
+var _v3047=_v3034;
+_v3047=runJTramp(_v3047);
+if (typeof _v3047 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3521=new JTramp(v3520, [runJTramp(v3505)]);
-return v3521;
+var _v3048=new JTramp(_v3047, [runJTramp(_v3033)]);
+return _v3048;
 };
-v3497=v3498;
-lglobal["midir:if?"]=runJTramp(v3497);
+_v3026=_v3027;
+lglobal["midir:if?"]=runJTramp(_v3026);
 })();
 (function () {
-var v3522;
-var v3523=function () {
+var _v3049;
+var _v3050=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v3525="midir:leave";
-var v3526=v3525;
-var v3527=lglobal["list"];
-var v3528=v3527;
-v3528=runJTramp(v3528);
-if (typeof v3528 !== "function") {
+var _v3052="midir:leave";
+var _v3053=_v3052;
+var _v3054=lglobal["list"];
+if (_v3054 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3055=_v3054;
+_v3055=runJTramp(_v3055);
+if (typeof _v3055 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3529=new JTramp(v3528, [runJTramp(v3526)]);
-return v3529;
+var _v3056=new JTramp(_v3055, [runJTramp(_v3053)]);
+return _v3056;
 };
-v3522=v3523;
-lglobal["midir:leave"]=runJTramp(v3522);
+_v3049=_v3050;
+lglobal["midir:leave"]=runJTramp(_v3049);
 })();
 (function () {
-var v3530;
-var v3531=function (v3532) {
+var _v3057;
+var _v3058=function (_v3059) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3534=v3532;
-var v3535=lglobal["cons?"];
-var v3536=v3535;
-v3536=runJTramp(v3536);
-if (typeof v3536 !== "function") {
+var _v3061=lglobal["cons?"];
+if (_v3061 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3062=_v3061;
+_v3062=runJTramp(_v3062);
+if (typeof _v3062 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3537=new JTramp(v3536, [runJTramp(v3534)]);
-var v3538=v3537;
-var v3539=function (v3540) {
+var _v3063=new JTramp(_v3062, [runJTramp(_v3059)]);
+var _v3064=_v3063;
+var _v3065=function (_v3066) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3542;
-if(runJTramp(v3540)) {
-var v3543=v3532;
-var v3544=lglobal["head"];
-var v3545=v3544;
-v3545=runJTramp(v3545);
-if (typeof v3545 !== "function") {
+var _v3068;
+if(runJTramp(_v3066)) {
+var _v3069=lglobal["head"];
+if (_v3069 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3070=_v3069;
+_v3070=runJTramp(_v3070);
+if (typeof _v3070 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3546=new JTramp(v3545, [runJTramp(v3543)]);
-var v3547=v3546;
-var v3548="midir:leave";
-var v3549=v3548;
-var v3550=lglobal["="];
-var v3551=v3550;
-v3551=runJTramp(v3551);
-if (typeof v3551 !== "function") {
+var _v3071=new JTramp(_v3070, [runJTramp(_v3059)]);
+var _v3072=_v3071;
+var _v3073="midir:leave";
+var _v3074=_v3073;
+var _v3075=lglobal["="];
+if (_v3075 === undefined) { throw new Error("No such global: " + "="); }
+var _v3076=_v3075;
+_v3076=runJTramp(_v3076);
+if (typeof _v3076 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3552=new JTramp(v3551, [runJTramp(v3547),runJTramp(v3549)]);
-v3542=v3552;
+var _v3077=new JTramp(_v3076, [runJTramp(_v3072),runJTramp(_v3074)]);
+_v3068=_v3077;
 } else {
-v3542=v3540;
+_v3068=_v3066;
 }
-return v3542;
+return _v3068;
 };
-var v3553=v3539;
-v3553=runJTramp(v3553);
-if (typeof v3553 !== "function") {
+var _v3078=_v3065;
+_v3078=runJTramp(_v3078);
+if (typeof _v3078 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3554=new JTramp(v3553, [runJTramp(v3538)]);
-return v3554;
+var _v3079=new JTramp(_v3078, [runJTramp(_v3064)]);
+return _v3079;
 };
-v3530=v3531;
-lglobal["midir:leave?"]=runJTramp(v3530);
+_v3057=_v3058;
+lglobal["midir:leave?"]=runJTramp(_v3057);
 })();
 (function () {
-var v3555;
-var v3556=function (v3557,v3558,v3559) {
+var _v3080;
+var _v3081=function (_v3082,_v3083,_v3084) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v3561="midir:funcall";
-var v3562=v3561;
-var v3563=v3557;
-var v3564=v3558;
-var v3565=v3559;
-var v3566=lglobal["list"];
-var v3567=v3566;
-v3567=runJTramp(v3567);
-if (typeof v3567 !== "function") {
+var _v3086="midir:funcall";
+var _v3087=_v3086;
+var _v3088=lglobal["list"];
+if (_v3088 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3089=_v3088;
+_v3089=runJTramp(_v3089);
+if (typeof _v3089 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3568=new JTramp(v3567, [runJTramp(v3562),runJTramp(v3563),runJTramp(v3564),runJTramp(v3565)]);
-return v3568;
+var _v3090=new JTramp(_v3089, [runJTramp(_v3087),runJTramp(_v3082),runJTramp(_v3083),runJTramp(_v3084)]);
+return _v3090;
 };
-v3555=v3556;
-lglobal["midir:funcall"]=runJTramp(v3555);
+_v3080=_v3081;
+lglobal["midir:funcall"]=runJTramp(_v3080);
 })();
 (function () {
-var v3569;
-var v3570=function (v3571) {
+var _v3091;
+var _v3092=function (_v3093) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3573=v3571;
-var v3574=lglobal["cons?"];
-var v3575=v3574;
-v3575=runJTramp(v3575);
-if (typeof v3575 !== "function") {
+var _v3095=lglobal["cons?"];
+if (_v3095 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3096=_v3095;
+_v3096=runJTramp(_v3096);
+if (typeof _v3096 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3576=new JTramp(v3575, [runJTramp(v3573)]);
-var v3577=v3576;
-var v3578=function (v3579) {
+var _v3097=new JTramp(_v3096, [runJTramp(_v3093)]);
+var _v3098=_v3097;
+var _v3099=function (_v3100) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3581;
-if(runJTramp(v3579)) {
-var v3582=v3571;
-var v3583=lglobal["head"];
-var v3584=v3583;
-v3584=runJTramp(v3584);
-if (typeof v3584 !== "function") {
+var _v3102;
+if(runJTramp(_v3100)) {
+var _v3103=lglobal["head"];
+if (_v3103 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3104=_v3103;
+_v3104=runJTramp(_v3104);
+if (typeof _v3104 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3585=new JTramp(v3584, [runJTramp(v3582)]);
-var v3586=v3585;
-var v3587="midir:funcall";
-var v3588=v3587;
-var v3589=lglobal["="];
-var v3590=v3589;
-v3590=runJTramp(v3590);
-if (typeof v3590 !== "function") {
+var _v3105=new JTramp(_v3104, [runJTramp(_v3093)]);
+var _v3106=_v3105;
+var _v3107="midir:funcall";
+var _v3108=_v3107;
+var _v3109=lglobal["="];
+if (_v3109 === undefined) { throw new Error("No such global: " + "="); }
+var _v3110=_v3109;
+_v3110=runJTramp(_v3110);
+if (typeof _v3110 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3591=new JTramp(v3590, [runJTramp(v3586),runJTramp(v3588)]);
-v3581=v3591;
+var _v3111=new JTramp(_v3110, [runJTramp(_v3106),runJTramp(_v3108)]);
+_v3102=_v3111;
 } else {
-v3581=v3579;
+_v3102=_v3100;
 }
-return v3581;
+return _v3102;
 };
-var v3592=v3578;
-v3592=runJTramp(v3592);
-if (typeof v3592 !== "function") {
+var _v3112=_v3099;
+_v3112=runJTramp(_v3112);
+if (typeof _v3112 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3593=new JTramp(v3592, [runJTramp(v3577)]);
-return v3593;
+var _v3113=new JTramp(_v3112, [runJTramp(_v3098)]);
+return _v3113;
 };
-v3569=v3570;
-lglobal["midir:funcall?"]=runJTramp(v3569);
+_v3091=_v3092;
+lglobal["midir:funcall?"]=runJTramp(_v3091);
 })();
 (function () {
-var v3594;
-var v3595=function (v3596,v3597) {
+var _v3114;
+var _v3115=function (_v3116,_v3117) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3599="midir:closure";
-var v3600=v3599;
-var v3601=v3596;
-var v3602=v3597;
-var v3603=lglobal["list"];
-var v3604=v3603;
-v3604=runJTramp(v3604);
-if (typeof v3604 !== "function") {
+var _v3119="midir:closure";
+var _v3120=_v3119;
+var _v3121=lglobal["list"];
+if (_v3121 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3122=_v3121;
+_v3122=runJTramp(_v3122);
+if (typeof _v3122 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3605=new JTramp(v3604, [runJTramp(v3600),runJTramp(v3601),runJTramp(v3602)]);
-return v3605;
+var _v3123=new JTramp(_v3122, [runJTramp(_v3120),runJTramp(_v3116),runJTramp(_v3117)]);
+return _v3123;
 };
-v3594=v3595;
-lglobal["midir:closure"]=runJTramp(v3594);
+_v3114=_v3115;
+lglobal["midir:closure"]=runJTramp(_v3114);
 })();
 (function () {
-var v3606;
-var v3607=function (v3608) {
+var _v3124;
+var _v3125=function (_v3126) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3610=v3608;
-var v3611=lglobal["cons?"];
-var v3612=v3611;
-v3612=runJTramp(v3612);
-if (typeof v3612 !== "function") {
+var _v3128=lglobal["cons?"];
+if (_v3128 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3129=_v3128;
+_v3129=runJTramp(_v3129);
+if (typeof _v3129 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3613=new JTramp(v3612, [runJTramp(v3610)]);
-var v3614=v3613;
-var v3615=function (v3616) {
+var _v3130=new JTramp(_v3129, [runJTramp(_v3126)]);
+var _v3131=_v3130;
+var _v3132=function (_v3133) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3618;
-if(runJTramp(v3616)) {
-var v3619=v3608;
-var v3620=lglobal["head"];
-var v3621=v3620;
-v3621=runJTramp(v3621);
-if (typeof v3621 !== "function") {
+var _v3135;
+if(runJTramp(_v3133)) {
+var _v3136=lglobal["head"];
+if (_v3136 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3137=_v3136;
+_v3137=runJTramp(_v3137);
+if (typeof _v3137 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3622=new JTramp(v3621, [runJTramp(v3619)]);
-var v3623=v3622;
-var v3624="midir:closure";
-var v3625=v3624;
-var v3626=lglobal["="];
-var v3627=v3626;
-v3627=runJTramp(v3627);
-if (typeof v3627 !== "function") {
+var _v3138=new JTramp(_v3137, [runJTramp(_v3126)]);
+var _v3139=_v3138;
+var _v3140="midir:closure";
+var _v3141=_v3140;
+var _v3142=lglobal["="];
+if (_v3142 === undefined) { throw new Error("No such global: " + "="); }
+var _v3143=_v3142;
+_v3143=runJTramp(_v3143);
+if (typeof _v3143 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3628=new JTramp(v3627, [runJTramp(v3623),runJTramp(v3625)]);
-v3618=v3628;
+var _v3144=new JTramp(_v3143, [runJTramp(_v3139),runJTramp(_v3141)]);
+_v3135=_v3144;
 } else {
-v3618=v3616;
+_v3135=_v3133;
 }
-return v3618;
+return _v3135;
 };
-var v3629=v3615;
-v3629=runJTramp(v3629);
-if (typeof v3629 !== "function") {
+var _v3145=_v3132;
+_v3145=runJTramp(_v3145);
+if (typeof _v3145 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3630=new JTramp(v3629, [runJTramp(v3614)]);
-return v3630;
+var _v3146=new JTramp(_v3145, [runJTramp(_v3131)]);
+return _v3146;
 };
-v3606=v3607;
-lglobal["midir:closure?"]=runJTramp(v3606);
+_v3124=_v3125;
+lglobal["midir:closure?"]=runJTramp(_v3124);
 })();
 (function () {
-var v3631;
-var v3632=function (v3633,v3634) {
+var _v3147;
+var _v3148=function (_v3149,_v3150) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3636="midir:set!";
-var v3637=v3636;
-var v3638=v3633;
-var v3639=v3634;
-var v3640=lglobal["list"];
-var v3641=v3640;
-v3641=runJTramp(v3641);
-if (typeof v3641 !== "function") {
+var _v3152="midir:set!";
+var _v3153=_v3152;
+var _v3154=lglobal["list"];
+if (_v3154 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3155=_v3154;
+_v3155=runJTramp(_v3155);
+if (typeof _v3155 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3642=new JTramp(v3641, [runJTramp(v3637),runJTramp(v3638),runJTramp(v3639)]);
-return v3642;
+var _v3156=new JTramp(_v3155, [runJTramp(_v3153),runJTramp(_v3149),runJTramp(_v3150)]);
+return _v3156;
 };
-v3631=v3632;
-lglobal["midir:set!"]=runJTramp(v3631);
+_v3147=_v3148;
+lglobal["midir:set!"]=runJTramp(_v3147);
 })();
 (function () {
-var v3643;
-var v3644=function (v3645) {
+var _v3157;
+var _v3158=function (_v3159) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3647=v3645;
-var v3648=lglobal["cons?"];
-var v3649=v3648;
-v3649=runJTramp(v3649);
-if (typeof v3649 !== "function") {
+var _v3161=lglobal["cons?"];
+if (_v3161 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3162=_v3161;
+_v3162=runJTramp(_v3162);
+if (typeof _v3162 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3650=new JTramp(v3649, [runJTramp(v3647)]);
-var v3651=v3650;
-var v3652=function (v3653) {
+var _v3163=new JTramp(_v3162, [runJTramp(_v3159)]);
+var _v3164=_v3163;
+var _v3165=function (_v3166) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3655;
-if(runJTramp(v3653)) {
-var v3656=v3645;
-var v3657=lglobal["head"];
-var v3658=v3657;
-v3658=runJTramp(v3658);
-if (typeof v3658 !== "function") {
+var _v3168;
+if(runJTramp(_v3166)) {
+var _v3169=lglobal["head"];
+if (_v3169 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3170=_v3169;
+_v3170=runJTramp(_v3170);
+if (typeof _v3170 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3659=new JTramp(v3658, [runJTramp(v3656)]);
-var v3660=v3659;
-var v3661="midir:set!";
-var v3662=v3661;
-var v3663=lglobal["="];
-var v3664=v3663;
-v3664=runJTramp(v3664);
-if (typeof v3664 !== "function") {
+var _v3171=new JTramp(_v3170, [runJTramp(_v3159)]);
+var _v3172=_v3171;
+var _v3173="midir:set!";
+var _v3174=_v3173;
+var _v3175=lglobal["="];
+if (_v3175 === undefined) { throw new Error("No such global: " + "="); }
+var _v3176=_v3175;
+_v3176=runJTramp(_v3176);
+if (typeof _v3176 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3665=new JTramp(v3664, [runJTramp(v3660),runJTramp(v3662)]);
-v3655=v3665;
+var _v3177=new JTramp(_v3176, [runJTramp(_v3172),runJTramp(_v3174)]);
+_v3168=_v3177;
 } else {
-v3655=v3653;
+_v3168=_v3166;
 }
-return v3655;
+return _v3168;
 };
-var v3666=v3652;
-v3666=runJTramp(v3666);
-if (typeof v3666 !== "function") {
+var _v3178=_v3165;
+_v3178=runJTramp(_v3178);
+if (typeof _v3178 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3667=new JTramp(v3666, [runJTramp(v3651)]);
-return v3667;
+var _v3179=new JTramp(_v3178, [runJTramp(_v3164)]);
+return _v3179;
 };
-v3643=v3644;
-lglobal["midir:set!?"]=runJTramp(v3643);
+_v3157=_v3158;
+lglobal["midir:set!?"]=runJTramp(_v3157);
 })();
 (function () {
-var v3668;
-var v3669=function (v3670,v3671) {
+var _v3180;
+var _v3181=function (_v3182,_v3183) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3673="midir:gset!";
-var v3674=v3673;
-var v3675=v3670;
-var v3676=v3671;
-var v3677=lglobal["list"];
-var v3678=v3677;
-v3678=runJTramp(v3678);
-if (typeof v3678 !== "function") {
+var _v3185="midir:gset!";
+var _v3186=_v3185;
+var _v3187=lglobal["list"];
+if (_v3187 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3188=_v3187;
+_v3188=runJTramp(_v3188);
+if (typeof _v3188 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3679=new JTramp(v3678, [runJTramp(v3674),runJTramp(v3675),runJTramp(v3676)]);
-return v3679;
+var _v3189=new JTramp(_v3188, [runJTramp(_v3186),runJTramp(_v3182),runJTramp(_v3183)]);
+return _v3189;
 };
-v3668=v3669;
-lglobal["midir:gset!"]=runJTramp(v3668);
+_v3180=_v3181;
+lglobal["midir:gset!"]=runJTramp(_v3180);
 })();
 (function () {
-var v3680;
-var v3681=function (v3682) {
+var _v3190;
+var _v3191=function (_v3192) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3684=v3682;
-var v3685=lglobal["cons?"];
-var v3686=v3685;
-v3686=runJTramp(v3686);
-if (typeof v3686 !== "function") {
+var _v3194=lglobal["cons?"];
+if (_v3194 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3195=_v3194;
+_v3195=runJTramp(_v3195);
+if (typeof _v3195 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3687=new JTramp(v3686, [runJTramp(v3684)]);
-var v3688=v3687;
-var v3689=function (v3690) {
+var _v3196=new JTramp(_v3195, [runJTramp(_v3192)]);
+var _v3197=_v3196;
+var _v3198=function (_v3199) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3692;
-if(runJTramp(v3690)) {
-var v3693=v3682;
-var v3694=lglobal["head"];
-var v3695=v3694;
-v3695=runJTramp(v3695);
-if (typeof v3695 !== "function") {
+var _v3201;
+if(runJTramp(_v3199)) {
+var _v3202=lglobal["head"];
+if (_v3202 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3203=_v3202;
+_v3203=runJTramp(_v3203);
+if (typeof _v3203 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3696=new JTramp(v3695, [runJTramp(v3693)]);
-var v3697=v3696;
-var v3698="midir:gset!";
-var v3699=v3698;
-var v3700=lglobal["="];
-var v3701=v3700;
-v3701=runJTramp(v3701);
-if (typeof v3701 !== "function") {
+var _v3204=new JTramp(_v3203, [runJTramp(_v3192)]);
+var _v3205=_v3204;
+var _v3206="midir:gset!";
+var _v3207=_v3206;
+var _v3208=lglobal["="];
+if (_v3208 === undefined) { throw new Error("No such global: " + "="); }
+var _v3209=_v3208;
+_v3209=runJTramp(_v3209);
+if (typeof _v3209 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3702=new JTramp(v3701, [runJTramp(v3697),runJTramp(v3699)]);
-v3692=v3702;
+var _v3210=new JTramp(_v3209, [runJTramp(_v3205),runJTramp(_v3207)]);
+_v3201=_v3210;
 } else {
-v3692=v3690;
+_v3201=_v3199;
 }
-return v3692;
+return _v3201;
 };
-var v3703=v3689;
-v3703=runJTramp(v3703);
-if (typeof v3703 !== "function") {
+var _v3211=_v3198;
+_v3211=runJTramp(_v3211);
+if (typeof _v3211 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3704=new JTramp(v3703, [runJTramp(v3688)]);
-return v3704;
+var _v3212=new JTramp(_v3211, [runJTramp(_v3197)]);
+return _v3212;
 };
-v3680=v3681;
-lglobal["midir:gset!?"]=runJTramp(v3680);
+_v3190=_v3191;
+lglobal["midir:gset!?"]=runJTramp(_v3190);
 })();
 (function () {
-var v3705;
-var v3706=function (v3707) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
+var _v3213;
+var _v3214=function (_v3215,_v3216,_v3217) {
+if (arguments.length < 3) {
+throw new Error("Expecting at least 3 arguments.");
 }
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
+if (arguments.length > 3) {
+throw new Error("Expecting at most 3 arguments.");
 }
-var v3709="midir:ffi";
-var v3710=v3709;
-var v3711=v3707;
-var v3712=lglobal["list"];
-var v3713=v3712;
-v3713=runJTramp(v3713);
-if (typeof v3713 !== "function") {
+var _v3219="midir:ffi";
+var _v3220=_v3219;
+var _v3221=lglobal["list"];
+if (_v3221 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3222=_v3221;
+_v3222=runJTramp(_v3222);
+if (typeof _v3222 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3714=new JTramp(v3713, [runJTramp(v3710),runJTramp(v3711)]);
-return v3714;
+var _v3223=new JTramp(_v3222, [runJTramp(_v3220),runJTramp(_v3215),runJTramp(_v3216),runJTramp(_v3217)]);
+return _v3223;
 };
-v3705=v3706;
-lglobal["midir:ffi"]=runJTramp(v3705);
+_v3213=_v3214;
+lglobal["midir:ffi"]=runJTramp(_v3213);
 })();
 (function () {
-var v3715;
-var v3716=function (v3717) {
+var _v3224;
+var _v3225=function (_v3226) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3719=v3717;
-var v3720=lglobal["cons?"];
-var v3721=v3720;
-v3721=runJTramp(v3721);
-if (typeof v3721 !== "function") {
+var _v3228=lglobal["cons?"];
+if (_v3228 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3229=_v3228;
+_v3229=runJTramp(_v3229);
+if (typeof _v3229 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3722=new JTramp(v3721, [runJTramp(v3719)]);
-var v3723=v3722;
-var v3724=function (v3725) {
+var _v3230=new JTramp(_v3229, [runJTramp(_v3226)]);
+var _v3231=_v3230;
+var _v3232=function (_v3233) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3727;
-if(runJTramp(v3725)) {
-var v3728=v3717;
-var v3729=lglobal["head"];
-var v3730=v3729;
-v3730=runJTramp(v3730);
-if (typeof v3730 !== "function") {
+var _v3235;
+if(runJTramp(_v3233)) {
+var _v3236=lglobal["head"];
+if (_v3236 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3237=_v3236;
+_v3237=runJTramp(_v3237);
+if (typeof _v3237 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3731=new JTramp(v3730, [runJTramp(v3728)]);
-var v3732=v3731;
-var v3733="midir:ffi";
-var v3734=v3733;
-var v3735=lglobal["="];
-var v3736=v3735;
-v3736=runJTramp(v3736);
-if (typeof v3736 !== "function") {
+var _v3238=new JTramp(_v3237, [runJTramp(_v3226)]);
+var _v3239=_v3238;
+var _v3240="midir:ffi";
+var _v3241=_v3240;
+var _v3242=lglobal["="];
+if (_v3242 === undefined) { throw new Error("No such global: " + "="); }
+var _v3243=_v3242;
+_v3243=runJTramp(_v3243);
+if (typeof _v3243 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3737=new JTramp(v3736, [runJTramp(v3732),runJTramp(v3734)]);
-v3727=v3737;
+var _v3244=new JTramp(_v3243, [runJTramp(_v3239),runJTramp(_v3241)]);
+_v3235=_v3244;
 } else {
-v3727=v3725;
+_v3235=_v3233;
 }
-return v3727;
+return _v3235;
 };
-var v3738=v3724;
-v3738=runJTramp(v3738);
-if (typeof v3738 !== "function") {
+var _v3245=_v3232;
+_v3245=runJTramp(_v3245);
+if (typeof _v3245 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3739=new JTramp(v3738, [runJTramp(v3723)]);
-return v3739;
+var _v3246=new JTramp(_v3245, [runJTramp(_v3231)]);
+return _v3246;
 };
-v3715=v3716;
-lglobal["midir:ffi?"]=runJTramp(v3715);
+_v3224=_v3225;
+lglobal["midir:ffi?"]=runJTramp(_v3224);
 })();
 (function () {
-var v3740;
-var v3741=lglobal["dict"];
-var v3742=v3741;
-v3742=runJTramp(v3742);
-if (typeof v3742 !== "function") {
+var _v3247;
+var _v3248=lglobal["dict"];
+if (_v3248 === undefined) { throw new Error("No such global: " + "dict"); }
+var _v3249=_v3248;
+_v3249=runJTramp(_v3249);
+if (typeof _v3249 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3743=new JTramp(v3742, []);
-v3740=v3743;
-lglobal["midir-macros"]=runJTramp(v3740);
+var _v3250=new JTramp(_v3249, []);
+_v3247=_v3250;
+lglobal["midir-macros"]=runJTramp(_v3247);
 })();
 (function () {
-var v3744;
-var v3745=new Nil();
-v3744=v3745;
-lglobal["midir-toplevel-defs"]=runJTramp(v3744);
+var _v3251;
+var _v3252=new Nil();
+_v3251=_v3252;
+lglobal["midir-toplevel-defs"]=runJTramp(_v3251);
 })();
 (function () {
-var v3746;
-var v3747="\n\"use strict\";\nif (window.Cons === undefined) {\n  window.Cons = function Cons(a, b) {\n    this.head = a;\n    this.tail = b;\n  };\n  window.Nil = function Nil() {};\n}\nwindow.JTramp = function JTramp(f, args) {\n  this.f = f;\n  this.args = args;\n};\nwindow.runJTramp = function (o) {\n  while (o instanceof JTramp) {\n    o = o.f.apply(undefined, o.args);\n  }\n  return o;\n};\nwindow.lglobal={\n  'prim:cons' : function (a, b) { return new Cons(a, b); },\n  'prim:cons?' : function (a) { return a instanceof Cons; },\n  'prim:head' : function (a) { return a.head; },\n  'prim:tail' : function (a) { return a.tail; },\n  'prim:nil' : function () { return new Nil(); },\n  'prim:nil?' : function (a) { return a instanceof Nil; }\n};\n";
-v3746=v3747;
-lglobal["js-default-lglobal"]=runJTramp(v3746);
+var _v3253;
+var _v3254="\n\"use strict\";\nif (window.Cons === undefined) {\n  window.Cons = function Cons(a, b) {\n    this.head = a;\n    this.tail = b;\n  };\n  window.Nil = function Nil() {};\n}\nif (window.JTramp === undefined) {\n  window.JTramp = function JTramp(f, args) {\n    this.f = f;\n    this.args = args;\n  };\n  window.runJTramp = function (o) {\n    while (o instanceof JTramp) {\n      o = o.f.apply(undefined, o.args);\n    }\n    return o;\n  };\n}\nfunction GlobalEnv() {};\nGlobalEnv.prototype = window.lglobal || {};\nvar lglobal = new GlobalEnv();\n_.extend(lglobal, {\n  'prim:cons' : function (a, b) { return new Cons(a, b); },\n  'prim:cons?' : function (a) { return a instanceof Cons; },\n  'prim:head' : function (a) { return a.head; },\n  'prim:tail' : function (a) { return a.tail; },\n  'prim:nil' : function () { return new Nil(); },\n  'prim:nil?' : function (a) { return a instanceof Nil; }\n});\nwindow.lglobal = lglobal;\n";
+_v3253=_v3254;
+lglobal["js-default-lglobal"]=runJTramp(_v3253);
 })();
 (function () {
-var v3748;
-var v3749=function (v3750,v3751) {
+var _v3255;
+var _v3256=function (_v3257,_v3258) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3753=v3750;
-var v3754=v3751;
-var v3755="(function (k, v) { window.lglobal[k] = v; })";
-var v3756=v3755;
-var v3757=lglobal["ffi"];
-var v3758=v3757;
-v3758=runJTramp(v3758);
-if (typeof v3758 !== "function") {
+var _v3260="(function (k, v) { window.lglobal[k] = v; })";
+var _v3261=_v3260;
+var _v3262=lglobal["js:eval"];
+if (_v3262 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v3263=_v3262;
+_v3263=runJTramp(_v3263);
+if (typeof _v3263 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3759=new JTramp(v3758, [runJTramp(v3756)]);
-var v3760=v3759;
-v3760=runJTramp(v3760);
-if (typeof v3760 !== "function") {
+var _v3264=new JTramp(_v3263, [runJTramp(_v3261)]);
+var _v3265=_v3264;
+_v3265=runJTramp(_v3265);
+if (typeof _v3265 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3761=new JTramp(v3760, [runJTramp(v3753),runJTramp(v3754)]);
-return v3761;
+var _v3266=new JTramp(_v3265, [runJTramp(_v3257),runJTramp(_v3258)]);
+return _v3266;
 };
-v3748=v3749;
-lglobal["set-in-lglobal"]=runJTramp(v3748);
+_v3255=_v3256;
+lglobal["set-in-lglobal"]=runJTramp(_v3255);
 })();
 (function () {
-var v3762;
-var v3763=function (v3764) {
+var _v3267;
+var _v3268=function (_v3269) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3766=v3764;
-var v3767="runJTramp";
-var v3768=v3767;
-var v3769=lglobal["ffi"];
-var v3770=v3769;
-v3770=runJTramp(v3770);
-if (typeof v3770 !== "function") {
+var _v3271="runJTramp";
+var _v3272=_v3271;
+var _v3273=lglobal["js:eval"];
+if (_v3273 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v3274=_v3273;
+_v3274=runJTramp(_v3274);
+if (typeof _v3274 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3771=new JTramp(v3770, [runJTramp(v3768)]);
-var v3772=v3771;
-v3772=runJTramp(v3772);
-if (typeof v3772 !== "function") {
+var _v3275=new JTramp(_v3274, [runJTramp(_v3272)]);
+var _v3276=_v3275;
+_v3276=runJTramp(_v3276);
+if (typeof _v3276 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3773=new JTramp(v3772, [runJTramp(v3766)]);
-return v3773;
+var _v3277=new JTramp(_v3276, [runJTramp(_v3269)]);
+return _v3277;
 };
-v3762=v3763;
-lglobal["runJTramp"]=runJTramp(v3762);
+_v3267=_v3268;
+lglobal["runJTramp"]=runJTramp(_v3267);
 })();
 (function () {
-var v3774;
-var v3775=function () {
+var _v3278;
+var _v3279=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v3777=lglobal["dict"];
-var v3778=v3777;
-v3778=runJTramp(v3778);
-if (typeof v3778 !== "function") {
+var _v3281=lglobal["dict"];
+if (_v3281 === undefined) { throw new Error("No such global: " + "dict"); }
+var _v3282=_v3281;
+_v3282=runJTramp(_v3282);
+if (typeof _v3282 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3779=new JTramp(v3778, []);
-var v3780=lglobal["midir-macros"]=runJTramp(v3779);
-v3780=runJTramp(v3780);
-var v3781=lglobal["js-default-lglobal"];
-var v3782=v3781;
-var v3783=lglobal["ffi"];
-var v3784=v3783;
-v3784=runJTramp(v3784);
-if (typeof v3784 !== "function") {
+var _v3283=new JTramp(_v3282, []);
+var _v3284=lglobal["midir-macros"]=runJTramp(_v3283);
+_v3284=runJTramp(_v3284);
+var _v3285=lglobal["js-default-lglobal"];
+if (_v3285 === undefined) { throw new Error("No such global: " + "js-default-lglobal"); }
+var _v3286=_v3285;
+var _v3287=lglobal["js:eval"];
+if (_v3287 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v3288=_v3287;
+_v3288=runJTramp(_v3288);
+if (typeof _v3288 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3785=new JTramp(v3784, [runJTramp(v3782)]);
-v3785=runJTramp(v3785);
-var v3786=lglobal["js-default-lglobal"];
-var v3787=v3786;
-var v3788=lglobal["list"];
-var v3789=v3788;
-v3789=runJTramp(v3789);
-if (typeof v3789 !== "function") {
+var _v3289=new JTramp(_v3288, [runJTramp(_v3286)]);
+_v3289=runJTramp(_v3289);
+var _v3290=lglobal["js-default-lglobal"];
+if (_v3290 === undefined) { throw new Error("No such global: " + "js-default-lglobal"); }
+var _v3291=_v3290;
+var _v3292=lglobal["list"];
+if (_v3292 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3293=_v3292;
+_v3293=runJTramp(_v3293);
+if (typeof _v3293 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3790=new JTramp(v3789, [runJTramp(v3787)]);
-var v3791=v3790;
-var v3792=lglobal["reverse"];
-var v3793=v3792;
-v3793=runJTramp(v3793);
-if (typeof v3793 !== "function") {
+var _v3294=new JTramp(_v3293, [runJTramp(_v3291)]);
+var _v3295=_v3294;
+var _v3296=lglobal["reverse"];
+if (_v3296 === undefined) { throw new Error("No such global: " + "reverse"); }
+var _v3297=_v3296;
+_v3297=runJTramp(_v3297);
+if (typeof _v3297 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3794=new JTramp(v3793, [runJTramp(v3791)]);
-var v3795=lglobal["midir-toplevel-defs"]=runJTramp(v3794);
-v3795=runJTramp(v3795);
-var v3796="macro:set!";
-var v3797=v3796;
-var v3798=function (v3799,v3800) {
+var _v3298=new JTramp(_v3297, [runJTramp(_v3295)]);
+var _v3299=lglobal["midir-toplevel-defs"]=runJTramp(_v3298);
+_v3299=runJTramp(_v3299);
+var _v3300="macro:set!";
+var _v3301=_v3300;
+var _v3302=function (_v3303,_v3304) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v3802=lglobal["midir-macros"];
-var v3803=v3802;
-var v3804=v3799;
-var v3805=v3800;
-var v3806=lglobal["runJTramp"];
-var v3807=v3806;
-v3807=runJTramp(v3807);
-if (typeof v3807 !== "function") {
+var _v3306=lglobal["midir-macros"];
+if (_v3306 === undefined) { throw new Error("No such global: " + "midir-macros"); }
+var _v3307=_v3306;
+var _v3308=lglobal["runJTramp"];
+if (_v3308 === undefined) { throw new Error("No such global: " + "runJTramp"); }
+var _v3309=_v3308;
+_v3309=runJTramp(_v3309);
+if (typeof _v3309 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3808=new JTramp(v3807, [runJTramp(v3805)]);
-var v3809=v3808;
-var v3810=function (v3811) {
+var _v3310=new JTramp(_v3309, [runJTramp(_v3304)]);
+var _v3311=_v3310;
+var _v3312=function (_v3313) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3813=function () {
-var v3814 = new Nil();
-for (var v3815 = arguments.length - 1; v3815 >= 0; v3815--) {
-  v3814 = new Cons(arguments[v3815], v3814);
+var _v3315=function () {
+var _v3316 = new Nil();
+for (var _v3317 = arguments.length - 1; _v3317 >= 0; _v3317--) {
+  _v3316 = new Cons(arguments[_v3317], _v3316);
 }
-var v3816=v3811;
-var v3817=v3814;
-var v3818=lglobal["apply"];
-var v3819=v3818;
-v3819=runJTramp(v3819);
-if (typeof v3819 !== "function") {
+var _v3318=lglobal["apply"];
+if (_v3318 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v3319=_v3318;
+_v3319=runJTramp(_v3319);
+if (typeof _v3319 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3820=new JTramp(v3819, [runJTramp(v3816),runJTramp(v3817)]);
-var v3821=v3820;
-var v3822=lglobal["runJTramp"];
-var v3823=v3822;
-v3823=runJTramp(v3823);
-if (typeof v3823 !== "function") {
+var _v3320=new JTramp(_v3319, [runJTramp(_v3313),runJTramp(_v3316)]);
+var _v3321=_v3320;
+var _v3322=lglobal["runJTramp"];
+if (_v3322 === undefined) { throw new Error("No such global: " + "runJTramp"); }
+var _v3323=_v3322;
+_v3323=runJTramp(_v3323);
+if (typeof _v3323 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3824=new JTramp(v3823, [runJTramp(v3821)]);
-return v3824;
+var _v3324=new JTramp(_v3323, [runJTramp(_v3321)]);
+return _v3324;
 };
-return v3813;
+return _v3315;
 };
-var v3825=v3810;
-v3825=runJTramp(v3825);
-if (typeof v3825 !== "function") {
+var _v3325=_v3312;
+_v3325=runJTramp(_v3325);
+if (typeof _v3325 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3826=new JTramp(v3825, [runJTramp(v3809)]);
-var v3827=v3826;
-var v3828=lglobal["dict:set!"];
-var v3829=v3828;
-v3829=runJTramp(v3829);
-if (typeof v3829 !== "function") {
+var _v3326=new JTramp(_v3325, [runJTramp(_v3311)]);
+var _v3327=_v3326;
+var _v3328=lglobal["dict:set!"];
+if (_v3328 === undefined) { throw new Error("No such global: " + "dict:set!"); }
+var _v3329=_v3328;
+_v3329=runJTramp(_v3329);
+if (typeof _v3329 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3830=new JTramp(v3829, [runJTramp(v3803),runJTramp(v3804),runJTramp(v3827)]);
-return v3830;
+var _v3330=new JTramp(_v3329, [runJTramp(_v3307),runJTramp(_v3303),runJTramp(_v3327)]);
+return _v3330;
 };
-var v3831=v3798;
-var v3832=lglobal["set-in-lglobal"];
-var v3833=v3832;
-v3833=runJTramp(v3833);
-if (typeof v3833 !== "function") {
+var _v3331=_v3302;
+var _v3332=lglobal["set-in-lglobal"];
+if (_v3332 === undefined) { throw new Error("No such global: " + "set-in-lglobal"); }
+var _v3333=_v3332;
+_v3333=runJTramp(_v3333);
+if (typeof _v3333 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3834=new JTramp(v3833, [runJTramp(v3797),runJTramp(v3831)]);
-v3834=runJTramp(v3834);
-var v3835="macro:get";
-var v3836=v3835;
-var v3837=function (v3838) {
+var _v3334=new JTramp(_v3333, [runJTramp(_v3301),runJTramp(_v3331)]);
+_v3334=runJTramp(_v3334);
+var _v3335="macro:get";
+var _v3336=_v3335;
+var _v3337=function (_v3338) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3840=lglobal["midir-macros"];
-var v3841=v3840;
-var v3842=v3838;
-var v3843=lglobal["dict:get"];
-var v3844=v3843;
-v3844=runJTramp(v3844);
-if (typeof v3844 !== "function") {
+var _v3340=lglobal["midir-macros"];
+if (_v3340 === undefined) { throw new Error("No such global: " + "midir-macros"); }
+var _v3341=_v3340;
+var _v3342=lglobal["dict:get"];
+if (_v3342 === undefined) { throw new Error("No such global: " + "dict:get"); }
+var _v3343=_v3342;
+_v3343=runJTramp(_v3343);
+if (typeof _v3343 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3845=new JTramp(v3844, [runJTramp(v3841),runJTramp(v3842)]);
-return v3845;
+var _v3344=new JTramp(_v3343, [runJTramp(_v3341),runJTramp(_v3338)]);
+return _v3344;
 };
-var v3846=v3837;
-var v3847=lglobal["set-in-lglobal"];
-var v3848=v3847;
-v3848=runJTramp(v3848);
-if (typeof v3848 !== "function") {
+var _v3345=_v3337;
+var _v3346=lglobal["set-in-lglobal"];
+if (_v3346 === undefined) { throw new Error("No such global: " + "set-in-lglobal"); }
+var _v3347=_v3346;
+_v3347=runJTramp(_v3347);
+if (typeof _v3347 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3849=new JTramp(v3848, [runJTramp(v3836),runJTramp(v3846)]);
-return v3849;
+var _v3348=new JTramp(_v3347, [runJTramp(_v3336),runJTramp(_v3345)]);
+return _v3348;
 };
-v3774=v3775;
-lglobal["reset-midir-compile"]=runJTramp(v3774);
+_v3278=_v3279;
+lglobal["reset-midir-compile"]=runJTramp(_v3278);
 })();
 (function () {
-var v3850;
-var v3851=function (v3852) {
+var _v3349;
+var _v3350=function (_v3351) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3854=v3852;
-var v3855=lglobal["cons?"];
-var v3856=v3855;
-v3856=runJTramp(v3856);
-if (typeof v3856 !== "function") {
+var _v3353=lglobal["cons?"];
+if (_v3353 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3354=_v3353;
+_v3354=runJTramp(_v3354);
+if (typeof _v3354 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3857=new JTramp(v3856, [runJTramp(v3854)]);
-var v3858=v3857;
-var v3859=function (v3860) {
+var _v3355=new JTramp(_v3354, [runJTramp(_v3351)]);
+var _v3356=_v3355;
+var _v3357=function (_v3358) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3862;
-if(runJTramp(v3860)) {
-var v3863=lglobal["midir-macros"];
-var v3864=v3863;
-var v3865=v3852;
-var v3866=lglobal["head"];
-var v3867=v3866;
-v3867=runJTramp(v3867);
-if (typeof v3867 !== "function") {
+var _v3360;
+if(runJTramp(_v3358)) {
+var _v3361=lglobal["midir-macros"];
+if (_v3361 === undefined) { throw new Error("No such global: " + "midir-macros"); }
+var _v3362=_v3361;
+var _v3363=lglobal["head"];
+if (_v3363 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3364=_v3363;
+_v3364=runJTramp(_v3364);
+if (typeof _v3364 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3868=new JTramp(v3867, [runJTramp(v3865)]);
-var v3869=v3868;
-var v3870=lglobal["dict:has?"];
-var v3871=v3870;
-v3871=runJTramp(v3871);
-if (typeof v3871 !== "function") {
+var _v3365=new JTramp(_v3364, [runJTramp(_v3351)]);
+var _v3366=_v3365;
+var _v3367=lglobal["dict:has?"];
+if (_v3367 === undefined) { throw new Error("No such global: " + "dict:has?"); }
+var _v3368=_v3367;
+_v3368=runJTramp(_v3368);
+if (typeof _v3368 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3872=new JTramp(v3871, [runJTramp(v3864),runJTramp(v3869)]);
-v3862=v3872;
+var _v3369=new JTramp(_v3368, [runJTramp(_v3362),runJTramp(_v3366)]);
+_v3360=_v3369;
 } else {
-v3862=v3860;
+_v3360=_v3358;
 }
-return v3862;
+return _v3360;
 };
-var v3873=v3859;
-v3873=runJTramp(v3873);
-if (typeof v3873 !== "function") {
+var _v3370=_v3357;
+_v3370=runJTramp(_v3370);
+if (typeof _v3370 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3874=new JTramp(v3873, [runJTramp(v3858)]);
-var v3875;
-if(runJTramp(v3874)) {
-var v3876=lglobal["midir-macros"];
-var v3877=v3876;
-var v3878=v3852;
-var v3879=lglobal["head"];
-var v3880=v3879;
-v3880=runJTramp(v3880);
-if (typeof v3880 !== "function") {
+var _v3371=new JTramp(_v3370, [runJTramp(_v3356)]);
+var _v3372;
+if(runJTramp(_v3371)) {
+var _v3373=lglobal["midir-macros"];
+if (_v3373 === undefined) { throw new Error("No such global: " + "midir-macros"); }
+var _v3374=_v3373;
+var _v3375=lglobal["head"];
+if (_v3375 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3376=_v3375;
+_v3376=runJTramp(_v3376);
+if (typeof _v3376 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3881=new JTramp(v3880, [runJTramp(v3878)]);
-var v3882=v3881;
-var v3883=lglobal["dict:get"];
-var v3884=v3883;
-v3884=runJTramp(v3884);
-if (typeof v3884 !== "function") {
+var _v3377=new JTramp(_v3376, [runJTramp(_v3351)]);
+var _v3378=_v3377;
+var _v3379=lglobal["dict:get"];
+if (_v3379 === undefined) { throw new Error("No such global: " + "dict:get"); }
+var _v3380=_v3379;
+_v3380=runJTramp(_v3380);
+if (typeof _v3380 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3885=new JTramp(v3884, [runJTramp(v3877),runJTramp(v3882)]);
-var v3886=v3885;
-var v3887=v3852;
-var v3888=lglobal["apply"];
-var v3889=v3888;
-v3889=runJTramp(v3889);
-if (typeof v3889 !== "function") {
+var _v3381=new JTramp(_v3380, [runJTramp(_v3374),runJTramp(_v3378)]);
+var _v3382=_v3381;
+var _v3383=lglobal["apply"];
+if (_v3383 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v3384=_v3383;
+_v3384=runJTramp(_v3384);
+if (typeof _v3384 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3890=new JTramp(v3889, [runJTramp(v3886),runJTramp(v3887)]);
-var v3891=v3890;
-var v3892=lglobal["midir-macro-expand"];
-var v3893=v3892;
-v3893=runJTramp(v3893);
-if (typeof v3893 !== "function") {
+var _v3385=new JTramp(_v3384, [runJTramp(_v3382),runJTramp(_v3351)]);
+var _v3386=_v3385;
+var _v3387=lglobal["midir-macro-expand"];
+if (_v3387 === undefined) { throw new Error("No such global: " + "midir-macro-expand"); }
+var _v3388=_v3387;
+_v3388=runJTramp(_v3388);
+if (typeof _v3388 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3894=new JTramp(v3893, [runJTramp(v3891)]);
-v3875=v3894;
+var _v3389=new JTramp(_v3388, [runJTramp(_v3386)]);
+_v3372=_v3389;
 } else {
-v3875=v3852;
+_v3372=_v3351;
 }
-return v3875;
+return _v3372;
 };
-v3850=v3851;
-lglobal["midir-macro-expand"]=runJTramp(v3850);
+_v3349=_v3350;
+lglobal["midir-macro-expand"]=runJTramp(_v3349);
 })();
 (function () {
-var v3895;
-var v3896=function (v3897,v3898,v3899) {
+var _v3390;
+var _v3391=function (_v3392,_v3393,_v3394) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v3901;
-var v3902=function (v3903) {
+var _v3396;
+var _v3397=function (_v3398) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3905=v3903;
-var v3906=lglobal["number?"];
-var v3907=v3906;
-v3907=runJTramp(v3907);
-if (typeof v3907 !== "function") {
+var _v3400=lglobal["number?"];
+if (_v3400 === undefined) { throw new Error("No such global: " + "number?"); }
+var _v3401=_v3400;
+_v3401=runJTramp(_v3401);
+if (typeof _v3401 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3908=new JTramp(v3907, [runJTramp(v3905)]);
-var v3909=v3908;
-var v3910=function (v3911) {
+var _v3402=new JTramp(_v3401, [runJTramp(_v3398)]);
+var _v3403=_v3402;
+var _v3404=function (_v3405) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3913;
-if(runJTramp(v3911)) {
-v3913=v3911;
+var _v3407;
+if(runJTramp(_v3405)) {
+_v3407=_v3405;
 } else {
-var v3914=v3903;
-var v3915=lglobal["boolean?"];
-var v3916=v3915;
-v3916=runJTramp(v3916);
-if (typeof v3916 !== "function") {
+var _v3408=lglobal["boolean?"];
+if (_v3408 === undefined) { throw new Error("No such global: " + "boolean?"); }
+var _v3409=_v3408;
+_v3409=runJTramp(_v3409);
+if (typeof _v3409 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3917=new JTramp(v3916, [runJTramp(v3914)]);
-var v3918=v3917;
-var v3919=function (v3920) {
+var _v3410=new JTramp(_v3409, [runJTramp(_v3398)]);
+var _v3411=_v3410;
+var _v3412=function (_v3413) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3922;
-if(runJTramp(v3920)) {
-v3922=v3920;
+var _v3415;
+if(runJTramp(_v3413)) {
+_v3415=_v3413;
 } else {
-var v3923=v3903;
-var v3924=lglobal["null?"];
-var v3925=v3924;
-v3925=runJTramp(v3925);
-if (typeof v3925 !== "function") {
+var _v3416=lglobal["null?"];
+if (_v3416 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v3417=_v3416;
+_v3417=runJTramp(_v3417);
+if (typeof _v3417 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3926=new JTramp(v3925, [runJTramp(v3923)]);
-v3922=v3926;
+var _v3418=new JTramp(_v3417, [runJTramp(_v3398)]);
+_v3415=_v3418;
 }
-return v3922;
+return _v3415;
 };
-var v3927=v3919;
-v3927=runJTramp(v3927);
-if (typeof v3927 !== "function") {
+var _v3419=_v3412;
+_v3419=runJTramp(_v3419);
+if (typeof _v3419 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3928=new JTramp(v3927, [runJTramp(v3918)]);
-v3913=v3928;
+var _v3420=new JTramp(_v3419, [runJTramp(_v3411)]);
+_v3407=_v3420;
 }
-return v3913;
+return _v3407;
 };
-var v3929=v3910;
-v3929=runJTramp(v3929);
-if (typeof v3929 !== "function") {
+var _v3421=_v3404;
+_v3421=runJTramp(_v3421);
+if (typeof _v3421 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3930=new JTramp(v3929, [runJTramp(v3909)]);
-return v3930;
+var _v3422=new JTramp(_v3421, [runJTramp(_v3403)]);
+return _v3422;
 };
-var v3931=v3901=runJTramp(v3902);
-var v3932=v3898;
-var v3933=lglobal["midir-macro-expand"];
-var v3934=v3933;
-v3934=runJTramp(v3934);
-if (typeof v3934 !== "function") {
+var _v3423=_v3396=runJTramp(_v3397);
+var _v3424=lglobal["midir-macro-expand"];
+if (_v3424 === undefined) { throw new Error("No such global: " + "midir-macro-expand"); }
+var _v3425=_v3424;
+_v3425=runJTramp(_v3425);
+if (typeof _v3425 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3935=new JTramp(v3934, [runJTramp(v3932)]);
-var v3936=v3935;
-var v3937=function (v3938) {
+var _v3426=new JTramp(_v3425, [runJTramp(_v3393)]);
+var _v3427=_v3426;
+var _v3428=function (_v3429) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v3940=v3938;
-var v3941=v3901;
-v3941=runJTramp(v3941);
-if (typeof v3941 !== "function") {
+_v3396=runJTramp(_v3396);
+if (typeof _v3396 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3942=new JTramp(v3941, [runJTramp(v3940)]);
-var v3943;
-if(runJTramp(v3942)) {
-var v3944=v3938;
-var v3945=v3899;
-var v3946=lglobal["midir:lit"];
-var v3947=v3946;
-v3947=runJTramp(v3947);
-if (typeof v3947 !== "function") {
+var _v3431=new JTramp(_v3396, [runJTramp(_v3429)]);
+var _v3432;
+if(runJTramp(_v3431)) {
+var _v3433=lglobal["midir:lit"];
+if (_v3433 === undefined) { throw new Error("No such global: " + "midir:lit"); }
+var _v3434=_v3433;
+_v3434=runJTramp(_v3434);
+if (typeof _v3434 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3948=new JTramp(v3947, [runJTramp(v3944),runJTramp(v3945)]);
-v3943=v3948;
+var _v3435=new JTramp(_v3434, [runJTramp(_v3429),runJTramp(_v3394)]);
+_v3432=_v3435;
 } else {
-var v3949=v3938;
-var v3950=lglobal["string?"];
-var v3951=v3950;
-v3951=runJTramp(v3951);
-if (typeof v3951 !== "function") {
+var _v3436=lglobal["string?"];
+if (_v3436 === undefined) { throw new Error("No such global: " + "string?"); }
+var _v3437=_v3436;
+_v3437=runJTramp(_v3437);
+if (typeof _v3437 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3952=new JTramp(v3951, [runJTramp(v3949)]);
-var v3953;
-if(runJTramp(v3952)) {
-var v3954="has?";
-var v3955=v3954;
-var v3956=v3938;
-var v3957=v3897;
-v3957=runJTramp(v3957);
-if (typeof v3957 !== "function") {
+var _v3438=new JTramp(_v3437, [runJTramp(_v3429)]);
+var _v3439;
+if(runJTramp(_v3438)) {
+var _v3440="has?";
+var _v3441=_v3440;
+_v3392=runJTramp(_v3392);
+if (typeof _v3392 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3958=new JTramp(v3957, [runJTramp(v3955),runJTramp(v3956)]);
-var v3959;
-if(runJTramp(v3958)) {
-var v3960="lookup";
-var v3961=v3960;
-var v3962=v3938;
-var v3963=v3897;
-v3963=runJTramp(v3963);
-if (typeof v3963 !== "function") {
+var _v3442=new JTramp(_v3392, [runJTramp(_v3441),runJTramp(_v3429)]);
+var _v3443;
+if(runJTramp(_v3442)) {
+var _v3444="lookup";
+var _v3445=_v3444;
+_v3392=runJTramp(_v3392);
+if (typeof _v3392 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3964=new JTramp(v3963, [runJTramp(v3961),runJTramp(v3962)]);
-var v3965=v3964;
-var v3966=v3899;
-var v3967=lglobal["midir:lookup"];
-var v3968=v3967;
-v3968=runJTramp(v3968);
-if (typeof v3968 !== "function") {
+var _v3446=new JTramp(_v3392, [runJTramp(_v3445),runJTramp(_v3429)]);
+var _v3447=_v3446;
+var _v3448=lglobal["midir:lookup"];
+if (_v3448 === undefined) { throw new Error("No such global: " + "midir:lookup"); }
+var _v3449=_v3448;
+_v3449=runJTramp(_v3449);
+if (typeof _v3449 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3969=new JTramp(v3968, [runJTramp(v3965),runJTramp(v3966)]);
-v3959=v3969;
+var _v3450=new JTramp(_v3449, [runJTramp(_v3447),runJTramp(_v3394)]);
+_v3443=_v3450;
 } else {
-var v3970=v3938;
-var v3971=v3899;
-var v3972=lglobal["midir:glookup"];
-var v3973=v3972;
-v3973=runJTramp(v3973);
-if (typeof v3973 !== "function") {
+var _v3451=lglobal["midir:glookup"];
+if (_v3451 === undefined) { throw new Error("No such global: " + "midir:glookup"); }
+var _v3452=_v3451;
+_v3452=runJTramp(_v3452);
+if (typeof _v3452 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3974=new JTramp(v3973, [runJTramp(v3970),runJTramp(v3971)]);
-v3959=v3974;
+var _v3453=new JTramp(_v3452, [runJTramp(_v3429),runJTramp(_v3394)]);
+_v3443=_v3453;
 }
-v3953=v3959;
+_v3439=_v3443;
 } else {
-var v3975=v3938;
-var v3976=lglobal["cons?"];
-var v3977=v3976;
-v3977=runJTramp(v3977);
-if (typeof v3977 !== "function") {
+var _v3454=lglobal["cons?"];
+if (_v3454 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3455=_v3454;
+_v3455=runJTramp(_v3455);
+if (typeof _v3455 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3978=new JTramp(v3977, [runJTramp(v3975)]);
-var v3979;
-if(runJTramp(v3978)) {
-var v3980=v3897;
-var v3981=v3938;
-var v3982=v3899;
-var v3983=lglobal["compile-form-to-midir"];
-var v3984=v3983;
-v3984=runJTramp(v3984);
-if (typeof v3984 !== "function") {
+var _v3456=new JTramp(_v3455, [runJTramp(_v3429)]);
+var _v3457;
+if(runJTramp(_v3456)) {
+var _v3458=lglobal["compile-form-to-midir"];
+if (_v3458 === undefined) { throw new Error("No such global: " + "compile-form-to-midir"); }
+var _v3459=_v3458;
+_v3459=runJTramp(_v3459);
+if (typeof _v3459 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3985=new JTramp(v3984, [runJTramp(v3980),runJTramp(v3981),runJTramp(v3982)]);
-v3979=v3985;
+var _v3460=new JTramp(_v3459, [runJTramp(_v3392),runJTramp(_v3429),runJTramp(_v3394)]);
+_v3457=_v3460;
 } else {
-var v3986=lglobal["otherwise"];
-var v3987;
-if(runJTramp(v3986)) {
-var v3988="Unknown form: ";
-var v3989=v3988;
-var v3990=v3938;
-var v3991=lglobal["console"];
-var v3992=v3991;
-v3992=runJTramp(v3992);
-if (typeof v3992 !== "function") {
+var _v3461=lglobal["otherwise"];
+if (_v3461 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v3462;
+if(runJTramp(_v3461)) {
+var _v3463="Unknown form: ";
+var _v3464=_v3463;
+var _v3465=lglobal["console"];
+if (_v3465 === undefined) { throw new Error("No such global: " + "console"); }
+var _v3466=_v3465;
+_v3466=runJTramp(_v3466);
+if (typeof _v3466 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3993=new JTramp(v3992, [runJTramp(v3990)]);
-var v3994=v3993;
-var v3995=lglobal["repr"];
-var v3996=v3995;
-v3996=runJTramp(v3996);
-if (typeof v3996 !== "function") {
+var _v3467=new JTramp(_v3466, [runJTramp(_v3429)]);
+var _v3468=_v3467;
+var _v3469=lglobal["repr"];
+if (_v3469 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v3470=_v3469;
+_v3470=runJTramp(_v3470);
+if (typeof _v3470 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v3997=new JTramp(v3996, [runJTramp(v3994)]);
-var v3998=v3997;
-var v3999=lglobal["++"];
-var v4000=v3999;
-v4000=runJTramp(v4000);
-if (typeof v4000 !== "function") {
+var _v3471=new JTramp(_v3470, [runJTramp(_v3468)]);
+var _v3472=_v3471;
+var _v3473=lglobal["++"];
+if (_v3473 === undefined) { throw new Error("No such global: " + "++"); }
+var _v3474=_v3473;
+_v3474=runJTramp(_v3474);
+if (typeof _v3474 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4001=new JTramp(v4000, [runJTramp(v3989),runJTramp(v3998)]);
-var v4002=v4001;
-var v4003=lglobal["error"];
-var v4004=v4003;
-v4004=runJTramp(v4004);
-if (typeof v4004 !== "function") {
+var _v3475=new JTramp(_v3474, [runJTramp(_v3464),runJTramp(_v3472)]);
+var _v3476=_v3475;
+var _v3477=lglobal["error"];
+if (_v3477 === undefined) { throw new Error("No such global: " + "error"); }
+var _v3478=_v3477;
+_v3478=runJTramp(_v3478);
+if (typeof _v3478 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4005=new JTramp(v4004, [runJTramp(v4002)]);
-v3987=v4005;
+var _v3479=new JTramp(_v3478, [runJTramp(_v3476)]);
+_v3462=_v3479;
 } else {
-var v4006=null;
-v3987=v4006;
+var _v3480=null;
+_v3462=_v3480;
 }
-v3979=v3987;
+_v3457=_v3462;
 }
-v3953=v3979;
+_v3439=_v3457;
 }
-v3943=v3953;
+_v3432=_v3439;
 }
-return v3943;
+return _v3432;
 };
-var v4007=v3937;
-v4007=runJTramp(v4007);
-if (typeof v4007 !== "function") {
+var _v3481=_v3428;
+_v3481=runJTramp(_v3481);
+if (typeof _v3481 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4008=new JTramp(v4007, [runJTramp(v3936)]);
-return v4008;
+var _v3482=new JTramp(_v3481, [runJTramp(_v3427)]);
+return _v3482;
 };
-v3895=v3896;
-lglobal["compile-to-midir"]=runJTramp(v3895);
+_v3390=_v3391;
+lglobal["compile-to-midir"]=runJTramp(_v3390);
 })();
 (function () {
-var v4009;
-var v4010=function (v4011) {
+var _v3483;
+var _v3484=function (_v3485) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4013;
-var v4014=function (v4015) {
+var _v3487;
+var _v3488=function (_v3489) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4017=lglobal["null"];
-var v4018=v4017;
-var v4019=lglobal["make-env"];
-var v4020=v4019;
-v4020=runJTramp(v4020);
-if (typeof v4020 !== "function") {
+var _v3491=lglobal["null"];
+if (_v3491 === undefined) { throw new Error("No such global: " + "null"); }
+var _v3492=_v3491;
+var _v3493=lglobal["make-env"];
+if (_v3493 === undefined) { throw new Error("No such global: " + "make-env"); }
+var _v3494=_v3493;
+_v3494=runJTramp(_v3494);
+if (typeof _v3494 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4021=new JTramp(v4020, [runJTramp(v4018)]);
-var v4022=v4021;
-var v4023=v4015;
-var v4024=lglobal["midir:leave"];
-var v4025=v4024;
-v4025=runJTramp(v4025);
-if (typeof v4025 !== "function") {
+var _v3495=new JTramp(_v3494, [runJTramp(_v3492)]);
+var _v3496=_v3495;
+var _v3497=lglobal["midir:leave"];
+if (_v3497 === undefined) { throw new Error("No such global: " + "midir:leave"); }
+var _v3498=_v3497;
+_v3498=runJTramp(_v3498);
+if (typeof _v3498 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4026=new JTramp(v4025, []);
-var v4027=v4026;
-var v4028=lglobal["compile-to-midir"];
-var v4029=v4028;
-v4029=runJTramp(v4029);
-if (typeof v4029 !== "function") {
+var _v3499=new JTramp(_v3498, []);
+var _v3500=_v3499;
+var _v3501=lglobal["compile-to-midir"];
+if (_v3501 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3502=_v3501;
+_v3502=runJTramp(_v3502);
+if (typeof _v3502 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4030=new JTramp(v4029, [runJTramp(v4022),runJTramp(v4023),runJTramp(v4027)]);
-var v4031=v4030;
-var v4032=lglobal["scope"];
-var v4033=v4032;
-v4033=runJTramp(v4033);
-if (typeof v4033 !== "function") {
+var _v3503=new JTramp(_v3502, [runJTramp(_v3496),runJTramp(_v3489),runJTramp(_v3500)]);
+var _v3504=_v3503;
+var _v3505=lglobal["scope"];
+if (_v3505 === undefined) { throw new Error("No such global: " + "scope"); }
+var _v3506=_v3505;
+_v3506=runJTramp(_v3506);
+if (typeof _v3506 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4034=new JTramp(v4033, [runJTramp(v4031)]);
-var v4035=v4034;
-var v4036=lglobal["run-copy-propagate-midir"];
-var v4037=v4036;
-v4037=runJTramp(v4037);
-if (typeof v4037 !== "function") {
+var _v3507=new JTramp(_v3506, [runJTramp(_v3504)]);
+var _v3508=_v3507;
+var _v3509=lglobal["run-copy-propagate-midir"];
+if (_v3509 === undefined) { throw new Error("No such global: " + "run-copy-propagate-midir"); }
+var _v3510=_v3509;
+_v3510=runJTramp(_v3510);
+if (typeof _v3510 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4038=new JTramp(v4037, [runJTramp(v4035)]);
-var v4039=v4038;
-var v4040=lglobal["scope"];
-var v4041=v4040;
-v4041=runJTramp(v4041);
-if (typeof v4041 !== "function") {
+var _v3511=new JTramp(_v3510, [runJTramp(_v3508)]);
+var _v3512=_v3511;
+var _v3513=lglobal["scope"];
+if (_v3513 === undefined) { throw new Error("No such global: " + "scope"); }
+var _v3514=_v3513;
+_v3514=runJTramp(_v3514);
+if (typeof _v3514 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4042=new JTramp(v4041, [runJTramp(v4039)]);
-return v4042;
+var _v3515=new JTramp(_v3514, [runJTramp(_v3512)]);
+return _v3515;
 };
-var v4043=v4013=runJTramp(v4014);
-var v4044=v4011;
-var v4045=lglobal["midir-macro-expand"];
-var v4046=v4045;
-v4046=runJTramp(v4046);
-if (typeof v4046 !== "function") {
+var _v3516=_v3487=runJTramp(_v3488);
+var _v3517=lglobal["midir-macro-expand"];
+if (_v3517 === undefined) { throw new Error("No such global: " + "midir-macro-expand"); }
+var _v3518=_v3517;
+_v3518=runJTramp(_v3518);
+if (typeof _v3518 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4047=new JTramp(v4046, [runJTramp(v4044)]);
-var v4048=v4047;
-var v4049=lglobal["scope"];
-var v4050=v4049;
-v4050=runJTramp(v4050);
-if (typeof v4050 !== "function") {
+var _v3519=new JTramp(_v3518, [runJTramp(_v3485)]);
+var _v3520=_v3519;
+var _v3521=lglobal["scope"];
+if (_v3521 === undefined) { throw new Error("No such global: " + "scope"); }
+var _v3522=_v3521;
+_v3522=runJTramp(_v3522);
+if (typeof _v3522 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4051=new JTramp(v4050, [runJTramp(v4048)]);
-var v4052=v4051;
-var v4053=function (v4054) {
+var _v3523=new JTramp(_v3522, [runJTramp(_v3520)]);
+var _v3524=_v3523;
+var _v3525=function (_v3526) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4056=v4054;
-var v4057=lglobal["cons?"];
-var v4058=v4057;
-v4058=runJTramp(v4058);
-if (typeof v4058 !== "function") {
+var _v3528=lglobal["cons?"];
+if (_v3528 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3529=_v3528;
+_v3529=runJTramp(_v3529);
+if (typeof _v3529 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4059=new JTramp(v4058, [runJTramp(v4056)]);
-var v4060=v4059;
-var v4061=function (v4062) {
+var _v3530=new JTramp(_v3529, [runJTramp(_v3526)]);
+var _v3531=_v3530;
+var _v3532=function (_v3533) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4064;
-if(runJTramp(v4062)) {
-var v4065=v4054;
-var v4066=lglobal["head"];
-var v4067=v4066;
-v4067=runJTramp(v4067);
-if (typeof v4067 !== "function") {
+var _v3535;
+if(runJTramp(_v3533)) {
+var _v3536=lglobal["head"];
+if (_v3536 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3537=_v3536;
+_v3537=runJTramp(_v3537);
+if (typeof _v3537 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4068=new JTramp(v4067, [runJTramp(v4065)]);
-var v4069=v4068;
-var v4070="prim:def";
-var v4071=v4070;
-var v4072=lglobal["="];
-var v4073=v4072;
-v4073=runJTramp(v4073);
-if (typeof v4073 !== "function") {
+var _v3538=new JTramp(_v3537, [runJTramp(_v3526)]);
+var _v3539=_v3538;
+var _v3540="prim:def";
+var _v3541=_v3540;
+var _v3542=lglobal["="];
+if (_v3542 === undefined) { throw new Error("No such global: " + "="); }
+var _v3543=_v3542;
+_v3543=runJTramp(_v3543);
+if (typeof _v3543 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4074=new JTramp(v4073, [runJTramp(v4069),runJTramp(v4071)]);
-v4064=v4074;
+var _v3544=new JTramp(_v3543, [runJTramp(_v3539),runJTramp(_v3541)]);
+_v3535=_v3544;
 } else {
-v4064=v4062;
+_v3535=_v3533;
 }
-return v4064;
+return _v3535;
 };
-var v4075=v4061;
-v4075=runJTramp(v4075);
-if (typeof v4075 !== "function") {
+var _v3545=_v3532;
+_v3545=runJTramp(_v3545);
+if (typeof _v3545 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4076=new JTramp(v4075, [runJTramp(v4060)]);
-var v4077;
-if(runJTramp(v4076)) {
-var v4078=v4054;
-var v4079=lglobal["tail"];
-var v4080=v4079;
-v4080=runJTramp(v4080);
-if (typeof v4080 !== "function") {
+var _v3546=new JTramp(_v3545, [runJTramp(_v3531)]);
+var _v3547;
+if(runJTramp(_v3546)) {
+var _v3548=lglobal["tail"];
+if (_v3548 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3549=_v3548;
+_v3549=runJTramp(_v3549);
+if (typeof _v3549 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4081=new JTramp(v4080, [runJTramp(v4078)]);
-var v4082=v4081;
-var v4083=lglobal["tail"];
-var v4084=v4083;
-v4084=runJTramp(v4084);
-if (typeof v4084 !== "function") {
+var _v3550=new JTramp(_v3549, [runJTramp(_v3526)]);
+var _v3551=_v3550;
+var _v3552=lglobal["tail"];
+if (_v3552 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3553=_v3552;
+_v3553=runJTramp(_v3553);
+if (typeof _v3553 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4085=new JTramp(v4084, [runJTramp(v4082)]);
-var v4086=v4085;
-var v4087=lglobal["head"];
-var v4088=v4087;
-v4088=runJTramp(v4088);
-if (typeof v4088 !== "function") {
+var _v3554=new JTramp(_v3553, [runJTramp(_v3551)]);
+var _v3555=_v3554;
+var _v3556=lglobal["head"];
+if (_v3556 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3557=_v3556;
+_v3557=runJTramp(_v3557);
+if (typeof _v3557 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4089=new JTramp(v4088, [runJTramp(v4086)]);
-var v4090=v4089;
-var v4091=v4013;
-v4091=runJTramp(v4091);
-if (typeof v4091 !== "function") {
+var _v3558=new JTramp(_v3557, [runJTramp(_v3555)]);
+var _v3559=_v3558;
+_v3487=runJTramp(_v3487);
+if (typeof _v3487 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4092=new JTramp(v4091, [runJTramp(v4090)]);
-var v4093=v4092;
-var v4094=function (v4095) {
+var _v3560=new JTramp(_v3487, [runJTramp(_v3559)]);
+var _v3561=_v3560;
+var _v3562=function (_v3563) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4097=lglobal["null"];
-var v4098=v4097;
-var v4099=lglobal["make-js-var"];
-var v4100=v4099;
-v4100=runJTramp(v4100);
-if (typeof v4100 !== "function") {
+var _v3565=lglobal["null"];
+if (_v3565 === undefined) { throw new Error("No such global: " + "null"); }
+var _v3566=_v3565;
+var _v3567=lglobal["make-js-var"];
+if (_v3567 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v3568=_v3567;
+_v3568=runJTramp(_v3568);
+if (typeof _v3568 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4101=new JTramp(v4100, [runJTramp(v4098)]);
-var v4102=v4101;
-var v4103=function (v4104) {
+var _v3569=new JTramp(_v3568, [runJTramp(_v3566)]);
+var _v3570=_v3569;
+var _v3571=function (_v3572) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4106="(function () {\n";
-var v4107=v4106;
-var v4108="var ";
-var v4109=v4108;
-var v4110=v4104;
-var v4111=";\n";
-var v4112=v4111;
-var v4113=v4095;
-var v4114="ERROR";
-var v4115=v4114;
-var v4116=v4104;
-var v4117=lglobal["compile-midir-to-js"];
-var v4118=v4117;
-v4118=runJTramp(v4118);
-if (typeof v4118 !== "function") {
+var _v3574="(function () {\n";
+var _v3575=_v3574;
+var _v3576="var ";
+var _v3577=_v3576;
+var _v3578=";\n";
+var _v3579=_v3578;
+var _v3580="ERROR";
+var _v3581=_v3580;
+var _v3582=lglobal["compile-midir-to-js"];
+if (_v3582 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v3583=_v3582;
+_v3583=runJTramp(_v3583);
+if (typeof _v3583 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4119=new JTramp(v4118, [runJTramp(v4113),runJTramp(v4115),runJTramp(v4116)]);
-var v4120=v4119;
-var v4121="lglobal[";
-var v4122=v4121;
-var v4123=v4054;
-var v4124=lglobal["tail"];
-var v4125=v4124;
-v4125=runJTramp(v4125);
-if (typeof v4125 !== "function") {
+var _v3584=new JTramp(_v3583, [runJTramp(_v3563),runJTramp(_v3581),runJTramp(_v3572)]);
+var _v3585=_v3584;
+var _v3586="lglobal[";
+var _v3587=_v3586;
+var _v3588=lglobal["tail"];
+if (_v3588 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3589=_v3588;
+_v3589=runJTramp(_v3589);
+if (typeof _v3589 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4126=new JTramp(v4125, [runJTramp(v4123)]);
-var v4127=v4126;
-var v4128=lglobal["head"];
-var v4129=v4128;
-v4129=runJTramp(v4129);
-if (typeof v4129 !== "function") {
+var _v3590=new JTramp(_v3589, [runJTramp(_v3526)]);
+var _v3591=_v3590;
+var _v3592=lglobal["head"];
+if (_v3592 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3593=_v3592;
+_v3593=runJTramp(_v3593);
+if (typeof _v3593 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4130=new JTramp(v4129, [runJTramp(v4127)]);
-var v4131=v4130;
-var v4132=lglobal["js-escape-string"];
-var v4133=v4132;
-v4133=runJTramp(v4133);
-if (typeof v4133 !== "function") {
+var _v3594=new JTramp(_v3593, [runJTramp(_v3591)]);
+var _v3595=_v3594;
+var _v3596=lglobal["js-escape-string"];
+if (_v3596 === undefined) { throw new Error("No such global: " + "js-escape-string"); }
+var _v3597=_v3596;
+_v3597=runJTramp(_v3597);
+if (typeof _v3597 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4134=new JTramp(v4133, [runJTramp(v4131)]);
-var v4135=v4134;
-var v4136="]";
-var v4137=v4136;
-var v4138="=runJTramp(";
-var v4139=v4138;
-var v4140=v4104;
-var v4141=");\n";
-var v4142=v4141;
-var v4143="})();\n";
-var v4144=v4143;
-var v4145=lglobal["++"];
-var v4146=v4145;
-v4146=runJTramp(v4146);
-if (typeof v4146 !== "function") {
+var _v3598=new JTramp(_v3597, [runJTramp(_v3595)]);
+var _v3599=_v3598;
+var _v3600="]";
+var _v3601=_v3600;
+var _v3602="=runJTramp(";
+var _v3603=_v3602;
+var _v3604=");\n";
+var _v3605=_v3604;
+var _v3606="})();\n";
+var _v3607=_v3606;
+var _v3608=lglobal["++"];
+if (_v3608 === undefined) { throw new Error("No such global: " + "++"); }
+var _v3609=_v3608;
+_v3609=runJTramp(_v3609);
+if (typeof _v3609 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4147=new JTramp(v4146, [runJTramp(v4107),runJTramp(v4109),runJTramp(v4110),runJTramp(v4112),runJTramp(v4120),runJTramp(v4122),runJTramp(v4135),runJTramp(v4137),runJTramp(v4139),runJTramp(v4140),runJTramp(v4142),runJTramp(v4144)]);
-var v4148=v4147;
-var v4149=function (v4150) {
+var _v3610=new JTramp(_v3609, [runJTramp(_v3575),runJTramp(_v3577),runJTramp(_v3572),runJTramp(_v3579),runJTramp(_v3585),runJTramp(_v3587),runJTramp(_v3599),runJTramp(_v3601),runJTramp(_v3603),runJTramp(_v3572),runJTramp(_v3605),runJTramp(_v3607)]);
+var _v3611=_v3610;
+var _v3612=function (_v3613) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4152=v4150;
-var v4153=lglobal["scope"];
-var v4154=v4153;
-v4154=runJTramp(v4154);
-if (typeof v4154 !== "function") {
+var _v3615=lglobal["scope"];
+if (_v3615 === undefined) { throw new Error("No such global: " + "scope"); }
+var _v3616=_v3615;
+_v3616=runJTramp(_v3616);
+if (typeof _v3616 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4155=new JTramp(v4154, [runJTramp(v4152)]);
-var v4156=v4155;
-var v4157=lglobal["ffi"];
-var v4158=v4157;
-v4158=runJTramp(v4158);
-if (typeof v4158 !== "function") {
+var _v3617=new JTramp(_v3616, [runJTramp(_v3613)]);
+var _v3618=_v3617;
+var _v3619=lglobal["js:eval"];
+if (_v3619 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v3620=_v3619;
+_v3620=runJTramp(_v3620);
+if (typeof _v3620 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4159=new JTramp(v4158, [runJTramp(v4156)]);
-v4159=runJTramp(v4159);
-var v4160=v4150;
-var v4161=lglobal["midir-toplevel-defs"];
-var v4162=v4161;
-var v4163=lglobal["cons"];
-var v4164=v4163;
-v4164=runJTramp(v4164);
-if (typeof v4164 !== "function") {
+var _v3621=new JTramp(_v3620, [runJTramp(_v3618)]);
+_v3621=runJTramp(_v3621);
+var _v3622=lglobal["midir-toplevel-defs"];
+if (_v3622 === undefined) { throw new Error("No such global: " + "midir-toplevel-defs"); }
+var _v3623=_v3622;
+var _v3624=lglobal["cons"];
+if (_v3624 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v3625=_v3624;
+_v3625=runJTramp(_v3625);
+if (typeof _v3625 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4165=new JTramp(v4164, [runJTramp(v4160),runJTramp(v4162)]);
-var v4166=lglobal["midir-toplevel-defs"]=runJTramp(v4165);
-return v4166;
+var _v3626=new JTramp(_v3625, [runJTramp(_v3613),runJTramp(_v3623)]);
+var _v3627=lglobal["midir-toplevel-defs"]=runJTramp(_v3626);
+return _v3627;
 };
-var v4167=v4149;
-v4167=runJTramp(v4167);
-if (typeof v4167 !== "function") {
+var _v3628=_v3612;
+_v3628=runJTramp(_v3628);
+if (typeof _v3628 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4168=new JTramp(v4167, [runJTramp(v4148)]);
-return v4168;
+var _v3629=new JTramp(_v3628, [runJTramp(_v3611)]);
+return _v3629;
 };
-var v4169=v4103;
-v4169=runJTramp(v4169);
-if (typeof v4169 !== "function") {
+var _v3630=_v3571;
+_v3630=runJTramp(_v3630);
+if (typeof _v3630 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4170=new JTramp(v4169, [runJTramp(v4102)]);
-return v4170;
+var _v3631=new JTramp(_v3630, [runJTramp(_v3570)]);
+return _v3631;
 };
-var v4171=v4094;
-v4171=runJTramp(v4171);
-if (typeof v4171 !== "function") {
+var _v3632=_v3562;
+_v3632=runJTramp(_v3632);
+if (typeof _v3632 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4172=new JTramp(v4171, [runJTramp(v4093)]);
-v4077=v4172;
+var _v3633=new JTramp(_v3632, [runJTramp(_v3561)]);
+_v3547=_v3633;
 } else {
-var v4173=v4054;
-var v4174=lglobal["cons?"];
-var v4175=v4174;
-v4175=runJTramp(v4175);
-if (typeof v4175 !== "function") {
+var _v3634=lglobal["cons?"];
+if (_v3634 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3635=_v3634;
+_v3635=runJTramp(_v3635);
+if (typeof _v3635 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4176=new JTramp(v4175, [runJTramp(v4173)]);
-var v4177=v4176;
-var v4178=function (v4179) {
+var _v3636=new JTramp(_v3635, [runJTramp(_v3526)]);
+var _v3637=_v3636;
+var _v3638=function (_v3639) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4181;
-if(runJTramp(v4179)) {
-var v4182=v4054;
-var v4183=lglobal["head"];
-var v4184=v4183;
-v4184=runJTramp(v4184);
-if (typeof v4184 !== "function") {
+var _v3641;
+if(runJTramp(_v3639)) {
+var _v3642=lglobal["head"];
+if (_v3642 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3643=_v3642;
+_v3643=runJTramp(_v3643);
+if (typeof _v3643 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4185=new JTramp(v4184, [runJTramp(v4182)]);
-var v4186=v4185;
-var v4187="prim:do";
-var v4188=v4187;
-var v4189=lglobal["="];
-var v4190=v4189;
-v4190=runJTramp(v4190);
-if (typeof v4190 !== "function") {
+var _v3644=new JTramp(_v3643, [runJTramp(_v3526)]);
+var _v3645=_v3644;
+var _v3646="prim:do";
+var _v3647=_v3646;
+var _v3648=lglobal["="];
+if (_v3648 === undefined) { throw new Error("No such global: " + "="); }
+var _v3649=_v3648;
+_v3649=runJTramp(_v3649);
+if (typeof _v3649 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4191=new JTramp(v4190, [runJTramp(v4186),runJTramp(v4188)]);
-v4181=v4191;
+var _v3650=new JTramp(_v3649, [runJTramp(_v3645),runJTramp(_v3647)]);
+_v3641=_v3650;
 } else {
-v4181=v4179;
+_v3641=_v3639;
 }
-return v4181;
+return _v3641;
 };
-var v4192=v4178;
-v4192=runJTramp(v4192);
-if (typeof v4192 !== "function") {
+var _v3651=_v3638;
+_v3651=runJTramp(_v3651);
+if (typeof _v3651 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4193=new JTramp(v4192, [runJTramp(v4177)]);
-var v4194;
-if(runJTramp(v4193)) {
-var v4195=lglobal["compile-toplevel-to-midir"];
-var v4196=v4195;
-var v4197=v4054;
-var v4198=lglobal["tail"];
-var v4199=v4198;
-v4199=runJTramp(v4199);
-if (typeof v4199 !== "function") {
+var _v3652=new JTramp(_v3651, [runJTramp(_v3637)]);
+var _v3653;
+if(runJTramp(_v3652)) {
+var _v3654=lglobal["compile-toplevel-to-midir"];
+if (_v3654 === undefined) { throw new Error("No such global: " + "compile-toplevel-to-midir"); }
+var _v3655=_v3654;
+var _v3656=lglobal["tail"];
+if (_v3656 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3657=_v3656;
+_v3657=runJTramp(_v3657);
+if (typeof _v3657 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4200=new JTramp(v4199, [runJTramp(v4197)]);
-var v4201=v4200;
-var v4202=lglobal["each"];
-var v4203=v4202;
-v4203=runJTramp(v4203);
-if (typeof v4203 !== "function") {
+var _v3658=new JTramp(_v3657, [runJTramp(_v3526)]);
+var _v3659=_v3658;
+var _v3660=lglobal["each"];
+if (_v3660 === undefined) { throw new Error("No such global: " + "each"); }
+var _v3661=_v3660;
+_v3661=runJTramp(_v3661);
+if (typeof _v3661 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4204=new JTramp(v4203, [runJTramp(v4196),runJTramp(v4201)]);
-v4194=v4204;
+var _v3662=new JTramp(_v3661, [runJTramp(_v3655),runJTramp(_v3659)]);
+_v3653=_v3662;
 } else {
-var v4205=v4054;
-var v4206=lglobal["cons?"];
-var v4207=v4206;
-v4207=runJTramp(v4207);
-if (typeof v4207 !== "function") {
+var _v3663=lglobal["cons?"];
+if (_v3663 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3664=_v3663;
+_v3664=runJTramp(_v3664);
+if (typeof _v3664 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4208=new JTramp(v4207, [runJTramp(v4205)]);
-var v4209=v4208;
-var v4210=function (v4211) {
+var _v3665=new JTramp(_v3664, [runJTramp(_v3526)]);
+var _v3666=_v3665;
+var _v3667=function (_v3668) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4213;
-if(runJTramp(v4211)) {
-var v4214=v4054;
-var v4215=lglobal["head"];
-var v4216=v4215;
-v4216=runJTramp(v4216);
-if (typeof v4216 !== "function") {
+var _v3670;
+if(runJTramp(_v3668)) {
+var _v3671=lglobal["head"];
+if (_v3671 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3672=_v3671;
+_v3672=runJTramp(_v3672);
+if (typeof _v3672 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4217=new JTramp(v4216, [runJTramp(v4214)]);
-var v4218=v4217;
-var v4219="when-execute";
-var v4220=v4219;
-var v4221=lglobal["="];
-var v4222=v4221;
-v4222=runJTramp(v4222);
-if (typeof v4222 !== "function") {
+var _v3673=new JTramp(_v3672, [runJTramp(_v3526)]);
+var _v3674=_v3673;
+var _v3675="when-execute";
+var _v3676=_v3675;
+var _v3677=lglobal["="];
+if (_v3677 === undefined) { throw new Error("No such global: " + "="); }
+var _v3678=_v3677;
+_v3678=runJTramp(_v3678);
+if (typeof _v3678 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4223=new JTramp(v4222, [runJTramp(v4218),runJTramp(v4220)]);
-v4213=v4223;
+var _v3679=new JTramp(_v3678, [runJTramp(_v3674),runJTramp(_v3676)]);
+_v3670=_v3679;
 } else {
-v4213=v4211;
+_v3670=_v3668;
 }
-return v4213;
+return _v3670;
 };
-var v4224=v4210;
-v4224=runJTramp(v4224);
-if (typeof v4224 !== "function") {
+var _v3680=_v3667;
+_v3680=runJTramp(_v3680);
+if (typeof _v3680 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4225=new JTramp(v4224, [runJTramp(v4209)]);
-var v4226;
-if(runJTramp(v4225)) {
-var v4227=lglobal["when-execute-toplevel"];
-var v4228=v4227;
-var v4229=v4054;
-var v4230=lglobal["tail"];
-var v4231=v4230;
-v4231=runJTramp(v4231);
-if (typeof v4231 !== "function") {
+var _v3681=new JTramp(_v3680, [runJTramp(_v3666)]);
+var _v3682;
+if(runJTramp(_v3681)) {
+var _v3683=lglobal["when-execute-toplevel"];
+if (_v3683 === undefined) { throw new Error("No such global: " + "when-execute-toplevel"); }
+var _v3684=_v3683;
+var _v3685=lglobal["tail"];
+if (_v3685 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3686=_v3685;
+_v3686=runJTramp(_v3686);
+if (typeof _v3686 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4232=new JTramp(v4231, [runJTramp(v4229)]);
-var v4233=v4232;
-var v4234=lglobal["each"];
-var v4235=v4234;
-v4235=runJTramp(v4235);
-if (typeof v4235 !== "function") {
+var _v3687=new JTramp(_v3686, [runJTramp(_v3526)]);
+var _v3688=_v3687;
+var _v3689=lglobal["each"];
+if (_v3689 === undefined) { throw new Error("No such global: " + "each"); }
+var _v3690=_v3689;
+_v3690=runJTramp(_v3690);
+if (typeof _v3690 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4236=new JTramp(v4235, [runJTramp(v4228),runJTramp(v4233)]);
-v4226=v4236;
+var _v3691=new JTramp(_v3690, [runJTramp(_v3684),runJTramp(_v3688)]);
+_v3682=_v3691;
 } else {
-var v4237=lglobal["otherwise"];
-var v4238;
-if(runJTramp(v4237)) {
-var v4239=lglobal["null"];
-var v4240=v4239;
-var v4241=lglobal["make-js-var"];
-var v4242=v4241;
-v4242=runJTramp(v4242);
-if (typeof v4242 !== "function") {
+var _v3692=lglobal["otherwise"];
+if (_v3692 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v3693;
+if(runJTramp(_v3692)) {
+var _v3694=lglobal["null"];
+if (_v3694 === undefined) { throw new Error("No such global: " + "null"); }
+var _v3695=_v3694;
+var _v3696=lglobal["make-js-var"];
+if (_v3696 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v3697=_v3696;
+_v3697=runJTramp(_v3697);
+if (typeof _v3697 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4243=new JTramp(v4242, [runJTramp(v4240)]);
-var v4244=v4243;
-var v4245=function (v4246) {
+var _v3698=new JTramp(_v3697, [runJTramp(_v3695)]);
+var _v3699=_v3698;
+var _v3700=function (_v3701) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4248="(function () {\n";
-var v4249=v4248;
-var v4250="var ";
-var v4251=v4250;
-var v4252=v4246;
-var v4253=";\n";
-var v4254=v4253;
-var v4255=v4054;
-var v4256=v4013;
-v4256=runJTramp(v4256);
-if (typeof v4256 !== "function") {
+var _v3703="(function () {\n";
+var _v3704=_v3703;
+var _v3705="var ";
+var _v3706=_v3705;
+var _v3707=";\n";
+var _v3708=_v3707;
+_v3487=runJTramp(_v3487);
+if (typeof _v3487 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4257=new JTramp(v4256, [runJTramp(v4255)]);
-var v4258=v4257;
-var v4259="ERROR";
-var v4260=v4259;
-var v4261=v4246;
-var v4262=lglobal["compile-midir-to-js"];
-var v4263=v4262;
-v4263=runJTramp(v4263);
-if (typeof v4263 !== "function") {
+var _v3709=new JTramp(_v3487, [runJTramp(_v3526)]);
+var _v3710=_v3709;
+var _v3711="ERROR";
+var _v3712=_v3711;
+var _v3713=lglobal["compile-midir-to-js"];
+if (_v3713 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v3714=_v3713;
+_v3714=runJTramp(_v3714);
+if (typeof _v3714 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4264=new JTramp(v4263, [runJTramp(v4258),runJTramp(v4260),runJTramp(v4261)]);
-var v4265=v4264;
-var v4266="return runJTramp(";
-var v4267=v4266;
-var v4268=v4246;
-var v4269=");\n";
-var v4270=v4269;
-var v4271="})();\n";
-var v4272=v4271;
-var v4273=lglobal["++"];
-var v4274=v4273;
-v4274=runJTramp(v4274);
-if (typeof v4274 !== "function") {
+var _v3715=new JTramp(_v3714, [runJTramp(_v3710),runJTramp(_v3712),runJTramp(_v3701)]);
+var _v3716=_v3715;
+var _v3717="return runJTramp(";
+var _v3718=_v3717;
+var _v3719=");\n";
+var _v3720=_v3719;
+var _v3721="})();\n";
+var _v3722=_v3721;
+var _v3723=lglobal["++"];
+if (_v3723 === undefined) { throw new Error("No such global: " + "++"); }
+var _v3724=_v3723;
+_v3724=runJTramp(_v3724);
+if (typeof _v3724 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4275=new JTramp(v4274, [runJTramp(v4249),runJTramp(v4251),runJTramp(v4252),runJTramp(v4254),runJTramp(v4265),runJTramp(v4267),runJTramp(v4268),runJTramp(v4270),runJTramp(v4272)]);
-var v4276=v4275;
-var v4277=function (v4278) {
+var _v3725=new JTramp(_v3724, [runJTramp(_v3704),runJTramp(_v3706),runJTramp(_v3701),runJTramp(_v3708),runJTramp(_v3716),runJTramp(_v3718),runJTramp(_v3701),runJTramp(_v3720),runJTramp(_v3722)]);
+var _v3726=_v3725;
+var _v3727=function (_v3728) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4280=v4278;
-var v4281=lglobal["scope"];
-var v4282=v4281;
-v4282=runJTramp(v4282);
-if (typeof v4282 !== "function") {
+var _v3730=lglobal["scope"];
+if (_v3730 === undefined) { throw new Error("No such global: " + "scope"); }
+var _v3731=_v3730;
+_v3731=runJTramp(_v3731);
+if (typeof _v3731 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4283=new JTramp(v4282, [runJTramp(v4280)]);
-var v4284=v4283;
-var v4285=lglobal["ffi"];
-var v4286=v4285;
-v4286=runJTramp(v4286);
-if (typeof v4286 !== "function") {
+var _v3732=new JTramp(_v3731, [runJTramp(_v3728)]);
+var _v3733=_v3732;
+var _v3734=lglobal["js:eval"];
+if (_v3734 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v3735=_v3734;
+_v3735=runJTramp(_v3735);
+if (typeof _v3735 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4287=new JTramp(v4286, [runJTramp(v4284)]);
-return v4287;
+var _v3736=new JTramp(_v3735, [runJTramp(_v3733)]);
+return _v3736;
 };
-var v4288=v4277;
-v4288=runJTramp(v4288);
-if (typeof v4288 !== "function") {
+var _v3737=_v3727;
+_v3737=runJTramp(_v3737);
+if (typeof _v3737 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4289=new JTramp(v4288, [runJTramp(v4276)]);
-return v4289;
+var _v3738=new JTramp(_v3737, [runJTramp(_v3726)]);
+return _v3738;
 };
-var v4290=v4245;
-v4290=runJTramp(v4290);
-if (typeof v4290 !== "function") {
+var _v3739=_v3700;
+_v3739=runJTramp(_v3739);
+if (typeof _v3739 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4291=new JTramp(v4290, [runJTramp(v4244)]);
-v4238=v4291;
+var _v3740=new JTramp(_v3739, [runJTramp(_v3699)]);
+_v3693=_v3740;
 } else {
-var v4292=null;
-v4238=v4292;
+var _v3741=null;
+_v3693=_v3741;
 }
-v4226=v4238;
+_v3682=_v3693;
 }
-v4194=v4226;
+_v3653=_v3682;
 }
-v4077=v4194;
+_v3547=_v3653;
 }
-return v4077;
+return _v3547;
 };
-var v4293=v4053;
-v4293=runJTramp(v4293);
-if (typeof v4293 !== "function") {
+var _v3742=_v3525;
+_v3742=runJTramp(_v3742);
+if (typeof _v3742 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4294=new JTramp(v4293, [runJTramp(v4052)]);
-return v4294;
+var _v3743=new JTramp(_v3742, [runJTramp(_v3524)]);
+return _v3743;
 };
-v4009=v4010;
-lglobal["compile-toplevel-to-midir"]=runJTramp(v4009);
+_v3483=_v3484;
+lglobal["compile-toplevel-to-midir"]=runJTramp(_v3483);
 })();
 (function () {
-var v4295;
-var v4296=function (v4297) {
+var _v3744;
+var _v3745=function (_v3746) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4299;
-var v4300=function (v4301) {
+var _v3748;
+var _v3749=function (_v3750) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4303=lglobal["null"];
-var v4304=v4303;
-var v4305=lglobal["make-env"];
-var v4306=v4305;
-v4306=runJTramp(v4306);
-if (typeof v4306 !== "function") {
+var _v3752=lglobal["null"];
+if (_v3752 === undefined) { throw new Error("No such global: " + "null"); }
+var _v3753=_v3752;
+var _v3754=lglobal["make-env"];
+if (_v3754 === undefined) { throw new Error("No such global: " + "make-env"); }
+var _v3755=_v3754;
+_v3755=runJTramp(_v3755);
+if (typeof _v3755 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4307=new JTramp(v4306, [runJTramp(v4304)]);
-var v4308=v4307;
-var v4309=v4301;
-var v4310=lglobal["midir:leave"];
-var v4311=v4310;
-v4311=runJTramp(v4311);
-if (typeof v4311 !== "function") {
+var _v3756=new JTramp(_v3755, [runJTramp(_v3753)]);
+var _v3757=_v3756;
+var _v3758=lglobal["midir:leave"];
+if (_v3758 === undefined) { throw new Error("No such global: " + "midir:leave"); }
+var _v3759=_v3758;
+_v3759=runJTramp(_v3759);
+if (typeof _v3759 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4312=new JTramp(v4311, []);
-var v4313=v4312;
-var v4314=lglobal["compile-to-midir"];
-var v4315=v4314;
-v4315=runJTramp(v4315);
-if (typeof v4315 !== "function") {
+var _v3760=new JTramp(_v3759, []);
+var _v3761=_v3760;
+var _v3762=lglobal["compile-to-midir"];
+if (_v3762 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3763=_v3762;
+_v3763=runJTramp(_v3763);
+if (typeof _v3763 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4316=new JTramp(v4315, [runJTramp(v4308),runJTramp(v4309),runJTramp(v4313)]);
-return v4316;
+var _v3764=new JTramp(_v3763, [runJTramp(_v3757),runJTramp(_v3750),runJTramp(_v3761)]);
+return _v3764;
 };
-var v4317=v4299=runJTramp(v4300);
-var v4318=v4297;
-var v4319=lglobal["midir-macro-expand"];
-var v4320=v4319;
-v4320=runJTramp(v4320);
-if (typeof v4320 !== "function") {
+var _v3765=_v3748=runJTramp(_v3749);
+var _v3766=lglobal["midir-macro-expand"];
+if (_v3766 === undefined) { throw new Error("No such global: " + "midir-macro-expand"); }
+var _v3767=_v3766;
+_v3767=runJTramp(_v3767);
+if (typeof _v3767 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4321=new JTramp(v4320, [runJTramp(v4318)]);
-var v4322=v4321;
-var v4323=function (v4324) {
+var _v3768=new JTramp(_v3767, [runJTramp(_v3746)]);
+var _v3769=_v3768;
+var _v3770=function (_v3771) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4326=v4324;
-var v4327=lglobal["cons?"];
-var v4328=v4327;
-v4328=runJTramp(v4328);
-if (typeof v4328 !== "function") {
+var _v3773=lglobal["cons?"];
+if (_v3773 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v3774=_v3773;
+_v3774=runJTramp(_v3774);
+if (typeof _v3774 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4329=new JTramp(v4328, [runJTramp(v4326)]);
-var v4330=v4329;
-var v4331=function (v4332) {
+var _v3775=new JTramp(_v3774, [runJTramp(_v3771)]);
+var _v3776=_v3775;
+var _v3777=function (_v3778) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4334;
-if(runJTramp(v4332)) {
-var v4335=v4324;
-var v4336=lglobal["head"];
-var v4337=v4336;
-v4337=runJTramp(v4337);
-if (typeof v4337 !== "function") {
+var _v3780;
+if(runJTramp(_v3778)) {
+var _v3781=lglobal["head"];
+if (_v3781 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3782=_v3781;
+_v3782=runJTramp(_v3782);
+if (typeof _v3782 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4338=new JTramp(v4337, [runJTramp(v4335)]);
-var v4339=v4338;
-var v4340="prim:def";
-var v4341=v4340;
-var v4342=lglobal["="];
-var v4343=v4342;
-v4343=runJTramp(v4343);
-if (typeof v4343 !== "function") {
+var _v3783=new JTramp(_v3782, [runJTramp(_v3771)]);
+var _v3784=_v3783;
+var _v3785="prim:def";
+var _v3786=_v3785;
+var _v3787=lglobal["="];
+if (_v3787 === undefined) { throw new Error("No such global: " + "="); }
+var _v3788=_v3787;
+_v3788=runJTramp(_v3788);
+if (typeof _v3788 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4344=new JTramp(v4343, [runJTramp(v4339),runJTramp(v4341)]);
-v4334=v4344;
+var _v3789=new JTramp(_v3788, [runJTramp(_v3784),runJTramp(_v3786)]);
+_v3780=_v3789;
 } else {
-v4334=v4332;
+_v3780=_v3778;
 }
-return v4334;
+return _v3780;
 };
-var v4345=v4331;
-v4345=runJTramp(v4345);
-if (typeof v4345 !== "function") {
+var _v3790=_v3777;
+_v3790=runJTramp(_v3790);
+if (typeof _v3790 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4346=new JTramp(v4345, [runJTramp(v4330)]);
-var v4347;
-if(runJTramp(v4346)) {
-var v4348=v4324;
-var v4349=lglobal["tail"];
-var v4350=v4349;
-v4350=runJTramp(v4350);
-if (typeof v4350 !== "function") {
+var _v3791=new JTramp(_v3790, [runJTramp(_v3776)]);
+var _v3792;
+if(runJTramp(_v3791)) {
+var _v3793=lglobal["tail"];
+if (_v3793 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3794=_v3793;
+_v3794=runJTramp(_v3794);
+if (typeof _v3794 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4351=new JTramp(v4350, [runJTramp(v4348)]);
-var v4352=v4351;
-var v4353=lglobal["tail"];
-var v4354=v4353;
-v4354=runJTramp(v4354);
-if (typeof v4354 !== "function") {
+var _v3795=new JTramp(_v3794, [runJTramp(_v3771)]);
+var _v3796=_v3795;
+var _v3797=lglobal["tail"];
+if (_v3797 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3798=_v3797;
+_v3798=runJTramp(_v3798);
+if (typeof _v3798 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4355=new JTramp(v4354, [runJTramp(v4352)]);
-var v4356=v4355;
-var v4357=lglobal["head"];
-var v4358=v4357;
-v4358=runJTramp(v4358);
-if (typeof v4358 !== "function") {
+var _v3799=new JTramp(_v3798, [runJTramp(_v3796)]);
+var _v3800=_v3799;
+var _v3801=lglobal["head"];
+if (_v3801 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3802=_v3801;
+_v3802=runJTramp(_v3802);
+if (typeof _v3802 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4359=new JTramp(v4358, [runJTramp(v4356)]);
-var v4360=v4359;
-var v4361=v4299;
-v4361=runJTramp(v4361);
-if (typeof v4361 !== "function") {
+var _v3803=new JTramp(_v3802, [runJTramp(_v3800)]);
+var _v3804=_v3803;
+_v3748=runJTramp(_v3748);
+if (typeof _v3748 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4362=new JTramp(v4361, [runJTramp(v4360)]);
-var v4363=v4362;
-var v4364=function (v4365) {
+var _v3805=new JTramp(_v3748, [runJTramp(_v3804)]);
+var _v3806=_v3805;
+var _v3807=function (_v3808) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4367=v4324;
-var v4368=lglobal["tail"];
-var v4369=v4368;
-v4369=runJTramp(v4369);
-if (typeof v4369 !== "function") {
+var _v3810=lglobal["tail"];
+if (_v3810 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3811=_v3810;
+_v3811=runJTramp(_v3811);
+if (typeof _v3811 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4370=new JTramp(v4369, [runJTramp(v4367)]);
-var v4371=v4370;
-var v4372=lglobal["head"];
-var v4373=v4372;
-v4373=runJTramp(v4373);
-if (typeof v4373 !== "function") {
+var _v3812=new JTramp(_v3811, [runJTramp(_v3771)]);
+var _v3813=_v3812;
+var _v3814=lglobal["head"];
+if (_v3814 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3815=_v3814;
+_v3815=runJTramp(_v3815);
+if (typeof _v3815 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4374=new JTramp(v4373, [runJTramp(v4371)]);
-var v4375=v4374;
-var v4376=v4365;
-var v4377=lglobal["list"];
-var v4378=v4377;
-v4378=runJTramp(v4378);
-if (typeof v4378 !== "function") {
+var _v3816=new JTramp(_v3815, [runJTramp(_v3813)]);
+var _v3817=_v3816;
+var _v3818=lglobal["list"];
+if (_v3818 === undefined) { throw new Error("No such global: " + "list"); }
+var _v3819=_v3818;
+_v3819=runJTramp(_v3819);
+if (typeof _v3819 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4379=new JTramp(v4378, [runJTramp(v4375),runJTramp(v4376)]);
-var v4380=v4379;
-var v4381=lglobal["midir-toplevel-defs"];
-var v4382=v4381;
-var v4383=lglobal["append"];
-var v4384=v4383;
-v4384=runJTramp(v4384);
-if (typeof v4384 !== "function") {
+var _v3820=new JTramp(_v3819, [runJTramp(_v3817),runJTramp(_v3808)]);
+var _v3821=_v3820;
+var _v3822=lglobal["midir-toplevel-defs"];
+if (_v3822 === undefined) { throw new Error("No such global: " + "midir-toplevel-defs"); }
+var _v3823=_v3822;
+var _v3824=lglobal["append"];
+if (_v3824 === undefined) { throw new Error("No such global: " + "append"); }
+var _v3825=_v3824;
+_v3825=runJTramp(_v3825);
+if (typeof _v3825 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4385=new JTramp(v4384, [runJTramp(v4380),runJTramp(v4382)]);
-var v4386=lglobal["midir-toplevel-defs"]=runJTramp(v4385);
-return v4386;
+var _v3826=new JTramp(_v3825, [runJTramp(_v3821),runJTramp(_v3823)]);
+var _v3827=lglobal["midir-toplevel-defs"]=runJTramp(_v3826);
+return _v3827;
 };
-var v4387=v4364;
-v4387=runJTramp(v4387);
-if (typeof v4387 !== "function") {
+var _v3828=_v3807;
+_v3828=runJTramp(_v3828);
+if (typeof _v3828 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4388=new JTramp(v4387, [runJTramp(v4363)]);
-v4347=v4388;
+var _v3829=new JTramp(_v3828, [runJTramp(_v3806)]);
+_v3792=_v3829;
 } else {
-var v4389=lglobal["null"];
-var v4390=v4389;
-var v4391=v4324;
-var v4392=v4299;
-v4392=runJTramp(v4392);
-if (typeof v4392 !== "function") {
+var _v3830=lglobal["null"];
+if (_v3830 === undefined) { throw new Error("No such global: " + "null"); }
+var _v3831=_v3830;
+_v3748=runJTramp(_v3748);
+if (typeof _v3748 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4393=new JTramp(v4392, [runJTramp(v4391)]);
-var v4394=v4393;
-var v4395=lglobal["midir-toplevel-defs"];
-var v4396=v4395;
-var v4397=lglobal["cons"];
-var v4398=v4397;
-v4398=runJTramp(v4398);
-if (typeof v4398 !== "function") {
+var _v3832=new JTramp(_v3748, [runJTramp(_v3771)]);
+var _v3833=_v3832;
+var _v3834=lglobal["midir-toplevel-defs"];
+if (_v3834 === undefined) { throw new Error("No such global: " + "midir-toplevel-defs"); }
+var _v3835=_v3834;
+var _v3836=lglobal["cons"];
+if (_v3836 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v3837=_v3836;
+_v3837=runJTramp(_v3837);
+if (typeof _v3837 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4399=new JTramp(v4398, [runJTramp(v4394),runJTramp(v4396)]);
-var v4400=v4399;
-var v4401=lglobal["cons"];
-var v4402=v4401;
-v4402=runJTramp(v4402);
-if (typeof v4402 !== "function") {
+var _v3838=new JTramp(_v3837, [runJTramp(_v3833),runJTramp(_v3835)]);
+var _v3839=_v3838;
+var _v3840=lglobal["cons"];
+if (_v3840 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v3841=_v3840;
+_v3841=runJTramp(_v3841);
+if (typeof _v3841 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4403=new JTramp(v4402, [runJTramp(v4390),runJTramp(v4400)]);
-var v4404=lglobal["midir-toplevel-defs"]=runJTramp(v4403);
-v4347=v4404;
+var _v3842=new JTramp(_v3841, [runJTramp(_v3831),runJTramp(_v3839)]);
+var _v3843=lglobal["midir-toplevel-defs"]=runJTramp(_v3842);
+_v3792=_v3843;
 }
-return v4347;
+return _v3792;
 };
-var v4405=v4323;
-v4405=runJTramp(v4405);
-if (typeof v4405 !== "function") {
+var _v3844=_v3770;
+_v3844=runJTramp(_v3844);
+if (typeof _v3844 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4406=new JTramp(v4405, [runJTramp(v4322)]);
-return v4406;
+var _v3845=new JTramp(_v3844, [runJTramp(_v3769)]);
+return _v3845;
 };
-v4295=v4296;
-lglobal["when-execute-toplevel"]=runJTramp(v4295);
+_v3744=_v3745;
+lglobal["when-execute-toplevel"]=runJTramp(_v3744);
 })();
 (function () {
-var v4407;
-var v4408=function (v4409,v4410,v4411) {
+var _v3846;
+var _v3847=function (_v3848,_v3849,_v3850) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v4413=lglobal["compile-to-midir"];
-var v4414=v4413;
-var v4415=v4409;
-var v4416=lglobal["partial"];
-var v4417=v4416;
-v4417=runJTramp(v4417);
-if (typeof v4417 !== "function") {
+var _v3852=lglobal["compile-to-midir"];
+if (_v3852 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3853=_v3852;
+var _v3854=lglobal["partial"];
+if (_v3854 === undefined) { throw new Error("No such global: " + "partial"); }
+var _v3855=_v3854;
+_v3855=runJTramp(_v3855);
+if (typeof _v3855 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4418=new JTramp(v4417, [runJTramp(v4414),runJTramp(v4415)]);
-var v4419=v4418;
-var v4420=lglobal["curry"];
-var v4421=v4420;
-v4421=runJTramp(v4421);
-if (typeof v4421 !== "function") {
+var _v3856=new JTramp(_v3855, [runJTramp(_v3853),runJTramp(_v3848)]);
+var _v3857=_v3856;
+var _v3858=lglobal["curry"];
+if (_v3858 === undefined) { throw new Error("No such global: " + "curry"); }
+var _v3859=_v3858;
+_v3859=runJTramp(_v3859);
+if (typeof _v3859 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4422=new JTramp(v4421, [runJTramp(v4419)]);
-var v4423=v4422;
-var v4424=v4410;
-var v4425=lglobal["map"];
-var v4426=v4425;
-v4426=runJTramp(v4426);
-if (typeof v4426 !== "function") {
+var _v3860=new JTramp(_v3859, [runJTramp(_v3857)]);
+var _v3861=_v3860;
+var _v3862=lglobal["map"];
+if (_v3862 === undefined) { throw new Error("No such global: " + "map"); }
+var _v3863=_v3862;
+_v3863=runJTramp(_v3863);
+if (typeof _v3863 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4427=new JTramp(v4426, [runJTramp(v4423),runJTramp(v4424)]);
-var v4428=v4427;
-var v4429=function (v4430) {
+var _v3864=new JTramp(_v3863, [runJTramp(_v3861),runJTramp(_v3849)]);
+var _v3865=_v3864;
+var _v3866=function (_v3867) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4432=lglobal["$"];
-var v4433=v4432;
-var v4434=v4411;
-var v4435=lglobal["midir:bind-drop"];
-var v4436=v4435;
-var v4437=v4430;
-var v4438=lglobal["intercalate"];
-var v4439=v4438;
-v4439=runJTramp(v4439);
-if (typeof v4439 !== "function") {
+var _v3869=lglobal["$"];
+if (_v3869 === undefined) { throw new Error("No such global: " + "$"); }
+var _v3870=_v3869;
+var _v3871=lglobal["midir:bind-drop"];
+if (_v3871 === undefined) { throw new Error("No such global: " + "midir:bind-drop"); }
+var _v3872=_v3871;
+var _v3873=lglobal["intercalate"];
+if (_v3873 === undefined) { throw new Error("No such global: " + "intercalate"); }
+var _v3874=_v3873;
+_v3874=runJTramp(_v3874);
+if (typeof _v3874 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4440=new JTramp(v4439, [runJTramp(v4436),runJTramp(v4437)]);
-var v4441=v4440;
-var v4442=lglobal["foldr"];
-var v4443=v4442;
-v4443=runJTramp(v4443);
-if (typeof v4443 !== "function") {
+var _v3875=new JTramp(_v3874, [runJTramp(_v3872),runJTramp(_v3867)]);
+var _v3876=_v3875;
+var _v3877=lglobal["foldr"];
+if (_v3877 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v3878=_v3877;
+_v3878=runJTramp(_v3878);
+if (typeof _v3878 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4444=new JTramp(v4443, [runJTramp(v4433),runJTramp(v4434),runJTramp(v4441)]);
-return v4444;
+var _v3879=new JTramp(_v3878, [runJTramp(_v3870),runJTramp(_v3850),runJTramp(_v3876)]);
+return _v3879;
 };
-var v4445=v4429;
-v4445=runJTramp(v4445);
-if (typeof v4445 !== "function") {
+var _v3880=_v3866;
+_v3880=runJTramp(_v3880);
+if (typeof _v3880 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4446=new JTramp(v4445, [runJTramp(v4428)]);
-return v4446;
+var _v3881=new JTramp(_v3880, [runJTramp(_v3865)]);
+return _v3881;
 };
-v4407=v4408;
-lglobal["compile-body-to-midir"]=runJTramp(v4407);
+_v3846=_v3847;
+lglobal["compile-body-to-midir"]=runJTramp(_v3846);
 })();
 (function () {
-var v4447;
-var v4448=function (v4449,v4450,v4451) {
+var _v3882;
+var _v3883=function (_v3884,_v3885,_v3886) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v4453=v4450;
-var v4454=lglobal["head"];
-var v4455=v4454;
-v4455=runJTramp(v4455);
-if (typeof v4455 !== "function") {
+var _v3888=lglobal["head"];
+if (_v3888 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3889=_v3888;
+_v3889=runJTramp(_v3889);
+if (typeof _v3889 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4456=new JTramp(v4455, [runJTramp(v4453)]);
-var v4457=v4456;
-var v4458=function (v4459) {
+var _v3890=new JTramp(_v3889, [runJTramp(_v3885)]);
+var _v3891=_v3890;
+var _v3892=function (_v3893) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4461=v4459;
-var v4462="quote";
-var v4463=v4462;
-var v4464=lglobal["="];
-var v4465=v4464;
-v4465=runJTramp(v4465);
-if (typeof v4465 !== "function") {
+var _v3895="quote";
+var _v3896=_v3895;
+var _v3897=lglobal["="];
+if (_v3897 === undefined) { throw new Error("No such global: " + "="); }
+var _v3898=_v3897;
+_v3898=runJTramp(_v3898);
+if (typeof _v3898 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4466=new JTramp(v4465, [runJTramp(v4461),runJTramp(v4463)]);
-var v4467;
-if(runJTramp(v4466)) {
-var v4468=v4450;
-var v4469=lglobal["tail"];
-var v4470=v4469;
-v4470=runJTramp(v4470);
-if (typeof v4470 !== "function") {
+var _v3899=new JTramp(_v3898, [runJTramp(_v3893),runJTramp(_v3896)]);
+var _v3900;
+if(runJTramp(_v3899)) {
+var _v3901=lglobal["tail"];
+if (_v3901 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3902=_v3901;
+_v3902=runJTramp(_v3902);
+if (typeof _v3902 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4471=new JTramp(v4470, [runJTramp(v4468)]);
-var v4472=v4471;
-var v4473=lglobal["head"];
-var v4474=v4473;
-v4474=runJTramp(v4474);
-if (typeof v4474 !== "function") {
+var _v3903=new JTramp(_v3902, [runJTramp(_v3885)]);
+var _v3904=_v3903;
+var _v3905=lglobal["head"];
+if (_v3905 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3906=_v3905;
+_v3906=runJTramp(_v3906);
+if (typeof _v3906 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4475=new JTramp(v4474, [runJTramp(v4472)]);
-var v4476=v4475;
-var v4477=v4451;
-var v4478=lglobal["midir:lit"];
-var v4479=v4478;
-v4479=runJTramp(v4479);
-if (typeof v4479 !== "function") {
+var _v3907=new JTramp(_v3906, [runJTramp(_v3904)]);
+var _v3908=_v3907;
+var _v3909=lglobal["midir:lit"];
+if (_v3909 === undefined) { throw new Error("No such global: " + "midir:lit"); }
+var _v3910=_v3909;
+_v3910=runJTramp(_v3910);
+if (typeof _v3910 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4480=new JTramp(v4479, [runJTramp(v4476),runJTramp(v4477)]);
-v4467=v4480;
+var _v3911=new JTramp(_v3910, [runJTramp(_v3908),runJTramp(_v3886)]);
+_v3900=_v3911;
 } else {
-var v4481=v4459;
-var v4482="prim:do";
-var v4483=v4482;
-var v4484=lglobal["="];
-var v4485=v4484;
-v4485=runJTramp(v4485);
-if (typeof v4485 !== "function") {
+var _v3912="prim:do";
+var _v3913=_v3912;
+var _v3914=lglobal["="];
+if (_v3914 === undefined) { throw new Error("No such global: " + "="); }
+var _v3915=_v3914;
+_v3915=runJTramp(_v3915);
+if (typeof _v3915 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4486=new JTramp(v4485, [runJTramp(v4481),runJTramp(v4483)]);
-var v4487;
-if(runJTramp(v4486)) {
-var v4488=v4449;
-var v4489=v4450;
-var v4490=lglobal["tail"];
-var v4491=v4490;
-v4491=runJTramp(v4491);
-if (typeof v4491 !== "function") {
+var _v3916=new JTramp(_v3915, [runJTramp(_v3893),runJTramp(_v3913)]);
+var _v3917;
+if(runJTramp(_v3916)) {
+var _v3918=lglobal["tail"];
+if (_v3918 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3919=_v3918;
+_v3919=runJTramp(_v3919);
+if (typeof _v3919 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4492=new JTramp(v4491, [runJTramp(v4489)]);
-var v4493=v4492;
-var v4494=v4451;
-var v4495=lglobal["compile-body-to-midir"];
-var v4496=v4495;
-v4496=runJTramp(v4496);
-if (typeof v4496 !== "function") {
+var _v3920=new JTramp(_v3919, [runJTramp(_v3885)]);
+var _v3921=_v3920;
+var _v3922=lglobal["compile-body-to-midir"];
+if (_v3922 === undefined) { throw new Error("No such global: " + "compile-body-to-midir"); }
+var _v3923=_v3922;
+_v3923=runJTramp(_v3923);
+if (typeof _v3923 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4497=new JTramp(v4496, [runJTramp(v4488),runJTramp(v4493),runJTramp(v4494)]);
-v4487=v4497;
+var _v3924=new JTramp(_v3923, [runJTramp(_v3884),runJTramp(_v3921),runJTramp(_v3886)]);
+_v3917=_v3924;
 } else {
-var v4498=v4459;
-var v4499="prim:if";
-var v4500=v4499;
-var v4501=lglobal["="];
-var v4502=v4501;
-v4502=runJTramp(v4502);
-if (typeof v4502 !== "function") {
+var _v3925="prim:if";
+var _v3926=_v3925;
+var _v3927=lglobal["="];
+if (_v3927 === undefined) { throw new Error("No such global: " + "="); }
+var _v3928=_v3927;
+_v3928=runJTramp(_v3928);
+if (typeof _v3928 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4503=new JTramp(v4502, [runJTramp(v4498),runJTramp(v4500)]);
-var v4504;
-if(runJTramp(v4503)) {
-var v4505=v4449;
-var v4506=v4450;
-var v4507=lglobal["tail"];
-var v4508=v4507;
-v4508=runJTramp(v4508);
-if (typeof v4508 !== "function") {
+var _v3929=new JTramp(_v3928, [runJTramp(_v3893),runJTramp(_v3926)]);
+var _v3930;
+if(runJTramp(_v3929)) {
+var _v3931=lglobal["tail"];
+if (_v3931 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3932=_v3931;
+_v3932=runJTramp(_v3932);
+if (typeof _v3932 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4509=new JTramp(v4508, [runJTramp(v4506)]);
-var v4510=v4509;
-var v4511=lglobal["tail"];
-var v4512=v4511;
-v4512=runJTramp(v4512);
-if (typeof v4512 !== "function") {
+var _v3933=new JTramp(_v3932, [runJTramp(_v3885)]);
+var _v3934=_v3933;
+var _v3935=lglobal["tail"];
+if (_v3935 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3936=_v3935;
+_v3936=runJTramp(_v3936);
+if (typeof _v3936 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4513=new JTramp(v4512, [runJTramp(v4510)]);
-var v4514=v4513;
-var v4515=lglobal["head"];
-var v4516=v4515;
-v4516=runJTramp(v4516);
-if (typeof v4516 !== "function") {
+var _v3937=new JTramp(_v3936, [runJTramp(_v3934)]);
+var _v3938=_v3937;
+var _v3939=lglobal["head"];
+if (_v3939 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3940=_v3939;
+_v3940=runJTramp(_v3940);
+if (typeof _v3940 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4517=new JTramp(v4516, [runJTramp(v4514)]);
-var v4518=v4517;
-var v4519=lglobal["midir:leave"];
-var v4520=v4519;
-v4520=runJTramp(v4520);
-if (typeof v4520 !== "function") {
+var _v3941=new JTramp(_v3940, [runJTramp(_v3938)]);
+var _v3942=_v3941;
+var _v3943=lglobal["midir:leave"];
+if (_v3943 === undefined) { throw new Error("No such global: " + "midir:leave"); }
+var _v3944=_v3943;
+_v3944=runJTramp(_v3944);
+if (typeof _v3944 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4521=new JTramp(v4520, []);
-var v4522=v4521;
-var v4523=lglobal["compile-to-midir"];
-var v4524=v4523;
-v4524=runJTramp(v4524);
-if (typeof v4524 !== "function") {
+var _v3945=new JTramp(_v3944, []);
+var _v3946=_v3945;
+var _v3947=lglobal["compile-to-midir"];
+if (_v3947 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3948=_v3947;
+_v3948=runJTramp(_v3948);
+if (typeof _v3948 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4525=new JTramp(v4524, [runJTramp(v4505),runJTramp(v4518),runJTramp(v4522)]);
-var v4526=v4525;
-var v4527=v4449;
-var v4528=v4450;
-var v4529=lglobal["tail"];
-var v4530=v4529;
-v4530=runJTramp(v4530);
-if (typeof v4530 !== "function") {
+var _v3949=new JTramp(_v3948, [runJTramp(_v3884),runJTramp(_v3942),runJTramp(_v3946)]);
+var _v3950=_v3949;
+var _v3951=lglobal["tail"];
+if (_v3951 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3952=_v3951;
+_v3952=runJTramp(_v3952);
+if (typeof _v3952 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4531=new JTramp(v4530, [runJTramp(v4528)]);
-var v4532=v4531;
-var v4533=lglobal["tail"];
-var v4534=v4533;
-v4534=runJTramp(v4534);
-if (typeof v4534 !== "function") {
+var _v3953=new JTramp(_v3952, [runJTramp(_v3885)]);
+var _v3954=_v3953;
+var _v3955=lglobal["tail"];
+if (_v3955 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3956=_v3955;
+_v3956=runJTramp(_v3956);
+if (typeof _v3956 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4535=new JTramp(v4534, [runJTramp(v4532)]);
-var v4536=v4535;
-var v4537=lglobal["tail"];
-var v4538=v4537;
-v4538=runJTramp(v4538);
-if (typeof v4538 !== "function") {
+var _v3957=new JTramp(_v3956, [runJTramp(_v3954)]);
+var _v3958=_v3957;
+var _v3959=lglobal["tail"];
+if (_v3959 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3960=_v3959;
+_v3960=runJTramp(_v3960);
+if (typeof _v3960 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4539=new JTramp(v4538, [runJTramp(v4536)]);
-var v4540=v4539;
-var v4541=lglobal["head"];
-var v4542=v4541;
-v4542=runJTramp(v4542);
-if (typeof v4542 !== "function") {
+var _v3961=new JTramp(_v3960, [runJTramp(_v3958)]);
+var _v3962=_v3961;
+var _v3963=lglobal["head"];
+if (_v3963 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3964=_v3963;
+_v3964=runJTramp(_v3964);
+if (typeof _v3964 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4543=new JTramp(v4542, [runJTramp(v4540)]);
-var v4544=v4543;
-var v4545=lglobal["midir:leave"];
-var v4546=v4545;
-v4546=runJTramp(v4546);
-if (typeof v4546 !== "function") {
+var _v3965=new JTramp(_v3964, [runJTramp(_v3962)]);
+var _v3966=_v3965;
+var _v3967=lglobal["midir:leave"];
+if (_v3967 === undefined) { throw new Error("No such global: " + "midir:leave"); }
+var _v3968=_v3967;
+_v3968=runJTramp(_v3968);
+if (typeof _v3968 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4547=new JTramp(v4546, []);
-var v4548=v4547;
-var v4549=lglobal["compile-to-midir"];
-var v4550=v4549;
-v4550=runJTramp(v4550);
-if (typeof v4550 !== "function") {
+var _v3969=new JTramp(_v3968, []);
+var _v3970=_v3969;
+var _v3971=lglobal["compile-to-midir"];
+if (_v3971 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3972=_v3971;
+_v3972=runJTramp(_v3972);
+if (typeof _v3972 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4551=new JTramp(v4550, [runJTramp(v4527),runJTramp(v4544),runJTramp(v4548)]);
-var v4552=v4551;
-var v4553=function (v4554,v4555) {
+var _v3973=new JTramp(_v3972, [runJTramp(_v3884),runJTramp(_v3966),runJTramp(_v3970)]);
+var _v3974=_v3973;
+var _v3975=function (_v3976,_v3977) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v4557=v4449;
-var v4558=v4450;
-var v4559=lglobal["tail"];
-var v4560=v4559;
-v4560=runJTramp(v4560);
-if (typeof v4560 !== "function") {
+var _v3979=lglobal["tail"];
+if (_v3979 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v3980=_v3979;
+_v3980=runJTramp(_v3980);
+if (typeof _v3980 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4561=new JTramp(v4560, [runJTramp(v4558)]);
-var v4562=v4561;
-var v4563=lglobal["head"];
-var v4564=v4563;
-v4564=runJTramp(v4564);
-if (typeof v4564 !== "function") {
+var _v3981=new JTramp(_v3980, [runJTramp(_v3885)]);
+var _v3982=_v3981;
+var _v3983=lglobal["head"];
+if (_v3983 === undefined) { throw new Error("No such global: " + "head"); }
+var _v3984=_v3983;
+_v3984=runJTramp(_v3984);
+if (typeof _v3984 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4565=new JTramp(v4564, [runJTramp(v4562)]);
-var v4566=v4565;
-var v4567=v4554;
-var v4568=v4555;
-var v4569=v4451;
-var v4570=lglobal["midir:if"];
-var v4571=v4570;
-v4571=runJTramp(v4571);
-if (typeof v4571 !== "function") {
+var _v3985=new JTramp(_v3984, [runJTramp(_v3982)]);
+var _v3986=_v3985;
+var _v3987=lglobal["midir:if"];
+if (_v3987 === undefined) { throw new Error("No such global: " + "midir:if"); }
+var _v3988=_v3987;
+_v3988=runJTramp(_v3988);
+if (typeof _v3988 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4572=new JTramp(v4571, [runJTramp(v4567),runJTramp(v4568),runJTramp(v4569)]);
-var v4573=v4572;
-var v4574=lglobal["compile-to-midir"];
-var v4575=v4574;
-v4575=runJTramp(v4575);
-if (typeof v4575 !== "function") {
+var _v3989=new JTramp(_v3988, [runJTramp(_v3976),runJTramp(_v3977),runJTramp(_v3886)]);
+var _v3990=_v3989;
+var _v3991=lglobal["compile-to-midir"];
+if (_v3991 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v3992=_v3991;
+_v3992=runJTramp(_v3992);
+if (typeof _v3992 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4576=new JTramp(v4575, [runJTramp(v4557),runJTramp(v4566),runJTramp(v4573)]);
-return v4576;
+var _v3993=new JTramp(_v3992, [runJTramp(_v3884),runJTramp(_v3986),runJTramp(_v3990)]);
+return _v3993;
 };
-var v4577=v4553;
-v4577=runJTramp(v4577);
-if (typeof v4577 !== "function") {
+var _v3994=_v3975;
+_v3994=runJTramp(_v3994);
+if (typeof _v3994 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4578=new JTramp(v4577, [runJTramp(v4526),runJTramp(v4552)]);
-v4504=v4578;
+var _v3995=new JTramp(_v3994, [runJTramp(_v3950),runJTramp(_v3974)]);
+_v3930=_v3995;
 } else {
-var v4579=v4459;
-var v4580="prim:fun";
-var v4581=v4580;
-var v4582=lglobal["="];
-var v4583=v4582;
-v4583=runJTramp(v4583);
-if (typeof v4583 !== "function") {
+var _v3996="prim:fun";
+var _v3997=_v3996;
+var _v3998=lglobal["="];
+if (_v3998 === undefined) { throw new Error("No such global: " + "="); }
+var _v3999=_v3998;
+_v3999=runJTramp(_v3999);
+if (typeof _v3999 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4584=new JTramp(v4583, [runJTramp(v4579),runJTramp(v4581)]);
-var v4585;
-if(runJTramp(v4584)) {
-var v4586=v4450;
-var v4587=lglobal["tail"];
-var v4588=v4587;
-v4588=runJTramp(v4588);
-if (typeof v4588 !== "function") {
+var _v4000=new JTramp(_v3999, [runJTramp(_v3893),runJTramp(_v3997)]);
+var _v4001;
+if(runJTramp(_v4000)) {
+var _v4002=lglobal["tail"];
+if (_v4002 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4003=_v4002;
+_v4003=runJTramp(_v4003);
+if (typeof _v4003 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4589=new JTramp(v4588, [runJTramp(v4586)]);
-var v4590=v4589;
-var v4591=lglobal["head"];
-var v4592=v4591;
-v4592=runJTramp(v4592);
-if (typeof v4592 !== "function") {
+var _v4004=new JTramp(_v4003, [runJTramp(_v3885)]);
+var _v4005=_v4004;
+var _v4006=lglobal["head"];
+if (_v4006 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4007=_v4006;
+_v4007=runJTramp(_v4007);
+if (typeof _v4007 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4593=new JTramp(v4592, [runJTramp(v4590)]);
-var v4594=v4593;
-var v4595=lglobal["split-fun-args"];
-var v4596=v4595;
-v4596=runJTramp(v4596);
-if (typeof v4596 !== "function") {
+var _v4008=new JTramp(_v4007, [runJTramp(_v4005)]);
+var _v4009=_v4008;
+var _v4010=lglobal["split-fun-args"];
+if (_v4010 === undefined) { throw new Error("No such global: " + "split-fun-args"); }
+var _v4011=_v4010;
+_v4011=runJTramp(_v4011);
+if (typeof _v4011 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4597=new JTramp(v4596, [runJTramp(v4594)]);
-var v4598=v4597;
-var v4599=function (v4600) {
+var _v4012=new JTramp(_v4011, [runJTramp(_v4009)]);
+var _v4013=_v4012;
+var _v4014=function (_v4015) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4602=v4450;
-var v4603=lglobal["tail"];
-var v4604=v4603;
-v4604=runJTramp(v4604);
-if (typeof v4604 !== "function") {
+var _v4017=lglobal["tail"];
+if (_v4017 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4018=_v4017;
+_v4018=runJTramp(_v4018);
+if (typeof _v4018 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4605=new JTramp(v4604, [runJTramp(v4602)]);
-var v4606=v4605;
-var v4607=lglobal["tail"];
-var v4608=v4607;
-v4608=runJTramp(v4608);
-if (typeof v4608 !== "function") {
+var _v4019=new JTramp(_v4018, [runJTramp(_v3885)]);
+var _v4020=_v4019;
+var _v4021=lglobal["tail"];
+if (_v4021 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4022=_v4021;
+_v4022=runJTramp(_v4022);
+if (typeof _v4022 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4609=new JTramp(v4608, [runJTramp(v4606)]);
-var v4610=v4609;
-var v4611=lglobal["normalize-fun-body"];
-var v4612=v4611;
-v4612=runJTramp(v4612);
-if (typeof v4612 !== "function") {
+var _v4023=new JTramp(_v4022, [runJTramp(_v4020)]);
+var _v4024=_v4023;
+var _v4025=lglobal["normalize-fun-body"];
+if (_v4025 === undefined) { throw new Error("No such global: " + "normalize-fun-body"); }
+var _v4026=_v4025;
+_v4026=runJTramp(_v4026);
+if (typeof _v4026 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4613=new JTramp(v4612, [runJTramp(v4610)]);
-var v4614=v4613;
-var v4615=lglobal["split-fun-body"];
-var v4616=v4615;
-v4616=runJTramp(v4616);
-if (typeof v4616 !== "function") {
+var _v4027=new JTramp(_v4026, [runJTramp(_v4024)]);
+var _v4028=_v4027;
+var _v4029=lglobal["split-fun-body"];
+if (_v4029 === undefined) { throw new Error("No such global: " + "split-fun-body"); }
+var _v4030=_v4029;
+_v4030=runJTramp(_v4030);
+if (typeof _v4030 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4617=new JTramp(v4616, [runJTramp(v4614)]);
-var v4618=v4617;
-var v4619=function (v4620) {
+var _v4031=new JTramp(_v4030, [runJTramp(_v4028)]);
+var _v4032=_v4031;
+var _v4033=function (_v4034) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4622=lglobal["head"];
-var v4623=v4622;
-var v4624=lglobal["tail"];
-var v4625=v4624;
-var v4626=lglobal["."];
-var v4627=v4626;
-v4627=runJTramp(v4627);
-if (typeof v4627 !== "function") {
+var _v4036=lglobal["head"];
+if (_v4036 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4037=_v4036;
+var _v4038=lglobal["tail"];
+if (_v4038 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4039=_v4038;
+var _v4040=lglobal["."];
+if (_v4040 === undefined) { throw new Error("No such global: " + "."); }
+var _v4041=_v4040;
+_v4041=runJTramp(_v4041);
+if (typeof _v4041 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4628=new JTramp(v4627, [runJTramp(v4623),runJTramp(v4625)]);
-var v4629=v4628;
-var v4630=v4620;
-var v4631=lglobal["head"];
-var v4632=v4631;
-v4632=runJTramp(v4632);
-if (typeof v4632 !== "function") {
+var _v4042=new JTramp(_v4041, [runJTramp(_v4037),runJTramp(_v4039)]);
+var _v4043=_v4042;
+var _v4044=lglobal["head"];
+if (_v4044 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4045=_v4044;
+_v4045=runJTramp(_v4045);
+if (typeof _v4045 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4633=new JTramp(v4632, [runJTramp(v4630)]);
-var v4634=v4633;
-var v4635=lglobal["map"];
-var v4636=v4635;
-v4636=runJTramp(v4636);
-if (typeof v4636 !== "function") {
+var _v4046=new JTramp(_v4045, [runJTramp(_v4034)]);
+var _v4047=_v4046;
+var _v4048=lglobal["map"];
+if (_v4048 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4049=_v4048;
+_v4049=runJTramp(_v4049);
+if (typeof _v4049 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4637=new JTramp(v4636, [runJTramp(v4629),runJTramp(v4634)]);
-var v4638=v4637;
-var v4639=function (v4640) {
+var _v4050=new JTramp(_v4049, [runJTramp(_v4043),runJTramp(_v4047)]);
+var _v4051=_v4050;
+var _v4052=function (_v4053) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4642=v4600;
-var v4643=lglobal["head"];
-var v4644=v4643;
-v4644=runJTramp(v4644);
-if (typeof v4644 !== "function") {
+var _v4055=lglobal["head"];
+if (_v4055 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4056=_v4055;
+_v4056=runJTramp(_v4056);
+if (typeof _v4056 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4645=new JTramp(v4644, [runJTramp(v4642)]);
-var v4646=v4645;
-var v4647=v4600;
-var v4648=lglobal["tail"];
-var v4649=v4648;
-v4649=runJTramp(v4649);
-if (typeof v4649 !== "function") {
+var _v4057=new JTramp(_v4056, [runJTramp(_v4015)]);
+var _v4058=_v4057;
+var _v4059=lglobal["tail"];
+if (_v4059 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4060=_v4059;
+_v4060=runJTramp(_v4060);
+if (typeof _v4060 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4650=new JTramp(v4649, [runJTramp(v4647)]);
-var v4651=v4650;
-var v4652=lglobal["null?"];
-var v4653=v4652;
-v4653=runJTramp(v4653);
-if (typeof v4653 !== "function") {
+var _v4061=new JTramp(_v4060, [runJTramp(_v4015)]);
+var _v4062=_v4061;
+var _v4063=lglobal["null?"];
+if (_v4063 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v4064=_v4063;
+_v4064=runJTramp(_v4064);
+if (typeof _v4064 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4654=new JTramp(v4653, [runJTramp(v4651)]);
-var v4655;
-if(runJTramp(v4654)) {
-var v4656=lglobal["list"];
-var v4657=v4656;
-v4657=runJTramp(v4657);
-if (typeof v4657 !== "function") {
+var _v4065=new JTramp(_v4064, [runJTramp(_v4062)]);
+var _v4066;
+if(runJTramp(_v4065)) {
+var _v4067=lglobal["list"];
+if (_v4067 === undefined) { throw new Error("No such global: " + "list"); }
+var _v4068=_v4067;
+_v4068=runJTramp(_v4068);
+if (typeof _v4068 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4658=new JTramp(v4657, []);
-v4655=v4658;
+var _v4069=new JTramp(_v4068, []);
+_v4066=_v4069;
 } else {
-var v4659=v4600;
-var v4660=lglobal["tail"];
-var v4661=v4660;
-v4661=runJTramp(v4661);
-if (typeof v4661 !== "function") {
+var _v4070=lglobal["tail"];
+if (_v4070 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4071=_v4070;
+_v4071=runJTramp(_v4071);
+if (typeof _v4071 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4662=new JTramp(v4661, [runJTramp(v4659)]);
-var v4663=v4662;
-var v4664=lglobal["list"];
-var v4665=v4664;
-v4665=runJTramp(v4665);
-if (typeof v4665 !== "function") {
+var _v4072=new JTramp(_v4071, [runJTramp(_v4015)]);
+var _v4073=_v4072;
+var _v4074=lglobal["list"];
+if (_v4074 === undefined) { throw new Error("No such global: " + "list"); }
+var _v4075=_v4074;
+_v4075=runJTramp(_v4075);
+if (typeof _v4075 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4666=new JTramp(v4665, [runJTramp(v4663)]);
-v4655=v4666;
+var _v4076=new JTramp(_v4075, [runJTramp(_v4073)]);
+_v4066=_v4076;
 }
-var v4667=v4655;
-var v4668=v4640;
-var v4669=lglobal["append"];
-var v4670=v4669;
-v4670=runJTramp(v4670);
-if (typeof v4670 !== "function") {
+var _v4077=_v4066;
+var _v4078=lglobal["append"];
+if (_v4078 === undefined) { throw new Error("No such global: " + "append"); }
+var _v4079=_v4078;
+_v4079=runJTramp(_v4079);
+if (typeof _v4079 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4671=new JTramp(v4670, [runJTramp(v4646),runJTramp(v4667),runJTramp(v4668)]);
-var v4672=v4671;
-var v4673=function (v4674) {
+var _v4080=new JTramp(_v4079, [runJTramp(_v4058),runJTramp(_v4077),runJTramp(_v4053)]);
+var _v4081=_v4080;
+var _v4082=function (_v4083) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4676=lglobal["make-env"];
-var v4677=v4676;
-var v4678=v4449;
-var v4679=function (v4680) {
+var _v4085=lglobal["make-env"];
+if (_v4085 === undefined) { throw new Error("No such global: " + "make-env"); }
+var _v4086=_v4085;
+var _v4087=function (_v4088) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4682=v4680;
-var v4683=v4680;
-var v4684=lglobal["new-var"];
-var v4685=v4684;
-v4685=runJTramp(v4685);
-if (typeof v4685 !== "function") {
+var _v4090=lglobal["new-var"];
+if (_v4090 === undefined) { throw new Error("No such global: " + "new-var"); }
+var _v4091=_v4090;
+_v4091=runJTramp(_v4091);
+if (typeof _v4091 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4686=new JTramp(v4685, [runJTramp(v4683)]);
-var v4687=v4686;
-var v4688=lglobal["list"];
-var v4689=v4688;
-v4689=runJTramp(v4689);
-if (typeof v4689 !== "function") {
+var _v4092=new JTramp(_v4091, [runJTramp(_v4088)]);
+var _v4093=_v4092;
+var _v4094=lglobal["list"];
+if (_v4094 === undefined) { throw new Error("No such global: " + "list"); }
+var _v4095=_v4094;
+_v4095=runJTramp(_v4095);
+if (typeof _v4095 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4690=new JTramp(v4689, [runJTramp(v4682),runJTramp(v4687)]);
-return v4690;
+var _v4096=new JTramp(_v4095, [runJTramp(_v4088),runJTramp(_v4093)]);
+return _v4096;
 };
-var v4691=v4679;
-var v4692=v4674;
-var v4693=lglobal["map-append"];
-var v4694=v4693;
-v4694=runJTramp(v4694);
-if (typeof v4694 !== "function") {
+var _v4097=_v4087;
+var _v4098=lglobal["map-append"];
+if (_v4098 === undefined) { throw new Error("No such global: " + "map-append"); }
+var _v4099=_v4098;
+_v4099=runJTramp(_v4099);
+if (typeof _v4099 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4695=new JTramp(v4694, [runJTramp(v4691),runJTramp(v4692)]);
-var v4696=v4695;
-var v4697=lglobal["cons"];
-var v4698=v4697;
-v4698=runJTramp(v4698);
-if (typeof v4698 !== "function") {
+var _v4100=new JTramp(_v4099, [runJTramp(_v4097),runJTramp(_v4083)]);
+var _v4101=_v4100;
+var _v4102=lglobal["cons"];
+if (_v4102 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4103=_v4102;
+_v4103=runJTramp(_v4103);
+if (typeof _v4103 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4699=new JTramp(v4698, [runJTramp(v4678),runJTramp(v4696)]);
-var v4700=v4699;
-var v4701=lglobal["apply"];
-var v4702=v4701;
-v4702=runJTramp(v4702);
-if (typeof v4702 !== "function") {
+var _v4104=new JTramp(_v4103, [runJTramp(_v3884),runJTramp(_v4101)]);
+var _v4105=_v4104;
+var _v4106=lglobal["apply"];
+if (_v4106 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4107=_v4106;
+_v4107=runJTramp(_v4107);
+if (typeof _v4107 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4703=new JTramp(v4702, [runJTramp(v4677),runJTramp(v4700)]);
-var v4704=v4703;
-var v4705=function (v4706) {
+var _v4108=new JTramp(_v4107, [runJTramp(_v4086),runJTramp(_v4105)]);
+var _v4109=_v4108;
+var _v4110=function (_v4111) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4708=function (v4709) {
+var _v4113=function (_v4114) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4711=v4709;
-var v4712=lglobal["null?"];
-var v4713=v4712;
-v4713=runJTramp(v4713);
-if (typeof v4713 !== "function") {
+var _v4116=lglobal["null?"];
+if (_v4116 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v4117=_v4116;
+_v4117=runJTramp(_v4117);
+if (typeof _v4117 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4714=new JTramp(v4713, [runJTramp(v4711)]);
-var v4715;
-if(runJTramp(v4714)) {
-var v4716=lglobal["null"];
-v4715=v4716;
+var _v4118=new JTramp(_v4117, [runJTramp(_v4114)]);
+var _v4119;
+if(runJTramp(_v4118)) {
+var _v4120=lglobal["null"];
+if (_v4120 === undefined) { throw new Error("No such global: " + "null"); }
+_v4119=_v4120;
 } else {
-var v4717="lookup";
-var v4718=v4717;
-var v4719=v4709;
-var v4720=v4706;
-v4720=runJTramp(v4720);
-if (typeof v4720 !== "function") {
+var _v4121="lookup";
+var _v4122=_v4121;
+_v4111=runJTramp(_v4111);
+if (typeof _v4111 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4721=new JTramp(v4720, [runJTramp(v4718),runJTramp(v4719)]);
-v4715=v4721;
+var _v4123=new JTramp(_v4111, [runJTramp(_v4122),runJTramp(_v4114)]);
+_v4119=_v4123;
 }
-return v4715;
+return _v4119;
 };
-var v4722=v4708;
-var v4723=function (v4724) {
+var _v4124=_v4113;
+var _v4125=function (_v4126) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4726=v4724;
-var v4727=v4600;
-var v4728=lglobal["head"];
-var v4729=v4728;
-v4729=runJTramp(v4729);
-if (typeof v4729 !== "function") {
+var _v4128=lglobal["head"];
+if (_v4128 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4129=_v4128;
+_v4129=runJTramp(_v4129);
+if (typeof _v4129 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4730=new JTramp(v4729, [runJTramp(v4727)]);
-var v4731=v4730;
-var v4732=lglobal["map"];
-var v4733=v4732;
-v4733=runJTramp(v4733);
-if (typeof v4733 !== "function") {
+var _v4130=new JTramp(_v4129, [runJTramp(_v4015)]);
+var _v4131=_v4130;
+var _v4132=lglobal["map"];
+if (_v4132 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4133=_v4132;
+_v4133=runJTramp(_v4133);
+if (typeof _v4133 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4734=new JTramp(v4733, [runJTramp(v4726),runJTramp(v4731)]);
-var v4735=v4734;
-var v4736=v4600;
-var v4737=lglobal["tail"];
-var v4738=v4737;
-v4738=runJTramp(v4738);
-if (typeof v4738 !== "function") {
+var _v4134=new JTramp(_v4133, [runJTramp(_v4126),runJTramp(_v4131)]);
+var _v4135=_v4134;
+var _v4136=lglobal["tail"];
+if (_v4136 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4137=_v4136;
+_v4137=runJTramp(_v4137);
+if (typeof _v4137 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4739=new JTramp(v4738, [runJTramp(v4736)]);
-var v4740=v4739;
-var v4741=v4724;
-v4741=runJTramp(v4741);
-if (typeof v4741 !== "function") {
+var _v4138=new JTramp(_v4137, [runJTramp(_v4015)]);
+var _v4139=_v4138;
+_v4126=runJTramp(_v4126);
+if (typeof _v4126 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4742=new JTramp(v4741, [runJTramp(v4740)]);
-var v4743=v4742;
-var v4744=lglobal["cons"];
-var v4745=v4744;
-v4745=runJTramp(v4745);
-if (typeof v4745 !== "function") {
+var _v4140=new JTramp(_v4126, [runJTramp(_v4139)]);
+var _v4141=_v4140;
+var _v4142=lglobal["cons"];
+if (_v4142 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4143=_v4142;
+_v4143=runJTramp(_v4143);
+if (typeof _v4143 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4746=new JTramp(v4745, [runJTramp(v4735),runJTramp(v4743)]);
-var v4747=v4746;
-var v4748=function (v4749) {
+var _v4144=new JTramp(_v4143, [runJTramp(_v4135),runJTramp(_v4141)]);
+var _v4145=_v4144;
+var _v4146=function (_v4147) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4751=v4724;
-var v4752=v4640;
-var v4753=lglobal["map"];
-var v4754=v4753;
-v4754=runJTramp(v4754);
-if (typeof v4754 !== "function") {
+var _v4149=lglobal["map"];
+if (_v4149 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4150=_v4149;
+_v4150=runJTramp(_v4150);
+if (typeof _v4150 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4755=new JTramp(v4754, [runJTramp(v4751),runJTramp(v4752)]);
-var v4756=v4755;
-var v4757=function (v4758) {
+var _v4151=new JTramp(_v4150, [runJTramp(_v4126),runJTramp(_v4053)]);
+var _v4152=_v4151;
+var _v4153=function (_v4154) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4760=function (v4761) {
+var _v4156=function (_v4157) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4763=lglobal["compile-to-midir"];
-var v4764=v4763;
-var v4765=v4706;
-var v4766="prim:set!";
-var v4767=v4766;
-var v4768=v4761;
-var v4769=lglobal["tail"];
-var v4770=v4769;
-v4770=runJTramp(v4770);
-if (typeof v4770 !== "function") {
+var _v4159=lglobal["compile-to-midir"];
+if (_v4159 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v4160=_v4159;
+var _v4161="prim:set!";
+var _v4162=_v4161;
+var _v4163=lglobal["tail"];
+if (_v4163 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4164=_v4163;
+_v4164=runJTramp(_v4164);
+if (typeof _v4164 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4771=new JTramp(v4770, [runJTramp(v4768)]);
-var v4772=v4771;
-var v4773=lglobal["cons"];
-var v4774=v4773;
-v4774=runJTramp(v4774);
-if (typeof v4774 !== "function") {
+var _v4165=new JTramp(_v4164, [runJTramp(_v4157)]);
+var _v4166=_v4165;
+var _v4167=lglobal["cons"];
+if (_v4167 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4168=_v4167;
+_v4168=runJTramp(_v4168);
+if (typeof _v4168 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4775=new JTramp(v4774, [runJTramp(v4767),runJTramp(v4772)]);
-var v4776=v4775;
-var v4777=lglobal["partial"];
-var v4778=v4777;
-v4778=runJTramp(v4778);
-if (typeof v4778 !== "function") {
+var _v4169=new JTramp(_v4168, [runJTramp(_v4162),runJTramp(_v4166)]);
+var _v4170=_v4169;
+var _v4171=lglobal["partial"];
+if (_v4171 === undefined) { throw new Error("No such global: " + "partial"); }
+var _v4172=_v4171;
+_v4172=runJTramp(_v4172);
+if (typeof _v4172 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4779=new JTramp(v4778, [runJTramp(v4764),runJTramp(v4765),runJTramp(v4776)]);
-return v4779;
+var _v4173=new JTramp(_v4172, [runJTramp(_v4160),runJTramp(_v4111),runJTramp(_v4170)]);
+return _v4173;
 };
-var v4780=v4760;
-var v4781=v4620;
-var v4782=lglobal["head"];
-var v4783=v4782;
-v4783=runJTramp(v4783);
-if (typeof v4783 !== "function") {
+var _v4174=_v4156;
+var _v4175=lglobal["head"];
+if (_v4175 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4176=_v4175;
+_v4176=runJTramp(_v4176);
+if (typeof _v4176 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4784=new JTramp(v4783, [runJTramp(v4781)]);
-var v4785=v4784;
-var v4786=lglobal["map"];
-var v4787=v4786;
-v4787=runJTramp(v4787);
-if (typeof v4787 !== "function") {
+var _v4177=new JTramp(_v4176, [runJTramp(_v4034)]);
+var _v4178=_v4177;
+var _v4179=lglobal["map"];
+if (_v4179 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4180=_v4179;
+_v4180=runJTramp(_v4180);
+if (typeof _v4180 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4788=new JTramp(v4787, [runJTramp(v4780),runJTramp(v4785)]);
-var v4789=v4788;
-var v4790=function (v4791) {
+var _v4181=new JTramp(_v4180, [runJTramp(_v4174),runJTramp(_v4178)]);
+var _v4182=_v4181;
+var _v4183=function (_v4184) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4793=lglobal["compile-to-midir"];
-var v4794=v4793;
-var v4795=v4706;
-var v4796=lglobal["partial"];
-var v4797=v4796;
-v4797=runJTramp(v4797);
-if (typeof v4797 !== "function") {
+var _v4186=lglobal["compile-to-midir"];
+if (_v4186 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v4187=_v4186;
+var _v4188=lglobal["partial"];
+if (_v4188 === undefined) { throw new Error("No such global: " + "partial"); }
+var _v4189=_v4188;
+_v4189=runJTramp(_v4189);
+if (typeof _v4189 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4798=new JTramp(v4797, [runJTramp(v4794),runJTramp(v4795)]);
-var v4799=v4798;
-var v4800=lglobal["curry"];
-var v4801=v4800;
-v4801=runJTramp(v4801);
-if (typeof v4801 !== "function") {
+var _v4190=new JTramp(_v4189, [runJTramp(_v4187),runJTramp(_v4111)]);
+var _v4191=_v4190;
+var _v4192=lglobal["curry"];
+if (_v4192 === undefined) { throw new Error("No such global: " + "curry"); }
+var _v4193=_v4192;
+_v4193=runJTramp(_v4193);
+if (typeof _v4193 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4802=new JTramp(v4801, [runJTramp(v4799)]);
-var v4803=v4802;
-var v4804=v4620;
-var v4805=lglobal["tail"];
-var v4806=v4805;
-v4806=runJTramp(v4806);
-if (typeof v4806 !== "function") {
+var _v4194=new JTramp(_v4193, [runJTramp(_v4191)]);
+var _v4195=_v4194;
+var _v4196=lglobal["tail"];
+if (_v4196 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4197=_v4196;
+_v4197=runJTramp(_v4197);
+if (typeof _v4197 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4807=new JTramp(v4806, [runJTramp(v4804)]);
-var v4808=v4807;
-var v4809=lglobal["map"];
-var v4810=v4809;
-v4810=runJTramp(v4810);
-if (typeof v4810 !== "function") {
+var _v4198=new JTramp(_v4197, [runJTramp(_v4034)]);
+var _v4199=_v4198;
+var _v4200=lglobal["map"];
+if (_v4200 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4201=_v4200;
+_v4201=runJTramp(_v4201);
+if (typeof _v4201 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4811=new JTramp(v4810, [runJTramp(v4803),runJTramp(v4808)]);
-var v4812=v4811;
-var v4813=function (v4814) {
+var _v4202=new JTramp(_v4201, [runJTramp(_v4195),runJTramp(_v4199)]);
+var _v4203=_v4202;
+var _v4204=function (_v4205) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4816=v4749;
-var v4817=lglobal["head"];
-var v4818=v4817;
-v4818=runJTramp(v4818);
-if (typeof v4818 !== "function") {
+var _v4207=lglobal["head"];
+if (_v4207 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4208=_v4207;
+_v4208=runJTramp(_v4208);
+if (typeof _v4208 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4819=new JTramp(v4818, [runJTramp(v4816)]);
-var v4820=v4819;
-var v4821=v4749;
-var v4822=lglobal["tail"];
-var v4823=v4822;
-v4823=runJTramp(v4823);
-if (typeof v4823 !== "function") {
+var _v4209=new JTramp(_v4208, [runJTramp(_v4147)]);
+var _v4210=_v4209;
+var _v4211=lglobal["tail"];
+if (_v4211 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4212=_v4211;
+_v4212=runJTramp(_v4212);
+if (typeof _v4212 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4824=new JTramp(v4823, [runJTramp(v4821)]);
-var v4825=v4824;
-var v4826=v4758;
-var v4827=lglobal["$"];
-var v4828=v4827;
-var v4829=lglobal["midir:return"];
-var v4830=v4829;
-v4830=runJTramp(v4830);
-if (typeof v4830 !== "function") {
+var _v4213=new JTramp(_v4212, [runJTramp(_v4147)]);
+var _v4214=_v4213;
+var _v4215=lglobal["$"];
+if (_v4215 === undefined) { throw new Error("No such global: " + "$"); }
+var _v4216=_v4215;
+var _v4217=lglobal["midir:return"];
+if (_v4217 === undefined) { throw new Error("No such global: " + "midir:return"); }
+var _v4218=_v4217;
+_v4218=runJTramp(_v4218);
+if (typeof _v4218 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4831=new JTramp(v4830, []);
-var v4832=v4831;
-var v4833=v4791;
-var v4834=lglobal["midir:bind-drop"];
-var v4835=v4834;
-var v4836=v4814;
-var v4837=lglobal["intercalate"];
-var v4838=v4837;
-v4838=runJTramp(v4838);
-if (typeof v4838 !== "function") {
+var _v4219=new JTramp(_v4218, []);
+var _v4220=_v4219;
+var _v4221=lglobal["midir:bind-drop"];
+if (_v4221 === undefined) { throw new Error("No such global: " + "midir:bind-drop"); }
+var _v4222=_v4221;
+var _v4223=lglobal["intercalate"];
+if (_v4223 === undefined) { throw new Error("No such global: " + "intercalate"); }
+var _v4224=_v4223;
+_v4224=runJTramp(_v4224);
+if (typeof _v4224 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4839=new JTramp(v4838, [runJTramp(v4835),runJTramp(v4836)]);
-var v4840=v4839;
-var v4841=lglobal["append"];
-var v4842=v4841;
-v4842=runJTramp(v4842);
-if (typeof v4842 !== "function") {
+var _v4225=new JTramp(_v4224, [runJTramp(_v4222),runJTramp(_v4205)]);
+var _v4226=_v4225;
+var _v4227=lglobal["append"];
+if (_v4227 === undefined) { throw new Error("No such global: " + "append"); }
+var _v4228=_v4227;
+_v4228=runJTramp(_v4228);
+if (typeof _v4228 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4843=new JTramp(v4842, [runJTramp(v4833),runJTramp(v4840)]);
-var v4844=v4843;
-var v4845=lglobal["foldr"];
-var v4846=v4845;
-v4846=runJTramp(v4846);
-if (typeof v4846 !== "function") {
+var _v4229=new JTramp(_v4228, [runJTramp(_v4184),runJTramp(_v4226)]);
+var _v4230=_v4229;
+var _v4231=lglobal["foldr"];
+if (_v4231 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v4232=_v4231;
+_v4232=runJTramp(_v4232);
+if (typeof _v4232 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4847=new JTramp(v4846, [runJTramp(v4828),runJTramp(v4832),runJTramp(v4844)]);
-var v4848=v4847;
-var v4849=lglobal["midir:enter"];
-var v4850=v4849;
-v4850=runJTramp(v4850);
-if (typeof v4850 !== "function") {
+var _v4233=new JTramp(_v4232, [runJTramp(_v4216),runJTramp(_v4220),runJTramp(_v4230)]);
+var _v4234=_v4233;
+var _v4235=lglobal["midir:enter"];
+if (_v4235 === undefined) { throw new Error("No such global: " + "midir:enter"); }
+var _v4236=_v4235;
+_v4236=runJTramp(_v4236);
+if (typeof _v4236 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4851=new JTramp(v4850, [runJTramp(v4820),runJTramp(v4825),runJTramp(v4826),runJTramp(v4848)]);
-var v4852=v4851;
-var v4853=v4451;
-var v4854=lglobal["midir:closure"];
-var v4855=v4854;
-v4855=runJTramp(v4855);
-if (typeof v4855 !== "function") {
+var _v4237=new JTramp(_v4236, [runJTramp(_v4210),runJTramp(_v4214),runJTramp(_v4154),runJTramp(_v4234)]);
+var _v4238=_v4237;
+var _v4239=lglobal["midir:closure"];
+if (_v4239 === undefined) { throw new Error("No such global: " + "midir:closure"); }
+var _v4240=_v4239;
+_v4240=runJTramp(_v4240);
+if (typeof _v4240 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4856=new JTramp(v4855, [runJTramp(v4852),runJTramp(v4853)]);
-return v4856;
+var _v4241=new JTramp(_v4240, [runJTramp(_v4238),runJTramp(_v3886)]);
+return _v4241;
 };
-var v4857=v4813;
-v4857=runJTramp(v4857);
-if (typeof v4857 !== "function") {
+var _v4242=_v4204;
+_v4242=runJTramp(_v4242);
+if (typeof _v4242 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4858=new JTramp(v4857, [runJTramp(v4812)]);
-return v4858;
+var _v4243=new JTramp(_v4242, [runJTramp(_v4203)]);
+return _v4243;
 };
-var v4859=v4790;
-v4859=runJTramp(v4859);
-if (typeof v4859 !== "function") {
+var _v4244=_v4183;
+_v4244=runJTramp(_v4244);
+if (typeof _v4244 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4860=new JTramp(v4859, [runJTramp(v4789)]);
-return v4860;
+var _v4245=new JTramp(_v4244, [runJTramp(_v4182)]);
+return _v4245;
 };
-var v4861=v4757;
-v4861=runJTramp(v4861);
-if (typeof v4861 !== "function") {
+var _v4246=_v4153;
+_v4246=runJTramp(_v4246);
+if (typeof _v4246 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4862=new JTramp(v4861, [runJTramp(v4756)]);
-return v4862;
+var _v4247=new JTramp(_v4246, [runJTramp(_v4152)]);
+return _v4247;
 };
-var v4863=v4748;
-v4863=runJTramp(v4863);
-if (typeof v4863 !== "function") {
+var _v4248=_v4146;
+_v4248=runJTramp(_v4248);
+if (typeof _v4248 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4864=new JTramp(v4863, [runJTramp(v4747)]);
-return v4864;
+var _v4249=new JTramp(_v4248, [runJTramp(_v4145)]);
+return _v4249;
 };
-var v4865=v4723;
-v4865=runJTramp(v4865);
-if (typeof v4865 !== "function") {
+var _v4250=_v4125;
+_v4250=runJTramp(_v4250);
+if (typeof _v4250 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4866=new JTramp(v4865, [runJTramp(v4722)]);
-return v4866;
+var _v4251=new JTramp(_v4250, [runJTramp(_v4124)]);
+return _v4251;
 };
-var v4867=v4705;
-v4867=runJTramp(v4867);
-if (typeof v4867 !== "function") {
+var _v4252=_v4110;
+_v4252=runJTramp(_v4252);
+if (typeof _v4252 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4868=new JTramp(v4867, [runJTramp(v4704)]);
-return v4868;
+var _v4253=new JTramp(_v4252, [runJTramp(_v4109)]);
+return _v4253;
 };
-var v4869=v4673;
-v4869=runJTramp(v4869);
-if (typeof v4869 !== "function") {
+var _v4254=_v4082;
+_v4254=runJTramp(_v4254);
+if (typeof _v4254 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4870=new JTramp(v4869, [runJTramp(v4672)]);
-return v4870;
+var _v4255=new JTramp(_v4254, [runJTramp(_v4081)]);
+return _v4255;
 };
-var v4871=v4639;
-v4871=runJTramp(v4871);
-if (typeof v4871 !== "function") {
+var _v4256=_v4052;
+_v4256=runJTramp(_v4256);
+if (typeof _v4256 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4872=new JTramp(v4871, [runJTramp(v4638)]);
-return v4872;
+var _v4257=new JTramp(_v4256, [runJTramp(_v4051)]);
+return _v4257;
 };
-var v4873=v4619;
-v4873=runJTramp(v4873);
-if (typeof v4873 !== "function") {
+var _v4258=_v4033;
+_v4258=runJTramp(_v4258);
+if (typeof _v4258 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4874=new JTramp(v4873, [runJTramp(v4618)]);
-return v4874;
+var _v4259=new JTramp(_v4258, [runJTramp(_v4032)]);
+return _v4259;
 };
-var v4875=v4599;
-v4875=runJTramp(v4875);
-if (typeof v4875 !== "function") {
+var _v4260=_v4014;
+_v4260=runJTramp(_v4260);
+if (typeof _v4260 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4876=new JTramp(v4875, [runJTramp(v4598)]);
-v4585=v4876;
+var _v4261=new JTramp(_v4260, [runJTramp(_v4013)]);
+_v4001=_v4261;
 } else {
-var v4877=v4459;
-var v4878="prim:def";
-var v4879=v4878;
-var v4880=lglobal["="];
-var v4881=v4880;
-v4881=runJTramp(v4881);
-if (typeof v4881 !== "function") {
+var _v4262="prim:def";
+var _v4263=_v4262;
+var _v4264=lglobal["="];
+if (_v4264 === undefined) { throw new Error("No such global: " + "="); }
+var _v4265=_v4264;
+_v4265=runJTramp(_v4265);
+if (typeof _v4265 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4882=new JTramp(v4881, [runJTramp(v4877),runJTramp(v4879)]);
-var v4883;
-if(runJTramp(v4882)) {
-var v4884="Definitions may only occur at the beginning of a function.";
-var v4885=v4884;
-var v4886=lglobal["error"];
-var v4887=v4886;
-v4887=runJTramp(v4887);
-if (typeof v4887 !== "function") {
+var _v4266=new JTramp(_v4265, [runJTramp(_v3893),runJTramp(_v4263)]);
+var _v4267;
+if(runJTramp(_v4266)) {
+var _v4268="Definitions may only occur at the beginning of a function.";
+var _v4269=_v4268;
+var _v4270=lglobal["error"];
+if (_v4270 === undefined) { throw new Error("No such global: " + "error"); }
+var _v4271=_v4270;
+_v4271=runJTramp(_v4271);
+if (typeof _v4271 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4888=new JTramp(v4887, [runJTramp(v4885)]);
-v4883=v4888;
+var _v4272=new JTramp(_v4271, [runJTramp(_v4269)]);
+_v4267=_v4272;
 } else {
-var v4889=v4459;
-var v4890="prim:set!";
-var v4891=v4890;
-var v4892=lglobal["="];
-var v4893=v4892;
-v4893=runJTramp(v4893);
-if (typeof v4893 !== "function") {
+var _v4273="prim:set!";
+var _v4274=_v4273;
+var _v4275=lglobal["="];
+if (_v4275 === undefined) { throw new Error("No such global: " + "="); }
+var _v4276=_v4275;
+_v4276=runJTramp(_v4276);
+if (typeof _v4276 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4894=new JTramp(v4893, [runJTramp(v4889),runJTramp(v4891)]);
-var v4895;
-if(runJTramp(v4894)) {
-var v4896=v4450;
-var v4897=lglobal["tail"];
-var v4898=v4897;
-v4898=runJTramp(v4898);
-if (typeof v4898 !== "function") {
+var _v4277=new JTramp(_v4276, [runJTramp(_v3893),runJTramp(_v4274)]);
+var _v4278;
+if(runJTramp(_v4277)) {
+var _v4279=lglobal["tail"];
+if (_v4279 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4280=_v4279;
+_v4280=runJTramp(_v4280);
+if (typeof _v4280 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4899=new JTramp(v4898, [runJTramp(v4896)]);
-var v4900=v4899;
-var v4901=lglobal["head"];
-var v4902=v4901;
-v4902=runJTramp(v4902);
-if (typeof v4902 !== "function") {
+var _v4281=new JTramp(_v4280, [runJTramp(_v3885)]);
+var _v4282=_v4281;
+var _v4283=lglobal["head"];
+if (_v4283 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4284=_v4283;
+_v4284=runJTramp(_v4284);
+if (typeof _v4284 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4903=new JTramp(v4902, [runJTramp(v4900)]);
-var v4904=v4903;
-var v4905=function (v4906) {
+var _v4285=new JTramp(_v4284, [runJTramp(_v4282)]);
+var _v4286=_v4285;
+var _v4287=function (_v4288) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4908=v4449;
-var v4909=v4450;
-var v4910=lglobal["tail"];
-var v4911=v4910;
-v4911=runJTramp(v4911);
-if (typeof v4911 !== "function") {
+var _v4290=lglobal["tail"];
+if (_v4290 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4291=_v4290;
+_v4291=runJTramp(_v4291);
+if (typeof _v4291 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4912=new JTramp(v4911, [runJTramp(v4909)]);
-var v4913=v4912;
-var v4914=lglobal["tail"];
-var v4915=v4914;
-v4915=runJTramp(v4915);
-if (typeof v4915 !== "function") {
+var _v4292=new JTramp(_v4291, [runJTramp(_v3885)]);
+var _v4293=_v4292;
+var _v4294=lglobal["tail"];
+if (_v4294 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4295=_v4294;
+_v4295=runJTramp(_v4295);
+if (typeof _v4295 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4916=new JTramp(v4915, [runJTramp(v4913)]);
-var v4917=v4916;
-var v4918=lglobal["head"];
-var v4919=v4918;
-v4919=runJTramp(v4919);
-if (typeof v4919 !== "function") {
+var _v4296=new JTramp(_v4295, [runJTramp(_v4293)]);
+var _v4297=_v4296;
+var _v4298=lglobal["head"];
+if (_v4298 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4299=_v4298;
+_v4299=runJTramp(_v4299);
+if (typeof _v4299 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4920=new JTramp(v4919, [runJTramp(v4917)]);
-var v4921=v4920;
-var v4922="has?";
-var v4923=v4922;
-var v4924=v4906;
-var v4925=v4449;
-v4925=runJTramp(v4925);
-if (typeof v4925 !== "function") {
+var _v4300=new JTramp(_v4299, [runJTramp(_v4297)]);
+var _v4301=_v4300;
+var _v4302="has?";
+var _v4303=_v4302;
+_v3884=runJTramp(_v3884);
+if (typeof _v3884 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4926=new JTramp(v4925, [runJTramp(v4923),runJTramp(v4924)]);
-var v4927;
-if(runJTramp(v4926)) {
-var v4928="lookup";
-var v4929=v4928;
-var v4930=v4906;
-var v4931=v4449;
-v4931=runJTramp(v4931);
-if (typeof v4931 !== "function") {
+var _v4304=new JTramp(_v3884, [runJTramp(_v4303),runJTramp(_v4288)]);
+var _v4305;
+if(runJTramp(_v4304)) {
+var _v4306="lookup";
+var _v4307=_v4306;
+_v3884=runJTramp(_v3884);
+if (typeof _v3884 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4932=new JTramp(v4931, [runJTramp(v4929),runJTramp(v4930)]);
-var v4933=v4932;
-var v4934=v4451;
-var v4935=lglobal["midir:set!"];
-var v4936=v4935;
-v4936=runJTramp(v4936);
-if (typeof v4936 !== "function") {
+var _v4308=new JTramp(_v3884, [runJTramp(_v4307),runJTramp(_v4288)]);
+var _v4309=_v4308;
+var _v4310=lglobal["midir:set!"];
+if (_v4310 === undefined) { throw new Error("No such global: " + "midir:set!"); }
+var _v4311=_v4310;
+_v4311=runJTramp(_v4311);
+if (typeof _v4311 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4937=new JTramp(v4936, [runJTramp(v4933),runJTramp(v4934)]);
-v4927=v4937;
+var _v4312=new JTramp(_v4311, [runJTramp(_v4309),runJTramp(_v3886)]);
+_v4305=_v4312;
 } else {
-var v4938=v4906;
-var v4939=v4451;
-var v4940=lglobal["midir:gset!"];
-var v4941=v4940;
-v4941=runJTramp(v4941);
-if (typeof v4941 !== "function") {
+var _v4313=lglobal["midir:gset!"];
+if (_v4313 === undefined) { throw new Error("No such global: " + "midir:gset!"); }
+var _v4314=_v4313;
+_v4314=runJTramp(_v4314);
+if (typeof _v4314 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4942=new JTramp(v4941, [runJTramp(v4938),runJTramp(v4939)]);
-v4927=v4942;
+var _v4315=new JTramp(_v4314, [runJTramp(_v4288),runJTramp(_v3886)]);
+_v4305=_v4315;
 }
-var v4943=v4927;
-var v4944=lglobal["compile-to-midir"];
-var v4945=v4944;
-v4945=runJTramp(v4945);
-if (typeof v4945 !== "function") {
+var _v4316=_v4305;
+var _v4317=lglobal["compile-to-midir"];
+if (_v4317 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v4318=_v4317;
+_v4318=runJTramp(_v4318);
+if (typeof _v4318 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4946=new JTramp(v4945, [runJTramp(v4908),runJTramp(v4921),runJTramp(v4943)]);
-return v4946;
+var _v4319=new JTramp(_v4318, [runJTramp(_v3884),runJTramp(_v4301),runJTramp(_v4316)]);
+return _v4319;
 };
-var v4947=v4905;
-v4947=runJTramp(v4947);
-if (typeof v4947 !== "function") {
+var _v4320=_v4287;
+_v4320=runJTramp(_v4320);
+if (typeof _v4320 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4948=new JTramp(v4947, [runJTramp(v4904)]);
-v4895=v4948;
+var _v4321=new JTramp(_v4320, [runJTramp(_v4286)]);
+_v4278=_v4321;
 } else {
-var v4949=v4459;
-var v4950="prim:ffi";
-var v4951=v4950;
-var v4952=lglobal["="];
-var v4953=v4952;
-v4953=runJTramp(v4953);
-if (typeof v4953 !== "function") {
+var _v4322="prim:ffi";
+var _v4323=_v4322;
+var _v4324=lglobal["="];
+if (_v4324 === undefined) { throw new Error("No such global: " + "="); }
+var _v4325=_v4324;
+_v4325=runJTramp(_v4325);
+if (typeof _v4325 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4954=new JTramp(v4953, [runJTramp(v4949),runJTramp(v4951)]);
-var v4955;
-if(runJTramp(v4954)) {
-var v4956=v4449;
-var v4957=v4450;
-var v4958=lglobal["tail"];
-var v4959=v4958;
-v4959=runJTramp(v4959);
-if (typeof v4959 !== "function") {
+var _v4326=new JTramp(_v4325, [runJTramp(_v3893),runJTramp(_v4323)]);
+var _v4327;
+if(runJTramp(_v4326)) {
+var _v4328=lglobal["tail"];
+if (_v4328 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4329=_v4328;
+_v4329=runJTramp(_v4329);
+if (typeof _v4329 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4960=new JTramp(v4959, [runJTramp(v4957)]);
-var v4961=v4960;
-var v4962=lglobal["head"];
-var v4963=v4962;
-v4963=runJTramp(v4963);
-if (typeof v4963 !== "function") {
+var _v4330=new JTramp(_v4329, [runJTramp(_v3885)]);
+var _v4331=_v4330;
+var _v4332=lglobal["head"];
+if (_v4332 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4333=_v4332;
+_v4333=runJTramp(_v4333);
+if (typeof _v4333 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4964=new JTramp(v4963, [runJTramp(v4961)]);
-var v4965=v4964;
-var v4966=v4451;
-var v4967=lglobal["midir:ffi"];
-var v4968=v4967;
-v4968=runJTramp(v4968);
-if (typeof v4968 !== "function") {
+var _v4334=new JTramp(_v4333, [runJTramp(_v4331)]);
+var _v4335=_v4334;
+var _v4336=function (_v4337) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v4339=lglobal["cons?"];
+if (_v4339 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4340=_v4339;
+_v4340=runJTramp(_v4340);
+if (typeof _v4340 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4969=new JTramp(v4968, [runJTramp(v4966)]);
-var v4970=v4969;
-var v4971=lglobal["compile-to-midir"];
-var v4972=v4971;
-v4972=runJTramp(v4972);
-if (typeof v4972 !== "function") {
+var _v4341=new JTramp(_v4340, [runJTramp(_v4337)]);
+var _v4342;
+if(runJTramp(_v4341)) {
+var _v4343=lglobal["tail"];
+if (_v4343 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4344=_v4343;
+_v4344=runJTramp(_v4344);
+if (typeof _v4344 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4973=new JTramp(v4972, [runJTramp(v4956),runJTramp(v4965),runJTramp(v4970)]);
-v4955=v4973;
+var _v4345=new JTramp(_v4344, [runJTramp(_v4337)]);
+var _v4346=_v4345;
+var _v4347=lglobal["head"];
+if (_v4347 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4348=_v4347;
+_v4348=runJTramp(_v4348);
+if (typeof _v4348 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4349=new JTramp(_v4348, [runJTramp(_v4346)]);
+_v4342=_v4349;
 } else {
-var v4974=v4449;
-var v4975=v4450;
-var v4976=v4451;
-var v4977=lglobal["compile-application-to-midir"];
-var v4978=v4977;
-v4978=runJTramp(v4978);
-if (typeof v4978 !== "function") {
+_v4342=_v4337;
+}
+var _v4350=_v4342;
+var _v4351=function (_v4352) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v4354=lglobal["tail"];
+if (_v4354 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4355=_v4354;
+_v4355=runJTramp(_v4355);
+if (typeof _v4355 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4979=new JTramp(v4978, [runJTramp(v4974),runJTramp(v4975),runJTramp(v4976)]);
-v4955=v4979;
-}
-v4895=v4955;
-}
-v4883=v4895;
-}
-v4585=v4883;
-}
-v4504=v4585;
-}
-v4487=v4504;
-}
-v4467=v4487;
-}
-return v4467;
-};
-var v4980=v4458;
-v4980=runJTramp(v4980);
-if (typeof v4980 !== "function") {
+var _v4356=new JTramp(_v4355, [runJTramp(_v3885)]);
+var _v4357=_v4356;
+var _v4358=lglobal["tail"];
+if (_v4358 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4359=_v4358;
+_v4359=runJTramp(_v4359);
+if (typeof _v4359 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4981=new JTramp(v4980, [runJTramp(v4457)]);
-return v4981;
+var _v4360=new JTramp(_v4359, [runJTramp(_v4357)]);
+var _v4361=_v4360;
+var _v4362=lglobal["cons?"];
+if (_v4362 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4363=_v4362;
+_v4363=runJTramp(_v4363);
+if (typeof _v4363 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4364=new JTramp(_v4363, [runJTramp(_v4361)]);
+var _v4365;
+if(runJTramp(_v4364)) {
+var _v4366=lglobal["tail"];
+if (_v4366 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4367=_v4366;
+_v4367=runJTramp(_v4367);
+if (typeof _v4367 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4368=new JTramp(_v4367, [runJTramp(_v3885)]);
+var _v4369=_v4368;
+var _v4370=lglobal["tail"];
+if (_v4370 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4371=_v4370;
+_v4371=runJTramp(_v4371);
+if (typeof _v4371 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4372=new JTramp(_v4371, [runJTramp(_v4369)]);
+var _v4373=_v4372;
+var _v4374=lglobal["head"];
+if (_v4374 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4375=_v4374;
+_v4375=runJTramp(_v4375);
+if (typeof _v4375 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4376=new JTramp(_v4375, [runJTramp(_v4373)]);
+_v4365=_v4376;
+} else {
+var _v4377=lglobal["null"];
+if (_v4377 === undefined) { throw new Error("No such global: " + "null"); }
+_v4365=_v4377;
+}
+var _v4378=_v4365;
+var _v4379=function (_v4380) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v4382=lglobal["cons?"];
+if (_v4382 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4383=_v4382;
+_v4383=runJTramp(_v4383);
+if (typeof _v4383 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4384=new JTramp(_v4383, [runJTramp(_v4380)]);
+var _v4385;
+if(runJTramp(_v4384)) {
+var _v4386=lglobal["tail"];
+if (_v4386 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4387=_v4386;
+_v4387=runJTramp(_v4387);
+if (typeof _v4387 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4388=new JTramp(_v4387, [runJTramp(_v4380)]);
+var _v4389=_v4388;
+var _v4390=lglobal["head"];
+if (_v4390 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4391=_v4390;
+_v4391=runJTramp(_v4391);
+if (typeof _v4391 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4392=new JTramp(_v4391, [runJTramp(_v4389)]);
+_v4385=_v4392;
+} else {
+_v4385=_v4380;
+}
+var _v4393=_v4385;
+var _v4394=function (_v4395) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v4397=lglobal["midir:ffi"];
+if (_v4397 === undefined) { throw new Error("No such global: " + "midir:ffi"); }
+var _v4398=_v4397;
+_v4398=runJTramp(_v4398);
+if (typeof _v4398 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4399=new JTramp(_v4398, [runJTramp(_v4352),runJTramp(_v4395),runJTramp(_v3886)]);
+return _v4399;
 };
-v4447=v4448;
-lglobal["compile-form-to-midir"]=runJTramp(v4447);
+var _v4400=_v4394;
+_v4400=runJTramp(_v4400);
+if (typeof _v4400 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4401=new JTramp(_v4400, [runJTramp(_v4393)]);
+return _v4401;
+};
+var _v4402=_v4379;
+_v4402=runJTramp(_v4402);
+if (typeof _v4402 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4403=new JTramp(_v4402, [runJTramp(_v4378)]);
+return _v4403;
+};
+var _v4404=_v4351;
+_v4404=runJTramp(_v4404);
+if (typeof _v4404 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4405=new JTramp(_v4404, [runJTramp(_v4350)]);
+return _v4405;
+};
+var _v4406=_v4336;
+_v4406=runJTramp(_v4406);
+if (typeof _v4406 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4407=new JTramp(_v4406, [runJTramp(_v4335)]);
+_v4327=_v4407;
+} else {
+var _v4408=lglobal["compile-application-to-midir"];
+if (_v4408 === undefined) { throw new Error("No such global: " + "compile-application-to-midir"); }
+var _v4409=_v4408;
+_v4409=runJTramp(_v4409);
+if (typeof _v4409 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4410=new JTramp(_v4409, [runJTramp(_v3884),runJTramp(_v3885),runJTramp(_v3886)]);
+_v4327=_v4410;
+}
+_v4278=_v4327;
+}
+_v4267=_v4278;
+}
+_v4001=_v4267;
+}
+_v3930=_v4001;
+}
+_v3917=_v3930;
+}
+_v3900=_v3917;
+}
+return _v3900;
+};
+var _v4411=_v3892;
+_v4411=runJTramp(_v4411);
+if (typeof _v4411 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4412=new JTramp(_v4411, [runJTramp(_v3891)]);
+return _v4412;
+};
+_v3882=_v3883;
+lglobal["compile-form-to-midir"]=runJTramp(_v3882);
 })();
 (function () {
-var v4982;
-var v4983=function (v4984) {
+var _v4413;
+var _v4414=function (_v4415) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4986;
-var v4987=function (v4988) {
+var _v4417;
+var _v4418=function (_v4419) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4990=v4988;
-var v4991=lglobal["midir-macro-expand"];
-var v4992=v4991;
-v4992=runJTramp(v4992);
-if (typeof v4992 !== "function") {
+var _v4421=lglobal["midir-macro-expand"];
+if (_v4421 === undefined) { throw new Error("No such global: " + "midir-macro-expand"); }
+var _v4422=_v4421;
+_v4422=runJTramp(_v4422);
+if (typeof _v4422 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v4993=new JTramp(v4992, [runJTramp(v4990)]);
-var v4994=v4993;
-var v4995=function (v4996) {
+var _v4423=new JTramp(_v4422, [runJTramp(_v4419)]);
+var _v4424=_v4423;
+var _v4425=function (_v4426) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v4998=v4996;
-var v4999=lglobal["cons?"];
-var v5000=v4999;
-v5000=runJTramp(v5000);
-if (typeof v5000 !== "function") {
+var _v4428=lglobal["cons?"];
+if (_v4428 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4429=_v4428;
+_v4429=runJTramp(_v4429);
+if (typeof _v4429 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5001=new JTramp(v5000, [runJTramp(v4998)]);
-var v5002=v5001;
-var v5003=function (v5004) {
+var _v4430=new JTramp(_v4429, [runJTramp(_v4426)]);
+var _v4431=_v4430;
+var _v4432=function (_v4433) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5006;
-if(runJTramp(v5004)) {
-var v5007="prim:do";
-var v5008=v5007;
-var v5009=v4996;
-var v5010=lglobal["head"];
-var v5011=v5010;
-v5011=runJTramp(v5011);
-if (typeof v5011 !== "function") {
+var _v4435;
+if(runJTramp(_v4433)) {
+var _v4436="prim:do";
+var _v4437=_v4436;
+var _v4438=lglobal["head"];
+if (_v4438 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4439=_v4438;
+_v4439=runJTramp(_v4439);
+if (typeof _v4439 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5012=new JTramp(v5011, [runJTramp(v5009)]);
-var v5013=v5012;
-var v5014=lglobal["="];
-var v5015=v5014;
-v5015=runJTramp(v5015);
-if (typeof v5015 !== "function") {
+var _v4440=new JTramp(_v4439, [runJTramp(_v4426)]);
+var _v4441=_v4440;
+var _v4442=lglobal["="];
+if (_v4442 === undefined) { throw new Error("No such global: " + "="); }
+var _v4443=_v4442;
+_v4443=runJTramp(_v4443);
+if (typeof _v4443 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5016=new JTramp(v5015, [runJTramp(v5008),runJTramp(v5013)]);
-v5006=v5016;
+var _v4444=new JTramp(_v4443, [runJTramp(_v4437),runJTramp(_v4441)]);
+_v4435=_v4444;
 } else {
-v5006=v5004;
+_v4435=_v4433;
 }
-return v5006;
+return _v4435;
 };
-var v5017=v5003;
-v5017=runJTramp(v5017);
-if (typeof v5017 !== "function") {
+var _v4445=_v4432;
+_v4445=runJTramp(_v4445);
+if (typeof _v4445 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5018=new JTramp(v5017, [runJTramp(v5002)]);
-var v5019;
-if(runJTramp(v5018)) {
-var v5020=v4996;
-var v5021=lglobal["tail"];
-var v5022=v5021;
-v5022=runJTramp(v5022);
-if (typeof v5022 !== "function") {
+var _v4446=new JTramp(_v4445, [runJTramp(_v4431)]);
+var _v4447;
+if(runJTramp(_v4446)) {
+var _v4448=lglobal["tail"];
+if (_v4448 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4449=_v4448;
+_v4449=runJTramp(_v4449);
+if (typeof _v4449 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5023=new JTramp(v5022, [runJTramp(v5020)]);
-var v5024=v5023;
-var v5025=lglobal["normalize-fun-body"];
-var v5026=v5025;
-v5026=runJTramp(v5026);
-if (typeof v5026 !== "function") {
+var _v4450=new JTramp(_v4449, [runJTramp(_v4426)]);
+var _v4451=_v4450;
+var _v4452=lglobal["normalize-fun-body"];
+if (_v4452 === undefined) { throw new Error("No such global: " + "normalize-fun-body"); }
+var _v4453=_v4452;
+_v4453=runJTramp(_v4453);
+if (typeof _v4453 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5027=new JTramp(v5026, [runJTramp(v5024)]);
-v5019=v5027;
+var _v4454=new JTramp(_v4453, [runJTramp(_v4451)]);
+_v4447=_v4454;
 } else {
-var v5028=v4996;
-var v5029=lglobal["list"];
-var v5030=v5029;
-v5030=runJTramp(v5030);
-if (typeof v5030 !== "function") {
+var _v4455=lglobal["list"];
+if (_v4455 === undefined) { throw new Error("No such global: " + "list"); }
+var _v4456=_v4455;
+_v4456=runJTramp(_v4456);
+if (typeof _v4456 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5031=new JTramp(v5030, [runJTramp(v5028)]);
-v5019=v5031;
+var _v4457=new JTramp(_v4456, [runJTramp(_v4426)]);
+_v4447=_v4457;
 }
-return v5019;
+return _v4447;
 };
-var v5032=v4995;
-v5032=runJTramp(v5032);
-if (typeof v5032 !== "function") {
+var _v4458=_v4425;
+_v4458=runJTramp(_v4458);
+if (typeof _v4458 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5033=new JTramp(v5032, [runJTramp(v4994)]);
-return v5033;
+var _v4459=new JTramp(_v4458, [runJTramp(_v4424)]);
+return _v4459;
 };
-var v5034=v4986=runJTramp(v4987);
-var v5035=v4986;
-var v5036=v4984;
-var v5037=lglobal["map-append"];
-var v5038=v5037;
-v5038=runJTramp(v5038);
-if (typeof v5038 !== "function") {
+var _v4460=_v4417=runJTramp(_v4418);
+var _v4461=lglobal["map-append"];
+if (_v4461 === undefined) { throw new Error("No such global: " + "map-append"); }
+var _v4462=_v4461;
+_v4462=runJTramp(_v4462);
+if (typeof _v4462 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5039=new JTramp(v5038, [runJTramp(v5035),runJTramp(v5036)]);
-return v5039;
+var _v4463=new JTramp(_v4462, [runJTramp(_v4417),runJTramp(_v4415)]);
+return _v4463;
 };
-v4982=v4983;
-lglobal["normalize-fun-body"]=runJTramp(v4982);
+_v4413=_v4414;
+lglobal["normalize-fun-body"]=runJTramp(_v4413);
 })();
 (function () {
-var v5040;
-var v5041=function (v5042) {
+var _v4464;
+var _v4465=function (_v4466) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5044=v5042;
-var v5045=lglobal["nil?"];
-var v5046=v5045;
-v5046=runJTramp(v5046);
-if (typeof v5046 !== "function") {
+var _v4468=lglobal["nil?"];
+if (_v4468 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v4469=_v4468;
+_v4469=runJTramp(_v4469);
+if (typeof _v4469 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5047=new JTramp(v5046, [runJTramp(v5044)]);
-var v5048;
-if(runJTramp(v5047)) {
-var v5049=new Nil();
-var v5050=v5049;
-var v5051=lglobal["null"];
-var v5052=v5051;
-var v5053=lglobal["cons"];
-var v5054=v5053;
-v5054=runJTramp(v5054);
-if (typeof v5054 !== "function") {
+var _v4470=new JTramp(_v4469, [runJTramp(_v4466)]);
+var _v4471;
+if(runJTramp(_v4470)) {
+var _v4472=new Nil();
+var _v4473=_v4472;
+var _v4474=lglobal["null"];
+if (_v4474 === undefined) { throw new Error("No such global: " + "null"); }
+var _v4475=_v4474;
+var _v4476=lglobal["cons"];
+if (_v4476 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4477=_v4476;
+_v4477=runJTramp(_v4477);
+if (typeof _v4477 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5055=new JTramp(v5054, [runJTramp(v5050),runJTramp(v5052)]);
-v5048=v5055;
+var _v4478=new JTramp(_v4477, [runJTramp(_v4473),runJTramp(_v4475)]);
+_v4471=_v4478;
 } else {
-var v5056=v5042;
-var v5057=lglobal["cons?"];
-var v5058=v5057;
-v5058=runJTramp(v5058);
-if (typeof v5058 !== "function") {
+var _v4479=lglobal["cons?"];
+if (_v4479 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4480=_v4479;
+_v4480=runJTramp(_v4480);
+if (typeof _v4480 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5059=new JTramp(v5058, [runJTramp(v5056)]);
-var v5060;
-if(runJTramp(v5059)) {
-var v5061=v5042;
-var v5062=lglobal["tail"];
-var v5063=v5062;
-v5063=runJTramp(v5063);
-if (typeof v5063 !== "function") {
+var _v4481=new JTramp(_v4480, [runJTramp(_v4466)]);
+var _v4482;
+if(runJTramp(_v4481)) {
+var _v4483=lglobal["tail"];
+if (_v4483 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4484=_v4483;
+_v4484=runJTramp(_v4484);
+if (typeof _v4484 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5064=new JTramp(v5063, [runJTramp(v5061)]);
-var v5065=v5064;
-var v5066=lglobal["split-fun-args"];
-var v5067=v5066;
-v5067=runJTramp(v5067);
-if (typeof v5067 !== "function") {
+var _v4485=new JTramp(_v4484, [runJTramp(_v4466)]);
+var _v4486=_v4485;
+var _v4487=lglobal["split-fun-args"];
+if (_v4487 === undefined) { throw new Error("No such global: " + "split-fun-args"); }
+var _v4488=_v4487;
+_v4488=runJTramp(_v4488);
+if (typeof _v4488 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5068=new JTramp(v5067, [runJTramp(v5065)]);
-var v5069=v5068;
-var v5070=function (v5071) {
+var _v4489=new JTramp(_v4488, [runJTramp(_v4486)]);
+var _v4490=_v4489;
+var _v4491=function (_v4492) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5073=v5042;
-var v5074=lglobal["head"];
-var v5075=v5074;
-v5075=runJTramp(v5075);
-if (typeof v5075 !== "function") {
+var _v4494=lglobal["head"];
+if (_v4494 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4495=_v4494;
+_v4495=runJTramp(_v4495);
+if (typeof _v4495 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5076=new JTramp(v5075, [runJTramp(v5073)]);
-var v5077=v5076;
-var v5078=v5071;
-var v5079=lglobal["head"];
-var v5080=v5079;
-v5080=runJTramp(v5080);
-if (typeof v5080 !== "function") {
+var _v4496=new JTramp(_v4495, [runJTramp(_v4466)]);
+var _v4497=_v4496;
+var _v4498=lglobal["head"];
+if (_v4498 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4499=_v4498;
+_v4499=runJTramp(_v4499);
+if (typeof _v4499 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5081=new JTramp(v5080, [runJTramp(v5078)]);
-var v5082=v5081;
-var v5083=lglobal["cons"];
-var v5084=v5083;
-v5084=runJTramp(v5084);
-if (typeof v5084 !== "function") {
+var _v4500=new JTramp(_v4499, [runJTramp(_v4492)]);
+var _v4501=_v4500;
+var _v4502=lglobal["cons"];
+if (_v4502 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4503=_v4502;
+_v4503=runJTramp(_v4503);
+if (typeof _v4503 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5085=new JTramp(v5084, [runJTramp(v5077),runJTramp(v5082)]);
-var v5086=v5085;
-var v5087=v5071;
-var v5088=lglobal["tail"];
-var v5089=v5088;
-v5089=runJTramp(v5089);
-if (typeof v5089 !== "function") {
+var _v4504=new JTramp(_v4503, [runJTramp(_v4497),runJTramp(_v4501)]);
+var _v4505=_v4504;
+var _v4506=lglobal["tail"];
+if (_v4506 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4507=_v4506;
+_v4507=runJTramp(_v4507);
+if (typeof _v4507 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5090=new JTramp(v5089, [runJTramp(v5087)]);
-var v5091=v5090;
-var v5092=lglobal["cons"];
-var v5093=v5092;
-v5093=runJTramp(v5093);
-if (typeof v5093 !== "function") {
+var _v4508=new JTramp(_v4507, [runJTramp(_v4492)]);
+var _v4509=_v4508;
+var _v4510=lglobal["cons"];
+if (_v4510 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4511=_v4510;
+_v4511=runJTramp(_v4511);
+if (typeof _v4511 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5094=new JTramp(v5093, [runJTramp(v5086),runJTramp(v5091)]);
-return v5094;
+var _v4512=new JTramp(_v4511, [runJTramp(_v4505),runJTramp(_v4509)]);
+return _v4512;
 };
-var v5095=v5070;
-v5095=runJTramp(v5095);
-if (typeof v5095 !== "function") {
+var _v4513=_v4491;
+_v4513=runJTramp(_v4513);
+if (typeof _v4513 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5096=new JTramp(v5095, [runJTramp(v5069)]);
-v5060=v5096;
+var _v4514=new JTramp(_v4513, [runJTramp(_v4490)]);
+_v4482=_v4514;
 } else {
-var v5097=v5042;
-var v5098=lglobal["string?"];
-var v5099=v5098;
-v5099=runJTramp(v5099);
-if (typeof v5099 !== "function") {
+var _v4515=lglobal["string?"];
+if (_v4515 === undefined) { throw new Error("No such global: " + "string?"); }
+var _v4516=_v4515;
+_v4516=runJTramp(_v4516);
+if (typeof _v4516 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5100=new JTramp(v5099, [runJTramp(v5097)]);
-var v5101;
-if(runJTramp(v5100)) {
-var v5102=new Nil();
-var v5103=v5102;
-var v5104=v5042;
-var v5105=lglobal["cons"];
-var v5106=v5105;
-v5106=runJTramp(v5106);
-if (typeof v5106 !== "function") {
+var _v4517=new JTramp(_v4516, [runJTramp(_v4466)]);
+var _v4518;
+if(runJTramp(_v4517)) {
+var _v4519=new Nil();
+var _v4520=_v4519;
+var _v4521=lglobal["cons"];
+if (_v4521 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4522=_v4521;
+_v4522=runJTramp(_v4522);
+if (typeof _v4522 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5107=new JTramp(v5106, [runJTramp(v5103),runJTramp(v5104)]);
-v5101=v5107;
+var _v4523=new JTramp(_v4522, [runJTramp(_v4520),runJTramp(_v4466)]);
+_v4518=_v4523;
 } else {
-var v5108="Improper argument list: ";
-var v5109=v5108;
-var v5110=v5042;
-var v5111=lglobal["repr"];
-var v5112=v5111;
-v5112=runJTramp(v5112);
-if (typeof v5112 !== "function") {
+var _v4524="Improper argument list: ";
+var _v4525=_v4524;
+var _v4526=lglobal["repr"];
+if (_v4526 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v4527=_v4526;
+_v4527=runJTramp(_v4527);
+if (typeof _v4527 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5113=new JTramp(v5112, [runJTramp(v5110)]);
-var v5114=v5113;
-var v5115=lglobal["++"];
-var v5116=v5115;
-v5116=runJTramp(v5116);
-if (typeof v5116 !== "function") {
+var _v4528=new JTramp(_v4527, [runJTramp(_v4466)]);
+var _v4529=_v4528;
+var _v4530=lglobal["++"];
+if (_v4530 === undefined) { throw new Error("No such global: " + "++"); }
+var _v4531=_v4530;
+_v4531=runJTramp(_v4531);
+if (typeof _v4531 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5117=new JTramp(v5116, [runJTramp(v5109),runJTramp(v5114)]);
-var v5118=v5117;
-var v5119=lglobal["error"];
-var v5120=v5119;
-v5120=runJTramp(v5120);
-if (typeof v5120 !== "function") {
+var _v4532=new JTramp(_v4531, [runJTramp(_v4525),runJTramp(_v4529)]);
+var _v4533=_v4532;
+var _v4534=lglobal["error"];
+if (_v4534 === undefined) { throw new Error("No such global: " + "error"); }
+var _v4535=_v4534;
+_v4535=runJTramp(_v4535);
+if (typeof _v4535 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5121=new JTramp(v5120, [runJTramp(v5118)]);
-v5101=v5121;
+var _v4536=new JTramp(_v4535, [runJTramp(_v4533)]);
+_v4518=_v4536;
 }
-v5060=v5101;
+_v4482=_v4518;
 }
-v5048=v5060;
+_v4471=_v4482;
 }
-return v5048;
+return _v4471;
 };
-v5040=v5041;
-lglobal["split-fun-args"]=runJTramp(v5040);
+_v4464=_v4465;
+lglobal["split-fun-args"]=runJTramp(_v4464);
 })();
 (function () {
-var v5122;
-var v5123=function (v5124) {
+var _v4537;
+var _v4538=function (_v4539) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5126=v5124;
-var v5127=lglobal["nil?"];
-var v5128=v5127;
-v5128=runJTramp(v5128);
-if (typeof v5128 !== "function") {
+var _v4541=lglobal["nil?"];
+if (_v4541 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v4542=_v4541;
+_v4542=runJTramp(_v4542);
+if (typeof _v4542 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5129=new JTramp(v5128, [runJTramp(v5126)]);
-var v5130;
-if(runJTramp(v5129)) {
-var v5131=new Nil();
-var v5132=v5131;
-var v5133=new Nil();
-var v5134=v5133;
-var v5135=lglobal["cons"];
-var v5136=v5135;
-v5136=runJTramp(v5136);
-if (typeof v5136 !== "function") {
+var _v4543=new JTramp(_v4542, [runJTramp(_v4539)]);
+var _v4544;
+if(runJTramp(_v4543)) {
+var _v4545=new Nil();
+var _v4546=_v4545;
+var _v4547=new Nil();
+var _v4548=_v4547;
+var _v4549=lglobal["cons"];
+if (_v4549 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4550=_v4549;
+_v4550=runJTramp(_v4550);
+if (typeof _v4550 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5137=new JTramp(v5136, [runJTramp(v5132),runJTramp(v5134)]);
-v5130=v5137;
+var _v4551=new JTramp(_v4550, [runJTramp(_v4546),runJTramp(_v4548)]);
+_v4544=_v4551;
 } else {
-var v5138=v5124;
-var v5139=lglobal["cons?"];
-var v5140=v5139;
-v5140=runJTramp(v5140);
-if (typeof v5140 !== "function") {
+var _v4552=lglobal["cons?"];
+if (_v4552 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4553=_v4552;
+_v4553=runJTramp(_v4553);
+if (typeof _v4553 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5141=new JTramp(v5140, [runJTramp(v5138)]);
-var v5142=v5141;
-var v5143=lglobal["not"];
-var v5144=v5143;
-v5144=runJTramp(v5144);
-if (typeof v5144 !== "function") {
+var _v4554=new JTramp(_v4553, [runJTramp(_v4539)]);
+var _v4555=_v4554;
+var _v4556=lglobal["not"];
+if (_v4556 === undefined) { throw new Error("No such global: " + "not"); }
+var _v4557=_v4556;
+_v4557=runJTramp(_v4557);
+if (typeof _v4557 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5145=new JTramp(v5144, [runJTramp(v5142)]);
-var v5146;
-if(runJTramp(v5145)) {
-var v5147="Function body must not be an improper list.";
-var v5148=v5147;
-var v5149=lglobal["error"];
-var v5150=v5149;
-v5150=runJTramp(v5150);
-if (typeof v5150 !== "function") {
+var _v4558=new JTramp(_v4557, [runJTramp(_v4555)]);
+var _v4559;
+if(runJTramp(_v4558)) {
+var _v4560="Function body must not be an improper list.";
+var _v4561=_v4560;
+var _v4562=lglobal["error"];
+if (_v4562 === undefined) { throw new Error("No such global: " + "error"); }
+var _v4563=_v4562;
+_v4563=runJTramp(_v4563);
+if (typeof _v4563 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5151=new JTramp(v5150, [runJTramp(v5148)]);
-v5146=v5151;
+var _v4564=new JTramp(_v4563, [runJTramp(_v4561)]);
+_v4559=_v4564;
 } else {
-var v5152=v5124;
-var v5153=lglobal["head"];
-var v5154=v5153;
-v5154=runJTramp(v5154);
-if (typeof v5154 !== "function") {
+var _v4565=lglobal["head"];
+if (_v4565 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4566=_v4565;
+_v4566=runJTramp(_v4566);
+if (typeof _v4566 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5155=new JTramp(v5154, [runJTramp(v5152)]);
-var v5156=v5155;
-var v5157=lglobal["cons?"];
-var v5158=v5157;
-v5158=runJTramp(v5158);
-if (typeof v5158 !== "function") {
+var _v4567=new JTramp(_v4566, [runJTramp(_v4539)]);
+var _v4568=_v4567;
+var _v4569=lglobal["cons?"];
+if (_v4569 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v4570=_v4569;
+_v4570=runJTramp(_v4570);
+if (typeof _v4570 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5159=new JTramp(v5158, [runJTramp(v5156)]);
-var v5160=v5159;
-var v5161=function (v5162) {
+var _v4571=new JTramp(_v4570, [runJTramp(_v4568)]);
+var _v4572=_v4571;
+var _v4573=function (_v4574) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5164;
-if(runJTramp(v5162)) {
-var v5165="prim:def";
-var v5166=v5165;
-var v5167=v5124;
-var v5168=lglobal["head"];
-var v5169=v5168;
-v5169=runJTramp(v5169);
-if (typeof v5169 !== "function") {
+var _v4576;
+if(runJTramp(_v4574)) {
+var _v4577="prim:def";
+var _v4578=_v4577;
+var _v4579=lglobal["head"];
+if (_v4579 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4580=_v4579;
+_v4580=runJTramp(_v4580);
+if (typeof _v4580 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5170=new JTramp(v5169, [runJTramp(v5167)]);
-var v5171=v5170;
-var v5172=lglobal["head"];
-var v5173=v5172;
-v5173=runJTramp(v5173);
-if (typeof v5173 !== "function") {
+var _v4581=new JTramp(_v4580, [runJTramp(_v4539)]);
+var _v4582=_v4581;
+var _v4583=lglobal["head"];
+if (_v4583 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4584=_v4583;
+_v4584=runJTramp(_v4584);
+if (typeof _v4584 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5174=new JTramp(v5173, [runJTramp(v5171)]);
-var v5175=v5174;
-var v5176=lglobal["="];
-var v5177=v5176;
-v5177=runJTramp(v5177);
-if (typeof v5177 !== "function") {
+var _v4585=new JTramp(_v4584, [runJTramp(_v4582)]);
+var _v4586=_v4585;
+var _v4587=lglobal["="];
+if (_v4587 === undefined) { throw new Error("No such global: " + "="); }
+var _v4588=_v4587;
+_v4588=runJTramp(_v4588);
+if (typeof _v4588 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5178=new JTramp(v5177, [runJTramp(v5166),runJTramp(v5175)]);
-v5164=v5178;
+var _v4589=new JTramp(_v4588, [runJTramp(_v4578),runJTramp(_v4586)]);
+_v4576=_v4589;
 } else {
-v5164=v5162;
+_v4576=_v4574;
 }
-return v5164;
+return _v4576;
 };
-var v5179=v5161;
-v5179=runJTramp(v5179);
-if (typeof v5179 !== "function") {
+var _v4590=_v4573;
+_v4590=runJTramp(_v4590);
+if (typeof _v4590 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5180=new JTramp(v5179, [runJTramp(v5160)]);
-var v5181;
-if(runJTramp(v5180)) {
-var v5182=v5124;
-var v5183=lglobal["tail"];
-var v5184=v5183;
-v5184=runJTramp(v5184);
-if (typeof v5184 !== "function") {
+var _v4591=new JTramp(_v4590, [runJTramp(_v4572)]);
+var _v4592;
+if(runJTramp(_v4591)) {
+var _v4593=lglobal["tail"];
+if (_v4593 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4594=_v4593;
+_v4594=runJTramp(_v4594);
+if (typeof _v4594 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5185=new JTramp(v5184, [runJTramp(v5182)]);
-var v5186=v5185;
-var v5187=lglobal["split-fun-body"];
-var v5188=v5187;
-v5188=runJTramp(v5188);
-if (typeof v5188 !== "function") {
+var _v4595=new JTramp(_v4594, [runJTramp(_v4539)]);
+var _v4596=_v4595;
+var _v4597=lglobal["split-fun-body"];
+if (_v4597 === undefined) { throw new Error("No such global: " + "split-fun-body"); }
+var _v4598=_v4597;
+_v4598=runJTramp(_v4598);
+if (typeof _v4598 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5189=new JTramp(v5188, [runJTramp(v5186)]);
-var v5190=v5189;
-var v5191=function (v5192) {
+var _v4599=new JTramp(_v4598, [runJTramp(_v4596)]);
+var _v4600=_v4599;
+var _v4601=function (_v4602) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5194=v5124;
-var v5195=lglobal["head"];
-var v5196=v5195;
-v5196=runJTramp(v5196);
-if (typeof v5196 !== "function") {
+var _v4604=lglobal["head"];
+if (_v4604 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4605=_v4604;
+_v4605=runJTramp(_v4605);
+if (typeof _v4605 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5197=new JTramp(v5196, [runJTramp(v5194)]);
-var v5198=v5197;
-var v5199=v5192;
-var v5200=lglobal["head"];
-var v5201=v5200;
-v5201=runJTramp(v5201);
-if (typeof v5201 !== "function") {
+var _v4606=new JTramp(_v4605, [runJTramp(_v4539)]);
+var _v4607=_v4606;
+var _v4608=lglobal["head"];
+if (_v4608 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4609=_v4608;
+_v4609=runJTramp(_v4609);
+if (typeof _v4609 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5202=new JTramp(v5201, [runJTramp(v5199)]);
-var v5203=v5202;
-var v5204=lglobal["cons"];
-var v5205=v5204;
-v5205=runJTramp(v5205);
-if (typeof v5205 !== "function") {
+var _v4610=new JTramp(_v4609, [runJTramp(_v4602)]);
+var _v4611=_v4610;
+var _v4612=lglobal["cons"];
+if (_v4612 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4613=_v4612;
+_v4613=runJTramp(_v4613);
+if (typeof _v4613 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5206=new JTramp(v5205, [runJTramp(v5198),runJTramp(v5203)]);
-var v5207=v5206;
-var v5208=v5192;
-var v5209=lglobal["tail"];
-var v5210=v5209;
-v5210=runJTramp(v5210);
-if (typeof v5210 !== "function") {
+var _v4614=new JTramp(_v4613, [runJTramp(_v4607),runJTramp(_v4611)]);
+var _v4615=_v4614;
+var _v4616=lglobal["tail"];
+if (_v4616 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4617=_v4616;
+_v4617=runJTramp(_v4617);
+if (typeof _v4617 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5211=new JTramp(v5210, [runJTramp(v5208)]);
-var v5212=v5211;
-var v5213=lglobal["cons"];
-var v5214=v5213;
-v5214=runJTramp(v5214);
-if (typeof v5214 !== "function") {
+var _v4618=new JTramp(_v4617, [runJTramp(_v4602)]);
+var _v4619=_v4618;
+var _v4620=lglobal["cons"];
+if (_v4620 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4621=_v4620;
+_v4621=runJTramp(_v4621);
+if (typeof _v4621 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5215=new JTramp(v5214, [runJTramp(v5207),runJTramp(v5212)]);
-return v5215;
+var _v4622=new JTramp(_v4621, [runJTramp(_v4615),runJTramp(_v4619)]);
+return _v4622;
 };
-var v5216=v5191;
-v5216=runJTramp(v5216);
-if (typeof v5216 !== "function") {
+var _v4623=_v4601;
+_v4623=runJTramp(_v4623);
+if (typeof _v4623 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5217=new JTramp(v5216, [runJTramp(v5190)]);
-v5181=v5217;
+var _v4624=new JTramp(_v4623, [runJTramp(_v4600)]);
+_v4592=_v4624;
 } else {
-var v5218=lglobal["otherwise"];
-var v5219;
-if(runJTramp(v5218)) {
-var v5220=new Nil();
-var v5221=v5220;
-var v5222=v5124;
-var v5223=lglobal["cons"];
-var v5224=v5223;
-v5224=runJTramp(v5224);
-if (typeof v5224 !== "function") {
+var _v4625=lglobal["otherwise"];
+if (_v4625 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v4626;
+if(runJTramp(_v4625)) {
+var _v4627=new Nil();
+var _v4628=_v4627;
+var _v4629=lglobal["cons"];
+if (_v4629 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4630=_v4629;
+_v4630=runJTramp(_v4630);
+if (typeof _v4630 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5225=new JTramp(v5224, [runJTramp(v5221),runJTramp(v5222)]);
-v5219=v5225;
+var _v4631=new JTramp(_v4630, [runJTramp(_v4628),runJTramp(_v4539)]);
+_v4626=_v4631;
 } else {
-var v5226=null;
-v5219=v5226;
+var _v4632=null;
+_v4626=_v4632;
 }
-v5181=v5219;
+_v4592=_v4626;
 }
-v5146=v5181;
+_v4559=_v4592;
 }
-v5130=v5146;
+_v4544=_v4559;
 }
-return v5130;
+return _v4544;
 };
-v5122=v5123;
-lglobal["split-fun-body"]=runJTramp(v5122);
+_v4537=_v4538;
+lglobal["split-fun-body"]=runJTramp(_v4537);
 })();
 (function () {
-var v5227;
-var v5228=function (v5229,v5230,v5231) {
+var _v4633;
+var _v4634=function (_v4635,_v4636,_v4637) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v5233=v5230;
-var v5234=lglobal["head"];
-var v5235=v5234;
-v5235=runJTramp(v5235);
-if (typeof v5235 !== "function") {
+var _v4639=lglobal["head"];
+if (_v4639 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4640=_v4639;
+_v4640=runJTramp(_v4640);
+if (typeof _v4640 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5236=new JTramp(v5235, [runJTramp(v5233)]);
-var v5237=v5236;
-var v5238=v5230;
-var v5239=lglobal["tail"];
-var v5240=v5239;
-v5240=runJTramp(v5240);
-if (typeof v5240 !== "function") {
+var _v4641=new JTramp(_v4640, [runJTramp(_v4636)]);
+var _v4642=_v4641;
+var _v4643=lglobal["tail"];
+if (_v4643 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4644=_v4643;
+_v4644=runJTramp(_v4644);
+if (typeof _v4644 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5241=new JTramp(v5240, [runJTramp(v5238)]);
-var v5242=v5241;
-var v5243=lglobal["gensym"];
-var v5244=v5243;
-v5244=runJTramp(v5244);
-if (typeof v5244 !== "function") {
+var _v4645=new JTramp(_v4644, [runJTramp(_v4636)]);
+var _v4646=_v4645;
+var _v4647=lglobal["gensym"];
+if (_v4647 === undefined) { throw new Error("No such global: " + "gensym"); }
+var _v4648=_v4647;
+_v4648=runJTramp(_v4648);
+if (typeof _v4648 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5245=new JTramp(v5244, []);
-var v5246=v5245;
-var v5247=function (v5248,v5249,v5250) {
+var _v4649=new JTramp(_v4648, []);
+var _v4650=_v4649;
+var _v4651=function (_v4652,_v4653,_v4654) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v5252=function (v5253) {
+var _v4656=function (_v4657) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5255=lglobal["gensym"];
-var v5256=v5255;
-v5256=runJTramp(v5256);
-if (typeof v5256 !== "function") {
+var _v4659=lglobal["gensym"];
+if (_v4659 === undefined) { throw new Error("No such global: " + "gensym"); }
+var _v4660=_v4659;
+_v4660=runJTramp(_v4660);
+if (typeof _v4660 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5257=new JTramp(v5256, []);
-var v5258=v5257;
-var v5259=v5253;
-var v5260=lglobal["cons"];
-var v5261=v5260;
-v5261=runJTramp(v5261);
-if (typeof v5261 !== "function") {
+var _v4661=new JTramp(_v4660, []);
+var _v4662=_v4661;
+var _v4663=lglobal["cons"];
+if (_v4663 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v4664=_v4663;
+_v4664=runJTramp(_v4664);
+if (typeof _v4664 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5262=new JTramp(v5261, [runJTramp(v5258),runJTramp(v5259)]);
-return v5262;
+var _v4665=new JTramp(_v4664, [runJTramp(_v4662),runJTramp(_v4657)]);
+return _v4665;
 };
-var v5263=v5252;
-var v5264=v5249;
-var v5265=lglobal["map"];
-var v5266=v5265;
-v5266=runJTramp(v5266);
-if (typeof v5266 !== "function") {
+var _v4666=_v4656;
+var _v4667=lglobal["map"];
+if (_v4667 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4668=_v4667;
+_v4668=runJTramp(_v4668);
+if (typeof _v4668 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5267=new JTramp(v5266, [runJTramp(v5263),runJTramp(v5264)]);
-var v5268=v5267;
-var v5269=function (v5270) {
+var _v4669=new JTramp(_v4668, [runJTramp(_v4666),runJTramp(_v4653)]);
+var _v4670=_v4669;
+var _v4671=function (_v4672) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5272=v5229;
-var v5273=v5248;
-var v5274=v5250;
-var v5275=v5250;
-var v5276=lglobal["head"];
-var v5277=v5276;
-var v5278=v5270;
-var v5279=lglobal["map"];
-var v5280=v5279;
-v5280=runJTramp(v5280);
-if (typeof v5280 !== "function") {
+var _v4674=lglobal["head"];
+if (_v4674 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4675=_v4674;
+var _v4676=lglobal["map"];
+if (_v4676 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4677=_v4676;
+_v4677=runJTramp(_v4677);
+if (typeof _v4677 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5281=new JTramp(v5280, [runJTramp(v5277),runJTramp(v5278)]);
-var v5282=v5281;
-var v5283=v5231;
-var v5284=lglobal["midir:funcall"];
-var v5285=v5284;
-v5285=runJTramp(v5285);
-if (typeof v5285 !== "function") {
+var _v4678=new JTramp(_v4677, [runJTramp(_v4675),runJTramp(_v4672)]);
+var _v4679=_v4678;
+var _v4680=lglobal["midir:funcall"];
+if (_v4680 === undefined) { throw new Error("No such global: " + "midir:funcall"); }
+var _v4681=_v4680;
+_v4681=runJTramp(_v4681);
+if (typeof _v4681 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5286=new JTramp(v5285, [runJTramp(v5275),runJTramp(v5282),runJTramp(v5283)]);
-var v5287=v5286;
-var v5288=lglobal["midir:bind"];
-var v5289=v5288;
-v5289=runJTramp(v5289);
-if (typeof v5289 !== "function") {
+var _v4682=new JTramp(_v4681, [runJTramp(_v4654),runJTramp(_v4679),runJTramp(_v4637)]);
+var _v4683=_v4682;
+var _v4684=lglobal["midir:bind"];
+if (_v4684 === undefined) { throw new Error("No such global: " + "midir:bind"); }
+var _v4685=_v4684;
+_v4685=runJTramp(_v4685);
+if (typeof _v4685 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5290=new JTramp(v5289, [runJTramp(v5274),runJTramp(v5287)]);
-var v5291=v5290;
-var v5292=lglobal["compile-to-midir"];
-var v5293=v5292;
-v5293=runJTramp(v5293);
-if (typeof v5293 !== "function") {
+var _v4686=new JTramp(_v4685, [runJTramp(_v4654),runJTramp(_v4683)]);
+var _v4687=_v4686;
+var _v4688=lglobal["compile-to-midir"];
+if (_v4688 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v4689=_v4688;
+_v4689=runJTramp(_v4689);
+if (typeof _v4689 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5294=new JTramp(v5293, [runJTramp(v5272),runJTramp(v5273),runJTramp(v5291)]);
-var v5295=v5294;
-var v5296=function (v5297,v5298) {
+var _v4690=new JTramp(_v4689, [runJTramp(_v4635),runJTramp(_v4652),runJTramp(_v4687)]);
+var _v4691=_v4690;
+var _v4692=function (_v4693,_v4694) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5300=v5229;
-var v5301=v5297;
-var v5302=lglobal["tail"];
-var v5303=v5302;
-v5303=runJTramp(v5303);
-if (typeof v5303 !== "function") {
+var _v4696=lglobal["tail"];
+if (_v4696 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4697=_v4696;
+_v4697=runJTramp(_v4697);
+if (typeof _v4697 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5304=new JTramp(v5303, [runJTramp(v5301)]);
-var v5305=v5304;
-var v5306=v5297;
-var v5307=lglobal["head"];
-var v5308=v5307;
-v5308=runJTramp(v5308);
-if (typeof v5308 !== "function") {
+var _v4698=new JTramp(_v4697, [runJTramp(_v4693)]);
+var _v4699=_v4698;
+var _v4700=lglobal["head"];
+if (_v4700 === undefined) { throw new Error("No such global: " + "head"); }
+var _v4701=_v4700;
+_v4701=runJTramp(_v4701);
+if (typeof _v4701 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5309=new JTramp(v5308, [runJTramp(v5306)]);
-var v5310=v5309;
-var v5311=v5298;
-var v5312=lglobal["midir:bind"];
-var v5313=v5312;
-v5313=runJTramp(v5313);
-if (typeof v5313 !== "function") {
+var _v4702=new JTramp(_v4701, [runJTramp(_v4693)]);
+var _v4703=_v4702;
+var _v4704=lglobal["midir:bind"];
+if (_v4704 === undefined) { throw new Error("No such global: " + "midir:bind"); }
+var _v4705=_v4704;
+_v4705=runJTramp(_v4705);
+if (typeof _v4705 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5314=new JTramp(v5313, [runJTramp(v5310),runJTramp(v5311)]);
-var v5315=v5314;
-var v5316=lglobal["compile-to-midir"];
-var v5317=v5316;
-v5317=runJTramp(v5317);
-if (typeof v5317 !== "function") {
+var _v4706=new JTramp(_v4705, [runJTramp(_v4703),runJTramp(_v4694)]);
+var _v4707=_v4706;
+var _v4708=lglobal["compile-to-midir"];
+if (_v4708 === undefined) { throw new Error("No such global: " + "compile-to-midir"); }
+var _v4709=_v4708;
+_v4709=runJTramp(_v4709);
+if (typeof _v4709 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5318=new JTramp(v5317, [runJTramp(v5300),runJTramp(v5305),runJTramp(v5315)]);
-return v5318;
+var _v4710=new JTramp(_v4709, [runJTramp(_v4635),runJTramp(_v4699),runJTramp(_v4707)]);
+return _v4710;
 };
-var v5319=v5296;
-var v5320=function (v5321,v5322) {
+var _v4711=_v4692;
+var _v4712=function (_v4713,_v4714) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5324=v5322;
-var v5325=v5321;
-var v5326=v5270;
-var v5327=lglobal["foldr"];
-var v5328=v5327;
-v5328=runJTramp(v5328);
-if (typeof v5328 !== "function") {
+var _v4716=lglobal["foldr"];
+if (_v4716 === undefined) { throw new Error("No such global: " + "foldr"); }
+var _v4717=_v4716;
+_v4717=runJTramp(_v4717);
+if (typeof _v4717 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5329=new JTramp(v5328, [runJTramp(v5324),runJTramp(v5325),runJTramp(v5326)]);
-return v5329;
+var _v4718=new JTramp(_v4717, [runJTramp(_v4714),runJTramp(_v4713),runJTramp(_v4672)]);
+return _v4718;
 };
-var v5330=v5320;
-v5330=runJTramp(v5330);
-if (typeof v5330 !== "function") {
+var _v4719=_v4712;
+_v4719=runJTramp(_v4719);
+if (typeof _v4719 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5331=new JTramp(v5330, [runJTramp(v5295),runJTramp(v5319)]);
-return v5331;
+var _v4720=new JTramp(_v4719, [runJTramp(_v4691),runJTramp(_v4711)]);
+return _v4720;
 };
-var v5332=v5269;
-v5332=runJTramp(v5332);
-if (typeof v5332 !== "function") {
+var _v4721=_v4671;
+_v4721=runJTramp(_v4721);
+if (typeof _v4721 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5333=new JTramp(v5332, [runJTramp(v5268)]);
-return v5333;
+var _v4722=new JTramp(_v4721, [runJTramp(_v4670)]);
+return _v4722;
 };
-var v5334=v5247;
-v5334=runJTramp(v5334);
-if (typeof v5334 !== "function") {
+var _v4723=_v4651;
+_v4723=runJTramp(_v4723);
+if (typeof _v4723 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5335=new JTramp(v5334, [runJTramp(v5237),runJTramp(v5242),runJTramp(v5246)]);
-return v5335;
+var _v4724=new JTramp(_v4723, [runJTramp(_v4642),runJTramp(_v4646),runJTramp(_v4650)]);
+return _v4724;
 };
-v5227=v5228;
-lglobal["compile-application-to-midir"]=runJTramp(v5227);
+_v4633=_v4634;
+lglobal["compile-application-to-midir"]=runJTramp(_v4633);
 })();
 (function () {
-var v5336;
-var v5337=function (v5338) {
+var _v4725;
+var _v4726=function (_v4727) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-return v5338;
+var _v4729=lglobal["null"];
+if (_v4729 === undefined) { throw new Error("No such global: " + "null"); }
+var _v4730=_v4729;
+var _v4731=lglobal["make-env"];
+if (_v4731 === undefined) { throw new Error("No such global: " + "make-env"); }
+var _v4732=_v4731;
+_v4732=runJTramp(_v4732);
+if (typeof _v4732 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4733=new JTramp(_v4732, [runJTramp(_v4730)]);
+var _v4734=_v4733;
+var _v4735=lglobal["copy-propagate-midir"];
+if (_v4735 === undefined) { throw new Error("No such global: " + "copy-propagate-midir"); }
+var _v4736=_v4735;
+_v4736=runJTramp(_v4736);
+if (typeof _v4736 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v4737=new JTramp(_v4736, [runJTramp(_v4727),runJTramp(_v4734)]);
+return _v4737;
 };
-v5336=v5337;
-lglobal["run-copy-propagate-midir"]=runJTramp(v5336);
+_v4725=_v4726;
+lglobal["run-copy-propagate-midir"]=runJTramp(_v4725);
 })();
 (function () {
-var v5340;
-var v5341=function (v5342,v5343) {
+var _v4738;
+var _v4739=function (_v4740,_v4741) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5345;
-var v5346;
-var v5347=lglobal["copy-propagate-midir"];
-var v5348=v5345=runJTramp(v5347);
-var v5349=function (v5350) {
+var _v4743;
+var _v4744;
+var _v4745=lglobal["copy-propagate-midir"];
+if (_v4745 === undefined) { throw new Error("No such global: " + "copy-propagate-midir"); }
+var _v4746=_v4743=runJTramp(_v4745);
+var _v4747=function (_v4748) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5352="has?";
-var v5353=v5352;
-var v5354=v5350;
-var v5355=v5343;
-v5355=runJTramp(v5355);
-if (typeof v5355 !== "function") {
+var _v4750="has?";
+var _v4751=_v4750;
+_v4741=runJTramp(_v4741);
+if (typeof _v4741 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5356=new JTramp(v5355, [runJTramp(v5353),runJTramp(v5354)]);
-var v5357;
-if(runJTramp(v5356)) {
-var v5358="lookup";
-var v5359=v5358;
-var v5360=v5350;
-var v5361=v5343;
-v5361=runJTramp(v5361);
-if (typeof v5361 !== "function") {
+var _v4752=new JTramp(_v4741, [runJTramp(_v4751),runJTramp(_v4748)]);
+var _v4753;
+if(runJTramp(_v4752)) {
+var _v4754="lookup";
+var _v4755=_v4754;
+_v4741=runJTramp(_v4741);
+if (typeof _v4741 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5362=new JTramp(v5361, [runJTramp(v5359),runJTramp(v5360)]);
-v5357=v5362;
+var _v4756=new JTramp(_v4741, [runJTramp(_v4755),runJTramp(_v4748)]);
+_v4753=_v4756;
 } else {
-v5357=v5350;
+_v4753=_v4748;
 }
-return v5357;
+return _v4753;
 };
-var v5363=v5346=runJTramp(v5349);
-var v5364=v5342;
-var v5365=function (v5366) {
+var _v4757=_v4744=runJTramp(_v4747);
+var _v4758=function (_v4759) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5368=v5366;
-var v5369=lglobal["midir:lit?"];
-var v5370=v5369;
-v5370=runJTramp(v5370);
-if (typeof v5370 !== "function") {
+var _v4761=lglobal["midir:lit?"];
+if (_v4761 === undefined) { throw new Error("No such global: " + "midir:lit?"); }
+var _v4762=_v4761;
+_v4762=runJTramp(_v4762);
+if (typeof _v4762 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5371=new JTramp(v5370, [runJTramp(v5368)]);
-var v5372;
-if(runJTramp(v5371)) {
-var v5373=function (v5374,v5375) {
+var _v4763=new JTramp(_v4762, [runJTramp(_v4759)]);
+var _v4764;
+if(runJTramp(_v4763)) {
+var _v4765=function (_v4766,_v4767) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5377=v5374;
-var v5378=v5375;
-var v5379=v5343;
-var v5380=v5345;
-v5380=runJTramp(v5380);
-if (typeof v5380 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5381=new JTramp(v5380, [runJTramp(v5378),runJTramp(v5379)]);
-var v5382=v5381;
-var v5383=lglobal["midir:lit"];
-var v5384=v5383;
-v5384=runJTramp(v5384);
-if (typeof v5384 !== "function") {
+var _v4769=new JTramp(_v4743, [runJTramp(_v4767),runJTramp(_v4741)]);
+var _v4770=_v4769;
+var _v4771=lglobal["midir:lit"];
+if (_v4771 === undefined) { throw new Error("No such global: " + "midir:lit"); }
+var _v4772=_v4771;
+_v4772=runJTramp(_v4772);
+if (typeof _v4772 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5385=new JTramp(v5384, [runJTramp(v5377),runJTramp(v5382)]);
-return v5385;
+var _v4773=new JTramp(_v4772, [runJTramp(_v4766),runJTramp(_v4770)]);
+return _v4773;
 };
-var v5386=v5373;
-var v5387=v5366;
-var v5388=lglobal["tail"];
-var v5389=v5388;
-v5389=runJTramp(v5389);
-if (typeof v5389 !== "function") {
+var _v4774=_v4765;
+var _v4775=lglobal["tail"];
+if (_v4775 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4776=_v4775;
+_v4776=runJTramp(_v4776);
+if (typeof _v4776 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5390=new JTramp(v5389, [runJTramp(v5387)]);
-var v5391=v5390;
-var v5392=lglobal["apply"];
-var v5393=v5392;
-v5393=runJTramp(v5393);
-if (typeof v5393 !== "function") {
+var _v4777=new JTramp(_v4776, [runJTramp(_v4759)]);
+var _v4778=_v4777;
+var _v4779=lglobal["apply"];
+if (_v4779 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4780=_v4779;
+_v4780=runJTramp(_v4780);
+if (typeof _v4780 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5394=new JTramp(v5393, [runJTramp(v5386),runJTramp(v5391)]);
-v5372=v5394;
+var _v4781=new JTramp(_v4780, [runJTramp(_v4774),runJTramp(_v4778)]);
+_v4764=_v4781;
 } else {
-var v5395=v5366;
-var v5396=lglobal["midir:lookup?"];
-var v5397=v5396;
-v5397=runJTramp(v5397);
-if (typeof v5397 !== "function") {
+var _v4782=lglobal["midir:lookup?"];
+if (_v4782 === undefined) { throw new Error("No such global: " + "midir:lookup?"); }
+var _v4783=_v4782;
+_v4783=runJTramp(_v4783);
+if (typeof _v4783 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5398=new JTramp(v5397, [runJTramp(v5395)]);
-var v5399;
-if(runJTramp(v5398)) {
-var v5400=function (v5401,v5402) {
+var _v4784=new JTramp(_v4783, [runJTramp(_v4759)]);
+var _v4785;
+if(runJTramp(_v4784)) {
+var _v4786=function (_v4787,_v4788) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5404=v5402;
-var v5405=function (v5406) {
+var _v4790=function (_v4791) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5408=v5406;
-var v5409=lglobal["midir:bind?"];
-var v5410=v5409;
-v5410=runJTramp(v5410);
-if (typeof v5410 !== "function") {
+var _v4793=lglobal["midir:bind?"];
+if (_v4793 === undefined) { throw new Error("No such global: " + "midir:bind?"); }
+var _v4794=_v4793;
+_v4794=runJTramp(_v4794);
+if (typeof _v4794 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5411=new JTramp(v5410, [runJTramp(v5408)]);
-var v5412;
-if(runJTramp(v5411)) {
-var v5413=function (v5414,v5415) {
+var _v4795=new JTramp(_v4794, [runJTramp(_v4791)]);
+var _v4796;
+if(runJTramp(_v4795)) {
+var _v4797=function (_v4798,_v4799) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5417="set!";
-var v5418=v5417;
-var v5419=v5414;
-var v5420=v5401;
-var v5421=v5343;
-v5421=runJTramp(v5421);
-if (typeof v5421 !== "function") {
+var _v4801="set!";
+var _v4802=_v4801;
+_v4741=runJTramp(_v4741);
+if (typeof _v4741 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5422=new JTramp(v5421, [runJTramp(v5418),runJTramp(v5419),runJTramp(v5420)]);
-v5422=runJTramp(v5422);
-var v5423=v5415;
-var v5424=v5343;
-var v5425=v5345;
-v5425=runJTramp(v5425);
-if (typeof v5425 !== "function") {
+var _v4803=new JTramp(_v4741, [runJTramp(_v4802),runJTramp(_v4798),runJTramp(_v4787)]);
+_v4803=runJTramp(_v4803);
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5426=new JTramp(v5425, [runJTramp(v5423),runJTramp(v5424)]);
-return v5426;
+var _v4804=new JTramp(_v4743, [runJTramp(_v4799),runJTramp(_v4741)]);
+return _v4804;
 };
-var v5427=v5413;
-var v5428=v5406;
-var v5429=lglobal["tail"];
-var v5430=v5429;
-v5430=runJTramp(v5430);
-if (typeof v5430 !== "function") {
+var _v4805=_v4797;
+var _v4806=lglobal["tail"];
+if (_v4806 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4807=_v4806;
+_v4807=runJTramp(_v4807);
+if (typeof _v4807 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5431=new JTramp(v5430, [runJTramp(v5428)]);
-var v5432=v5431;
-var v5433=lglobal["apply"];
-var v5434=v5433;
-v5434=runJTramp(v5434);
-if (typeof v5434 !== "function") {
+var _v4808=new JTramp(_v4807, [runJTramp(_v4791)]);
+var _v4809=_v4808;
+var _v4810=lglobal["apply"];
+if (_v4810 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4811=_v4810;
+_v4811=runJTramp(_v4811);
+if (typeof _v4811 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5435=new JTramp(v5434, [runJTramp(v5427),runJTramp(v5432)]);
-v5412=v5435;
+var _v4812=new JTramp(_v4811, [runJTramp(_v4805),runJTramp(_v4809)]);
+_v4796=_v4812;
 } else {
-var v5436=v5401;
-var v5437=v5346;
-v5437=runJTramp(v5437);
-if (typeof v5437 !== "function") {
+_v4744=runJTramp(_v4744);
+if (typeof _v4744 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5438=new JTramp(v5437, [runJTramp(v5436)]);
-var v5439=v5438;
-var v5440=v5402;
-var v5441=v5343;
-var v5442=v5345;
-v5442=runJTramp(v5442);
-if (typeof v5442 !== "function") {
+var _v4813=new JTramp(_v4744, [runJTramp(_v4787)]);
+var _v4814=_v4813;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5443=new JTramp(v5442, [runJTramp(v5440),runJTramp(v5441)]);
-var v5444=v5443;
-var v5445=lglobal["midir:lookup"];
-var v5446=v5445;
-v5446=runJTramp(v5446);
-if (typeof v5446 !== "function") {
+var _v4815=new JTramp(_v4743, [runJTramp(_v4788),runJTramp(_v4741)]);
+var _v4816=_v4815;
+var _v4817=lglobal["midir:lookup"];
+if (_v4817 === undefined) { throw new Error("No such global: " + "midir:lookup"); }
+var _v4818=_v4817;
+_v4818=runJTramp(_v4818);
+if (typeof _v4818 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5447=new JTramp(v5446, [runJTramp(v5439),runJTramp(v5444)]);
-v5412=v5447;
+var _v4819=new JTramp(_v4818, [runJTramp(_v4814),runJTramp(_v4816)]);
+_v4796=_v4819;
 }
-return v5412;
+return _v4796;
 };
-var v5448=v5405;
-v5448=runJTramp(v5448);
-if (typeof v5448 !== "function") {
+var _v4820=_v4790;
+_v4820=runJTramp(_v4820);
+if (typeof _v4820 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5449=new JTramp(v5448, [runJTramp(v5404)]);
-return v5449;
+var _v4821=new JTramp(_v4820, [runJTramp(_v4788)]);
+return _v4821;
 };
-var v5450=v5400;
-var v5451=v5366;
-var v5452=lglobal["tail"];
-var v5453=v5452;
-v5453=runJTramp(v5453);
-if (typeof v5453 !== "function") {
+var _v4822=_v4786;
+var _v4823=lglobal["tail"];
+if (_v4823 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4824=_v4823;
+_v4824=runJTramp(_v4824);
+if (typeof _v4824 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5454=new JTramp(v5453, [runJTramp(v5451)]);
-var v5455=v5454;
-var v5456=lglobal["apply"];
-var v5457=v5456;
-v5457=runJTramp(v5457);
-if (typeof v5457 !== "function") {
+var _v4825=new JTramp(_v4824, [runJTramp(_v4759)]);
+var _v4826=_v4825;
+var _v4827=lglobal["apply"];
+if (_v4827 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4828=_v4827;
+_v4828=runJTramp(_v4828);
+if (typeof _v4828 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5458=new JTramp(v5457, [runJTramp(v5450),runJTramp(v5455)]);
-v5399=v5458;
+var _v4829=new JTramp(_v4828, [runJTramp(_v4822),runJTramp(_v4826)]);
+_v4785=_v4829;
 } else {
-var v5459=v5366;
-var v5460=lglobal["midir:glookup?"];
-var v5461=v5460;
-v5461=runJTramp(v5461);
-if (typeof v5461 !== "function") {
+var _v4830=lglobal["midir:glookup?"];
+if (_v4830 === undefined) { throw new Error("No such global: " + "midir:glookup?"); }
+var _v4831=_v4830;
+_v4831=runJTramp(_v4831);
+if (typeof _v4831 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5462=new JTramp(v5461, [runJTramp(v5459)]);
-var v5463;
-if(runJTramp(v5462)) {
-var v5464=function (v5465,v5466) {
+var _v4832=new JTramp(_v4831, [runJTramp(_v4759)]);
+var _v4833;
+if(runJTramp(_v4832)) {
+var _v4834=function (_v4835,_v4836) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5468=v5465;
-var v5469=v5466;
-var v5470=v5343;
-var v5471=v5345;
-v5471=runJTramp(v5471);
-if (typeof v5471 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5472=new JTramp(v5471, [runJTramp(v5469),runJTramp(v5470)]);
-var v5473=v5472;
-var v5474=lglobal["midir:glookup"];
-var v5475=v5474;
-v5475=runJTramp(v5475);
-if (typeof v5475 !== "function") {
+var _v4838=new JTramp(_v4743, [runJTramp(_v4836),runJTramp(_v4741)]);
+var _v4839=_v4838;
+var _v4840=lglobal["midir:glookup"];
+if (_v4840 === undefined) { throw new Error("No such global: " + "midir:glookup"); }
+var _v4841=_v4840;
+_v4841=runJTramp(_v4841);
+if (typeof _v4841 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5476=new JTramp(v5475, [runJTramp(v5468),runJTramp(v5473)]);
-return v5476;
+var _v4842=new JTramp(_v4841, [runJTramp(_v4835),runJTramp(_v4839)]);
+return _v4842;
 };
-var v5477=v5464;
-var v5478=v5366;
-var v5479=lglobal["tail"];
-var v5480=v5479;
-v5480=runJTramp(v5480);
-if (typeof v5480 !== "function") {
+var _v4843=_v4834;
+var _v4844=lglobal["tail"];
+if (_v4844 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4845=_v4844;
+_v4845=runJTramp(_v4845);
+if (typeof _v4845 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5481=new JTramp(v5480, [runJTramp(v5478)]);
-var v5482=v5481;
-var v5483=lglobal["apply"];
-var v5484=v5483;
-v5484=runJTramp(v5484);
-if (typeof v5484 !== "function") {
+var _v4846=new JTramp(_v4845, [runJTramp(_v4759)]);
+var _v4847=_v4846;
+var _v4848=lglobal["apply"];
+if (_v4848 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4849=_v4848;
+_v4849=runJTramp(_v4849);
+if (typeof _v4849 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5485=new JTramp(v5484, [runJTramp(v5477),runJTramp(v5482)]);
-v5463=v5485;
+var _v4850=new JTramp(_v4849, [runJTramp(_v4843),runJTramp(_v4847)]);
+_v4833=_v4850;
 } else {
-var v5486=v5366;
-var v5487=lglobal["midir:enter?"];
-var v5488=v5487;
-v5488=runJTramp(v5488);
-if (typeof v5488 !== "function") {
+var _v4851=lglobal["midir:enter?"];
+if (_v4851 === undefined) { throw new Error("No such global: " + "midir:enter?"); }
+var _v4852=_v4851;
+_v4852=runJTramp(_v4852);
+if (typeof _v4852 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5489=new JTramp(v5488, [runJTramp(v5486)]);
-var v5490;
-if(runJTramp(v5489)) {
-var v5491=function (v5492,v5493,v5494,v5495) {
+var _v4853=new JTramp(_v4852, [runJTramp(_v4759)]);
+var _v4854;
+if(runJTramp(_v4853)) {
+var _v4855=function (_v4856,_v4857,_v4858,_v4859) {
 if (arguments.length < 4) {
 throw new Error("Expecting at least 4 arguments.");
 }
 if (arguments.length > 4) {
 throw new Error("Expecting at most 4 arguments.");
 }
-var v5497=v5492;
-var v5498=v5493;
-var v5499=v5494;
-var v5500=v5495;
-var v5501=v5343;
-var v5502=lglobal["make-env"];
-var v5503=v5502;
-v5503=runJTramp(v5503);
-if (typeof v5503 !== "function") {
+var _v4861=lglobal["make-env"];
+if (_v4861 === undefined) { throw new Error("No such global: " + "make-env"); }
+var _v4862=_v4861;
+_v4862=runJTramp(_v4862);
+if (typeof _v4862 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5504=new JTramp(v5503, [runJTramp(v5501)]);
-var v5505=v5504;
-var v5506=v5345;
-v5506=runJTramp(v5506);
-if (typeof v5506 !== "function") {
+var _v4863=new JTramp(_v4862, [runJTramp(_v4741)]);
+var _v4864=_v4863;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5507=new JTramp(v5506, [runJTramp(v5500),runJTramp(v5505)]);
-var v5508=v5507;
-var v5509=lglobal["midir:enter"];
-var v5510=v5509;
-v5510=runJTramp(v5510);
-if (typeof v5510 !== "function") {
+var _v4865=new JTramp(_v4743, [runJTramp(_v4859),runJTramp(_v4864)]);
+var _v4866=_v4865;
+var _v4867=lglobal["midir:enter"];
+if (_v4867 === undefined) { throw new Error("No such global: " + "midir:enter"); }
+var _v4868=_v4867;
+_v4868=runJTramp(_v4868);
+if (typeof _v4868 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5511=new JTramp(v5510, [runJTramp(v5497),runJTramp(v5498),runJTramp(v5499),runJTramp(v5508)]);
-return v5511;
+var _v4869=new JTramp(_v4868, [runJTramp(_v4856),runJTramp(_v4857),runJTramp(_v4858),runJTramp(_v4866)]);
+return _v4869;
 };
-var v5512=v5491;
-var v5513=v5366;
-var v5514=lglobal["tail"];
-var v5515=v5514;
-v5515=runJTramp(v5515);
-if (typeof v5515 !== "function") {
+var _v4870=_v4855;
+var _v4871=lglobal["tail"];
+if (_v4871 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4872=_v4871;
+_v4872=runJTramp(_v4872);
+if (typeof _v4872 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5516=new JTramp(v5515, [runJTramp(v5513)]);
-var v5517=v5516;
-var v5518=lglobal["apply"];
-var v5519=v5518;
-v5519=runJTramp(v5519);
-if (typeof v5519 !== "function") {
+var _v4873=new JTramp(_v4872, [runJTramp(_v4759)]);
+var _v4874=_v4873;
+var _v4875=lglobal["apply"];
+if (_v4875 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4876=_v4875;
+_v4876=runJTramp(_v4876);
+if (typeof _v4876 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5520=new JTramp(v5519, [runJTramp(v5512),runJTramp(v5517)]);
-v5490=v5520;
+var _v4877=new JTramp(_v4876, [runJTramp(_v4870),runJTramp(_v4874)]);
+_v4854=_v4877;
 } else {
-var v5521=v5366;
-var v5522=lglobal["midir:return?"];
-var v5523=v5522;
-v5523=runJTramp(v5523);
-if (typeof v5523 !== "function") {
+var _v4878=lglobal["midir:return?"];
+if (_v4878 === undefined) { throw new Error("No such global: " + "midir:return?"); }
+var _v4879=_v4878;
+_v4879=runJTramp(_v4879);
+if (typeof _v4879 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5524=new JTramp(v5523, [runJTramp(v5521)]);
-var v5525;
-if(runJTramp(v5524)) {
-var v5526=function () {
+var _v4880=new JTramp(_v4879, [runJTramp(_v4759)]);
+var _v4881;
+if(runJTramp(_v4880)) {
+var _v4882=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v5528=lglobal["midir:return"];
-var v5529=v5528;
-v5529=runJTramp(v5529);
-if (typeof v5529 !== "function") {
+var _v4884=lglobal["midir:return"];
+if (_v4884 === undefined) { throw new Error("No such global: " + "midir:return"); }
+var _v4885=_v4884;
+_v4885=runJTramp(_v4885);
+if (typeof _v4885 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5530=new JTramp(v5529, []);
-return v5530;
+var _v4886=new JTramp(_v4885, []);
+return _v4886;
 };
-var v5531=v5526;
-var v5532=v5366;
-var v5533=lglobal["tail"];
-var v5534=v5533;
-v5534=runJTramp(v5534);
-if (typeof v5534 !== "function") {
+var _v4887=_v4882;
+var _v4888=lglobal["tail"];
+if (_v4888 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4889=_v4888;
+_v4889=runJTramp(_v4889);
+if (typeof _v4889 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5535=new JTramp(v5534, [runJTramp(v5532)]);
-var v5536=v5535;
-var v5537=lglobal["apply"];
-var v5538=v5537;
-v5538=runJTramp(v5538);
-if (typeof v5538 !== "function") {
+var _v4890=new JTramp(_v4889, [runJTramp(_v4759)]);
+var _v4891=_v4890;
+var _v4892=lglobal["apply"];
+if (_v4892 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4893=_v4892;
+_v4893=runJTramp(_v4893);
+if (typeof _v4893 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5539=new JTramp(v5538, [runJTramp(v5531),runJTramp(v5536)]);
-v5525=v5539;
+var _v4894=new JTramp(_v4893, [runJTramp(_v4887),runJTramp(_v4891)]);
+_v4881=_v4894;
 } else {
-var v5540=v5366;
-var v5541=lglobal["midir:bind?"];
-var v5542=v5541;
-v5542=runJTramp(v5542);
-if (typeof v5542 !== "function") {
+var _v4895=lglobal["midir:bind?"];
+if (_v4895 === undefined) { throw new Error("No such global: " + "midir:bind?"); }
+var _v4896=_v4895;
+_v4896=runJTramp(_v4896);
+if (typeof _v4896 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5543=new JTramp(v5542, [runJTramp(v5540)]);
-var v5544;
-if(runJTramp(v5543)) {
-var v5545=function (v5546,v5547) {
+var _v4897=new JTramp(_v4896, [runJTramp(_v4759)]);
+var _v4898;
+if(runJTramp(_v4897)) {
+var _v4899=function (_v4900,_v4901) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5549=v5546;
-var v5550=v5547;
-var v5551=v5343;
-var v5552=v5345;
-v5552=runJTramp(v5552);
-if (typeof v5552 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5553=new JTramp(v5552, [runJTramp(v5550),runJTramp(v5551)]);
-var v5554=v5553;
-var v5555=lglobal["midir:bind"];
-var v5556=v5555;
-v5556=runJTramp(v5556);
-if (typeof v5556 !== "function") {
+var _v4903=new JTramp(_v4743, [runJTramp(_v4901),runJTramp(_v4741)]);
+var _v4904=_v4903;
+var _v4905=lglobal["midir:bind"];
+if (_v4905 === undefined) { throw new Error("No such global: " + "midir:bind"); }
+var _v4906=_v4905;
+_v4906=runJTramp(_v4906);
+if (typeof _v4906 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5557=new JTramp(v5556, [runJTramp(v5549),runJTramp(v5554)]);
-return v5557;
+var _v4907=new JTramp(_v4906, [runJTramp(_v4900),runJTramp(_v4904)]);
+return _v4907;
 };
-var v5558=v5545;
-var v5559=v5366;
-var v5560=lglobal["tail"];
-var v5561=v5560;
-v5561=runJTramp(v5561);
-if (typeof v5561 !== "function") {
+var _v4908=_v4899;
+var _v4909=lglobal["tail"];
+if (_v4909 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4910=_v4909;
+_v4910=runJTramp(_v4910);
+if (typeof _v4910 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5562=new JTramp(v5561, [runJTramp(v5559)]);
-var v5563=v5562;
-var v5564=lglobal["apply"];
-var v5565=v5564;
-v5565=runJTramp(v5565);
-if (typeof v5565 !== "function") {
+var _v4911=new JTramp(_v4910, [runJTramp(_v4759)]);
+var _v4912=_v4911;
+var _v4913=lglobal["apply"];
+if (_v4913 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4914=_v4913;
+_v4914=runJTramp(_v4914);
+if (typeof _v4914 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5566=new JTramp(v5565, [runJTramp(v5558),runJTramp(v5563)]);
-v5544=v5566;
+var _v4915=new JTramp(_v4914, [runJTramp(_v4908),runJTramp(_v4912)]);
+_v4898=_v4915;
 } else {
-var v5567=v5366;
-var v5568=lglobal["midir:bind-drop?"];
-var v5569=v5568;
-v5569=runJTramp(v5569);
-if (typeof v5569 !== "function") {
+var _v4916=lglobal["midir:bind-drop?"];
+if (_v4916 === undefined) { throw new Error("No such global: " + "midir:bind-drop?"); }
+var _v4917=_v4916;
+_v4917=runJTramp(_v4917);
+if (typeof _v4917 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5570=new JTramp(v5569, [runJTramp(v5567)]);
-var v5571;
-if(runJTramp(v5570)) {
-var v5572=function (v5573) {
+var _v4918=new JTramp(_v4917, [runJTramp(_v4759)]);
+var _v4919;
+if(runJTramp(_v4918)) {
+var _v4920=function (_v4921) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5575=v5573;
-var v5576=v5343;
-var v5577=v5345;
-v5577=runJTramp(v5577);
-if (typeof v5577 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5578=new JTramp(v5577, [runJTramp(v5575),runJTramp(v5576)]);
-var v5579=v5578;
-var v5580=lglobal["midir:bind-drop"];
-var v5581=v5580;
-v5581=runJTramp(v5581);
-if (typeof v5581 !== "function") {
+var _v4923=new JTramp(_v4743, [runJTramp(_v4921),runJTramp(_v4741)]);
+var _v4924=_v4923;
+var _v4925=lglobal["midir:bind-drop"];
+if (_v4925 === undefined) { throw new Error("No such global: " + "midir:bind-drop"); }
+var _v4926=_v4925;
+_v4926=runJTramp(_v4926);
+if (typeof _v4926 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5582=new JTramp(v5581, [runJTramp(v5579)]);
-return v5582;
+var _v4927=new JTramp(_v4926, [runJTramp(_v4924)]);
+return _v4927;
 };
-var v5583=v5572;
-var v5584=v5366;
-var v5585=lglobal["tail"];
-var v5586=v5585;
-v5586=runJTramp(v5586);
-if (typeof v5586 !== "function") {
+var _v4928=_v4920;
+var _v4929=lglobal["tail"];
+if (_v4929 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4930=_v4929;
+_v4930=runJTramp(_v4930);
+if (typeof _v4930 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5587=new JTramp(v5586, [runJTramp(v5584)]);
-var v5588=v5587;
-var v5589=lglobal["apply"];
-var v5590=v5589;
-v5590=runJTramp(v5590);
-if (typeof v5590 !== "function") {
+var _v4931=new JTramp(_v4930, [runJTramp(_v4759)]);
+var _v4932=_v4931;
+var _v4933=lglobal["apply"];
+if (_v4933 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4934=_v4933;
+_v4934=runJTramp(_v4934);
+if (typeof _v4934 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5591=new JTramp(v5590, [runJTramp(v5583),runJTramp(v5588)]);
-v5571=v5591;
+var _v4935=new JTramp(_v4934, [runJTramp(_v4928),runJTramp(_v4932)]);
+_v4919=_v4935;
 } else {
-var v5592=v5366;
-var v5593=lglobal["midir:if?"];
-var v5594=v5593;
-v5594=runJTramp(v5594);
-if (typeof v5594 !== "function") {
+var _v4936=lglobal["midir:if?"];
+if (_v4936 === undefined) { throw new Error("No such global: " + "midir:if?"); }
+var _v4937=_v4936;
+_v4937=runJTramp(_v4937);
+if (typeof _v4937 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5595=new JTramp(v5594, [runJTramp(v5592)]);
-var v5596;
-if(runJTramp(v5595)) {
-var v5597=function (v5598,v5599,v5600) {
+var _v4938=new JTramp(_v4937, [runJTramp(_v4759)]);
+var _v4939;
+if(runJTramp(_v4938)) {
+var _v4940=function (_v4941,_v4942,_v4943) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v5602=v5598;
-var v5603=v5343;
-var v5604=v5345;
-v5604=runJTramp(v5604);
-if (typeof v5604 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5605=new JTramp(v5604, [runJTramp(v5602),runJTramp(v5603)]);
-var v5606=v5605;
-var v5607=v5599;
-var v5608=v5343;
-var v5609=v5345;
-v5609=runJTramp(v5609);
-if (typeof v5609 !== "function") {
+var _v4945=new JTramp(_v4743, [runJTramp(_v4941),runJTramp(_v4741)]);
+var _v4946=_v4945;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5610=new JTramp(v5609, [runJTramp(v5607),runJTramp(v5608)]);
-var v5611=v5610;
-var v5612=v5600;
-var v5613=v5343;
-var v5614=v5345;
-v5614=runJTramp(v5614);
-if (typeof v5614 !== "function") {
+var _v4947=new JTramp(_v4743, [runJTramp(_v4942),runJTramp(_v4741)]);
+var _v4948=_v4947;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5615=new JTramp(v5614, [runJTramp(v5612),runJTramp(v5613)]);
-var v5616=v5615;
-var v5617=lglobal["midir:if"];
-var v5618=v5617;
-v5618=runJTramp(v5618);
-if (typeof v5618 !== "function") {
+var _v4949=new JTramp(_v4743, [runJTramp(_v4943),runJTramp(_v4741)]);
+var _v4950=_v4949;
+var _v4951=lglobal["midir:if"];
+if (_v4951 === undefined) { throw new Error("No such global: " + "midir:if"); }
+var _v4952=_v4951;
+_v4952=runJTramp(_v4952);
+if (typeof _v4952 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5619=new JTramp(v5618, [runJTramp(v5606),runJTramp(v5611),runJTramp(v5616)]);
-return v5619;
+var _v4953=new JTramp(_v4952, [runJTramp(_v4946),runJTramp(_v4948),runJTramp(_v4950)]);
+return _v4953;
 };
-var v5620=v5597;
-var v5621=v5366;
-var v5622=lglobal["tail"];
-var v5623=v5622;
-v5623=runJTramp(v5623);
-if (typeof v5623 !== "function") {
+var _v4954=_v4940;
+var _v4955=lglobal["tail"];
+if (_v4955 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4956=_v4955;
+_v4956=runJTramp(_v4956);
+if (typeof _v4956 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5624=new JTramp(v5623, [runJTramp(v5621)]);
-var v5625=v5624;
-var v5626=lglobal["apply"];
-var v5627=v5626;
-v5627=runJTramp(v5627);
-if (typeof v5627 !== "function") {
+var _v4957=new JTramp(_v4956, [runJTramp(_v4759)]);
+var _v4958=_v4957;
+var _v4959=lglobal["apply"];
+if (_v4959 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4960=_v4959;
+_v4960=runJTramp(_v4960);
+if (typeof _v4960 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5628=new JTramp(v5627, [runJTramp(v5620),runJTramp(v5625)]);
-v5596=v5628;
+var _v4961=new JTramp(_v4960, [runJTramp(_v4954),runJTramp(_v4958)]);
+_v4939=_v4961;
 } else {
-var v5629=v5366;
-var v5630=lglobal["midir:leave?"];
-var v5631=v5630;
-v5631=runJTramp(v5631);
-if (typeof v5631 !== "function") {
+var _v4962=lglobal["midir:leave?"];
+if (_v4962 === undefined) { throw new Error("No such global: " + "midir:leave?"); }
+var _v4963=_v4962;
+_v4963=runJTramp(_v4963);
+if (typeof _v4963 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5632=new JTramp(v5631, [runJTramp(v5629)]);
-var v5633;
-if(runJTramp(v5632)) {
-var v5634=function () {
+var _v4964=new JTramp(_v4963, [runJTramp(_v4759)]);
+var _v4965;
+if(runJTramp(_v4964)) {
+var _v4966=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v5636=lglobal["midir:leave"];
-var v5637=v5636;
-v5637=runJTramp(v5637);
-if (typeof v5637 !== "function") {
+var _v4968=lglobal["midir:leave"];
+if (_v4968 === undefined) { throw new Error("No such global: " + "midir:leave"); }
+var _v4969=_v4968;
+_v4969=runJTramp(_v4969);
+if (typeof _v4969 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5638=new JTramp(v5637, []);
-return v5638;
+var _v4970=new JTramp(_v4969, []);
+return _v4970;
 };
-var v5639=v5634;
-var v5640=v5366;
-var v5641=lglobal["tail"];
-var v5642=v5641;
-v5642=runJTramp(v5642);
-if (typeof v5642 !== "function") {
+var _v4971=_v4966;
+var _v4972=lglobal["tail"];
+if (_v4972 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v4973=_v4972;
+_v4973=runJTramp(_v4973);
+if (typeof _v4973 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5643=new JTramp(v5642, [runJTramp(v5640)]);
-var v5644=v5643;
-var v5645=lglobal["apply"];
-var v5646=v5645;
-v5646=runJTramp(v5646);
-if (typeof v5646 !== "function") {
+var _v4974=new JTramp(_v4973, [runJTramp(_v4759)]);
+var _v4975=_v4974;
+var _v4976=lglobal["apply"];
+if (_v4976 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v4977=_v4976;
+_v4977=runJTramp(_v4977);
+if (typeof _v4977 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5647=new JTramp(v5646, [runJTramp(v5639),runJTramp(v5644)]);
-v5633=v5647;
+var _v4978=new JTramp(_v4977, [runJTramp(_v4971),runJTramp(_v4975)]);
+_v4965=_v4978;
 } else {
-var v5648=v5366;
-var v5649=lglobal["midir:funcall?"];
-var v5650=v5649;
-v5650=runJTramp(v5650);
-if (typeof v5650 !== "function") {
+var _v4979=lglobal["midir:funcall?"];
+if (_v4979 === undefined) { throw new Error("No such global: " + "midir:funcall?"); }
+var _v4980=_v4979;
+_v4980=runJTramp(_v4980);
+if (typeof _v4980 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5651=new JTramp(v5650, [runJTramp(v5648)]);
-var v5652;
-if(runJTramp(v5651)) {
-var v5653=function (v5654,v5655,v5656) {
+var _v4981=new JTramp(_v4980, [runJTramp(_v4759)]);
+var _v4982;
+if(runJTramp(_v4981)) {
+var _v4983=function (_v4984,_v4985,_v4986) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v5658=v5654;
-var v5659=v5346;
-v5659=runJTramp(v5659);
-if (typeof v5659 !== "function") {
+_v4744=runJTramp(_v4744);
+if (typeof _v4744 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5660=new JTramp(v5659, [runJTramp(v5658)]);
-var v5661=v5660;
-var v5662=v5346;
-var v5663=v5655;
-var v5664=lglobal["map"];
-var v5665=v5664;
-v5665=runJTramp(v5665);
-if (typeof v5665 !== "function") {
+var _v4988=new JTramp(_v4744, [runJTramp(_v4984)]);
+var _v4989=_v4988;
+var _v4990=lglobal["map"];
+if (_v4990 === undefined) { throw new Error("No such global: " + "map"); }
+var _v4991=_v4990;
+_v4991=runJTramp(_v4991);
+if (typeof _v4991 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5666=new JTramp(v5665, [runJTramp(v5662),runJTramp(v5663)]);
-var v5667=v5666;
-var v5668=v5656;
-var v5669=v5343;
-var v5670=v5345;
-v5670=runJTramp(v5670);
-if (typeof v5670 !== "function") {
+var _v4992=new JTramp(_v4991, [runJTramp(_v4744),runJTramp(_v4985)]);
+var _v4993=_v4992;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5671=new JTramp(v5670, [runJTramp(v5668),runJTramp(v5669)]);
-var v5672=v5671;
-var v5673=lglobal["midir:funcall"];
-var v5674=v5673;
-v5674=runJTramp(v5674);
-if (typeof v5674 !== "function") {
+var _v4994=new JTramp(_v4743, [runJTramp(_v4986),runJTramp(_v4741)]);
+var _v4995=_v4994;
+var _v4996=lglobal["midir:funcall"];
+if (_v4996 === undefined) { throw new Error("No such global: " + "midir:funcall"); }
+var _v4997=_v4996;
+_v4997=runJTramp(_v4997);
+if (typeof _v4997 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5675=new JTramp(v5674, [runJTramp(v5661),runJTramp(v5667),runJTramp(v5672)]);
-return v5675;
+var _v4998=new JTramp(_v4997, [runJTramp(_v4989),runJTramp(_v4993),runJTramp(_v4995)]);
+return _v4998;
 };
-var v5676=v5653;
-var v5677=v5366;
-var v5678=lglobal["tail"];
-var v5679=v5678;
-v5679=runJTramp(v5679);
-if (typeof v5679 !== "function") {
+var _v4999=_v4983;
+var _v5000=lglobal["tail"];
+if (_v5000 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5001=_v5000;
+_v5001=runJTramp(_v5001);
+if (typeof _v5001 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5680=new JTramp(v5679, [runJTramp(v5677)]);
-var v5681=v5680;
-var v5682=lglobal["apply"];
-var v5683=v5682;
-v5683=runJTramp(v5683);
-if (typeof v5683 !== "function") {
+var _v5002=new JTramp(_v5001, [runJTramp(_v4759)]);
+var _v5003=_v5002;
+var _v5004=lglobal["apply"];
+if (_v5004 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5005=_v5004;
+_v5005=runJTramp(_v5005);
+if (typeof _v5005 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5684=new JTramp(v5683, [runJTramp(v5676),runJTramp(v5681)]);
-v5652=v5684;
+var _v5006=new JTramp(_v5005, [runJTramp(_v4999),runJTramp(_v5003)]);
+_v4982=_v5006;
 } else {
-var v5685=v5366;
-var v5686=lglobal["midir:closure?"];
-var v5687=v5686;
-v5687=runJTramp(v5687);
-if (typeof v5687 !== "function") {
+var _v5007=lglobal["midir:closure?"];
+if (_v5007 === undefined) { throw new Error("No such global: " + "midir:closure?"); }
+var _v5008=_v5007;
+_v5008=runJTramp(_v5008);
+if (typeof _v5008 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5688=new JTramp(v5687, [runJTramp(v5685)]);
-var v5689;
-if(runJTramp(v5688)) {
-var v5690=function (v5691,v5692) {
+var _v5009=new JTramp(_v5008, [runJTramp(_v4759)]);
+var _v5010;
+if(runJTramp(_v5009)) {
+var _v5011=function (_v5012,_v5013) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5694=v5691;
-var v5695=v5343;
-var v5696=v5345;
-v5696=runJTramp(v5696);
-if (typeof v5696 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5697=new JTramp(v5696, [runJTramp(v5694),runJTramp(v5695)]);
-var v5698=v5697;
-var v5699=v5692;
-var v5700=v5343;
-var v5701=v5345;
-v5701=runJTramp(v5701);
-if (typeof v5701 !== "function") {
+var _v5015=new JTramp(_v4743, [runJTramp(_v5012),runJTramp(_v4741)]);
+var _v5016=_v5015;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5702=new JTramp(v5701, [runJTramp(v5699),runJTramp(v5700)]);
-var v5703=v5702;
-var v5704=lglobal["midir:closure"];
-var v5705=v5704;
-v5705=runJTramp(v5705);
-if (typeof v5705 !== "function") {
+var _v5017=new JTramp(_v4743, [runJTramp(_v5013),runJTramp(_v4741)]);
+var _v5018=_v5017;
+var _v5019=lglobal["midir:closure"];
+if (_v5019 === undefined) { throw new Error("No such global: " + "midir:closure"); }
+var _v5020=_v5019;
+_v5020=runJTramp(_v5020);
+if (typeof _v5020 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5706=new JTramp(v5705, [runJTramp(v5698),runJTramp(v5703)]);
-return v5706;
+var _v5021=new JTramp(_v5020, [runJTramp(_v5016),runJTramp(_v5018)]);
+return _v5021;
 };
-var v5707=v5690;
-var v5708=v5366;
-var v5709=lglobal["tail"];
-var v5710=v5709;
-v5710=runJTramp(v5710);
-if (typeof v5710 !== "function") {
+var _v5022=_v5011;
+var _v5023=lglobal["tail"];
+if (_v5023 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5024=_v5023;
+_v5024=runJTramp(_v5024);
+if (typeof _v5024 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5711=new JTramp(v5710, [runJTramp(v5708)]);
-var v5712=v5711;
-var v5713=lglobal["apply"];
-var v5714=v5713;
-v5714=runJTramp(v5714);
-if (typeof v5714 !== "function") {
+var _v5025=new JTramp(_v5024, [runJTramp(_v4759)]);
+var _v5026=_v5025;
+var _v5027=lglobal["apply"];
+if (_v5027 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5028=_v5027;
+_v5028=runJTramp(_v5028);
+if (typeof _v5028 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5715=new JTramp(v5714, [runJTramp(v5707),runJTramp(v5712)]);
-v5689=v5715;
+var _v5029=new JTramp(_v5028, [runJTramp(_v5022),runJTramp(_v5026)]);
+_v5010=_v5029;
 } else {
-var v5716=v5366;
-var v5717=lglobal["midir:set!?"];
-var v5718=v5717;
-v5718=runJTramp(v5718);
-if (typeof v5718 !== "function") {
+var _v5030=lglobal["midir:set!?"];
+if (_v5030 === undefined) { throw new Error("No such global: " + "midir:set!?"); }
+var _v5031=_v5030;
+_v5031=runJTramp(_v5031);
+if (typeof _v5031 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5719=new JTramp(v5718, [runJTramp(v5716)]);
-var v5720;
-if(runJTramp(v5719)) {
-var v5721=function (v5722,v5723) {
+var _v5032=new JTramp(_v5031, [runJTramp(_v4759)]);
+var _v5033;
+if(runJTramp(_v5032)) {
+var _v5034=function (_v5035,_v5036) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5725=v5722;
-var v5726=v5346;
-v5726=runJTramp(v5726);
-if (typeof v5726 !== "function") {
+_v4744=runJTramp(_v4744);
+if (typeof _v4744 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5727=new JTramp(v5726, [runJTramp(v5725)]);
-var v5728=v5727;
-var v5729=v5723;
-var v5730=v5343;
-var v5731=v5345;
-v5731=runJTramp(v5731);
-if (typeof v5731 !== "function") {
+var _v5038=new JTramp(_v4744, [runJTramp(_v5035)]);
+var _v5039=_v5038;
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5732=new JTramp(v5731, [runJTramp(v5729),runJTramp(v5730)]);
-var v5733=v5732;
-var v5734=lglobal["midir:set!"];
-var v5735=v5734;
-v5735=runJTramp(v5735);
-if (typeof v5735 !== "function") {
+var _v5040=new JTramp(_v4743, [runJTramp(_v5036),runJTramp(_v4741)]);
+var _v5041=_v5040;
+var _v5042=lglobal["midir:set!"];
+if (_v5042 === undefined) { throw new Error("No such global: " + "midir:set!"); }
+var _v5043=_v5042;
+_v5043=runJTramp(_v5043);
+if (typeof _v5043 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5736=new JTramp(v5735, [runJTramp(v5728),runJTramp(v5733)]);
-return v5736;
+var _v5044=new JTramp(_v5043, [runJTramp(_v5039),runJTramp(_v5041)]);
+return _v5044;
 };
-var v5737=v5721;
-var v5738=v5366;
-var v5739=lglobal["tail"];
-var v5740=v5739;
-v5740=runJTramp(v5740);
-if (typeof v5740 !== "function") {
+var _v5045=_v5034;
+var _v5046=lglobal["tail"];
+if (_v5046 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5047=_v5046;
+_v5047=runJTramp(_v5047);
+if (typeof _v5047 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5741=new JTramp(v5740, [runJTramp(v5738)]);
-var v5742=v5741;
-var v5743=lglobal["apply"];
-var v5744=v5743;
-v5744=runJTramp(v5744);
-if (typeof v5744 !== "function") {
+var _v5048=new JTramp(_v5047, [runJTramp(_v4759)]);
+var _v5049=_v5048;
+var _v5050=lglobal["apply"];
+if (_v5050 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5051=_v5050;
+_v5051=runJTramp(_v5051);
+if (typeof _v5051 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5745=new JTramp(v5744, [runJTramp(v5737),runJTramp(v5742)]);
-v5720=v5745;
+var _v5052=new JTramp(_v5051, [runJTramp(_v5045),runJTramp(_v5049)]);
+_v5033=_v5052;
 } else {
-var v5746=v5366;
-var v5747=lglobal["midir:gset!?"];
-var v5748=v5747;
-v5748=runJTramp(v5748);
-if (typeof v5748 !== "function") {
+var _v5053=lglobal["midir:gset!?"];
+if (_v5053 === undefined) { throw new Error("No such global: " + "midir:gset!?"); }
+var _v5054=_v5053;
+_v5054=runJTramp(_v5054);
+if (typeof _v5054 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5749=new JTramp(v5748, [runJTramp(v5746)]);
-var v5750;
-if(runJTramp(v5749)) {
-var v5751=function (v5752,v5753) {
+var _v5055=new JTramp(_v5054, [runJTramp(_v4759)]);
+var _v5056;
+if(runJTramp(_v5055)) {
+var _v5057=function (_v5058,_v5059) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5755=v5752;
-var v5756=v5753;
-var v5757=v5343;
-var v5758=v5345;
-v5758=runJTramp(v5758);
-if (typeof v5758 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5759=new JTramp(v5758, [runJTramp(v5756),runJTramp(v5757)]);
-var v5760=v5759;
-var v5761=lglobal["midir:gset!"];
-var v5762=v5761;
-v5762=runJTramp(v5762);
-if (typeof v5762 !== "function") {
+var _v5061=new JTramp(_v4743, [runJTramp(_v5059),runJTramp(_v4741)]);
+var _v5062=_v5061;
+var _v5063=lglobal["midir:gset!"];
+if (_v5063 === undefined) { throw new Error("No such global: " + "midir:gset!"); }
+var _v5064=_v5063;
+_v5064=runJTramp(_v5064);
+if (typeof _v5064 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5763=new JTramp(v5762, [runJTramp(v5755),runJTramp(v5760)]);
-return v5763;
+var _v5065=new JTramp(_v5064, [runJTramp(_v5058),runJTramp(_v5062)]);
+return _v5065;
 };
-var v5764=v5751;
-var v5765=v5366;
-var v5766=lglobal["tail"];
-var v5767=v5766;
-v5767=runJTramp(v5767);
-if (typeof v5767 !== "function") {
+var _v5066=_v5057;
+var _v5067=lglobal["tail"];
+if (_v5067 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5068=_v5067;
+_v5068=runJTramp(_v5068);
+if (typeof _v5068 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5768=new JTramp(v5767, [runJTramp(v5765)]);
-var v5769=v5768;
-var v5770=lglobal["apply"];
-var v5771=v5770;
-v5771=runJTramp(v5771);
-if (typeof v5771 !== "function") {
+var _v5069=new JTramp(_v5068, [runJTramp(_v4759)]);
+var _v5070=_v5069;
+var _v5071=lglobal["apply"];
+if (_v5071 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5072=_v5071;
+_v5072=runJTramp(_v5072);
+if (typeof _v5072 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5772=new JTramp(v5771, [runJTramp(v5764),runJTramp(v5769)]);
-v5750=v5772;
+var _v5073=new JTramp(_v5072, [runJTramp(_v5066),runJTramp(_v5070)]);
+_v5056=_v5073;
 } else {
-var v5773=v5366;
-var v5774=lglobal["midir:ffi?"];
-var v5775=v5774;
-v5775=runJTramp(v5775);
-if (typeof v5775 !== "function") {
+var _v5074=lglobal["midir:ffi?"];
+if (_v5074 === undefined) { throw new Error("No such global: " + "midir:ffi?"); }
+var _v5075=_v5074;
+_v5075=runJTramp(_v5075);
+if (typeof _v5075 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5776=new JTramp(v5775, [runJTramp(v5773)]);
-var v5777;
-if(runJTramp(v5776)) {
-var v5778=function (v5779) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
+var _v5076=new JTramp(_v5075, [runJTramp(_v4759)]);
+var _v5077;
+if(runJTramp(_v5076)) {
+var _v5078=function (_v5079,_v5080,_v5081) {
+if (arguments.length < 3) {
+throw new Error("Expecting at least 3 arguments.");
 }
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
+if (arguments.length > 3) {
+throw new Error("Expecting at most 3 arguments.");
 }
-var v5781=v5779;
-var v5782=v5343;
-var v5783=v5345;
-v5783=runJTramp(v5783);
-if (typeof v5783 !== "function") {
+_v4743=runJTramp(_v4743);
+if (typeof _v4743 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5784=new JTramp(v5783, [runJTramp(v5781),runJTramp(v5782)]);
-var v5785=v5784;
-var v5786=lglobal["midir:ffi"];
-var v5787=v5786;
-v5787=runJTramp(v5787);
-if (typeof v5787 !== "function") {
+var _v5083=new JTramp(_v4743, [runJTramp(_v5081),runJTramp(_v4741)]);
+var _v5084=_v5083;
+var _v5085=lglobal["midir:ffi"];
+if (_v5085 === undefined) { throw new Error("No such global: " + "midir:ffi"); }
+var _v5086=_v5085;
+_v5086=runJTramp(_v5086);
+if (typeof _v5086 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5788=new JTramp(v5787, [runJTramp(v5785)]);
-return v5788;
+var _v5087=new JTramp(_v5086, [runJTramp(_v5079),runJTramp(_v5080),runJTramp(_v5084)]);
+return _v5087;
 };
-var v5789=v5778;
-var v5790=v5366;
-var v5791=lglobal["tail"];
-var v5792=v5791;
-v5792=runJTramp(v5792);
-if (typeof v5792 !== "function") {
+var _v5088=_v5078;
+var _v5089=lglobal["tail"];
+if (_v5089 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5090=_v5089;
+_v5090=runJTramp(_v5090);
+if (typeof _v5090 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5793=new JTramp(v5792, [runJTramp(v5790)]);
-var v5794=v5793;
-var v5795=lglobal["apply"];
-var v5796=v5795;
-v5796=runJTramp(v5796);
-if (typeof v5796 !== "function") {
+var _v5091=new JTramp(_v5090, [runJTramp(_v4759)]);
+var _v5092=_v5091;
+var _v5093=lglobal["apply"];
+if (_v5093 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5094=_v5093;
+_v5094=runJTramp(_v5094);
+if (typeof _v5094 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5797=new JTramp(v5796, [runJTramp(v5789),runJTramp(v5794)]);
-v5777=v5797;
+var _v5095=new JTramp(_v5094, [runJTramp(_v5088),runJTramp(_v5092)]);
+_v5077=_v5095;
 } else {
-var v5798="Unknown midir: ";
-var v5799=v5798;
-var v5800=v5342;
-var v5801=lglobal["++"];
-var v5802=v5801;
-v5802=runJTramp(v5802);
-if (typeof v5802 !== "function") {
+var _v5096="Unknown midir: ";
+var _v5097=_v5096;
+var _v5098=lglobal["++"];
+if (_v5098 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5099=_v5098;
+_v5099=runJTramp(_v5099);
+if (typeof _v5099 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5803=new JTramp(v5802, [runJTramp(v5799),runJTramp(v5800)]);
-var v5804=v5803;
-var v5805=lglobal["error"];
-var v5806=v5805;
-v5806=runJTramp(v5806);
-if (typeof v5806 !== "function") {
+var _v5100=new JTramp(_v5099, [runJTramp(_v5097),runJTramp(_v4740)]);
+var _v5101=_v5100;
+var _v5102=lglobal["error"];
+if (_v5102 === undefined) { throw new Error("No such global: " + "error"); }
+var _v5103=_v5102;
+_v5103=runJTramp(_v5103);
+if (typeof _v5103 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5807=new JTramp(v5806, [runJTramp(v5804)]);
-v5777=v5807;
+var _v5104=new JTramp(_v5103, [runJTramp(_v5101)]);
+_v5077=_v5104;
 }
-v5750=v5777;
+_v5056=_v5077;
 }
-v5720=v5750;
+_v5033=_v5056;
 }
-v5689=v5720;
+_v5010=_v5033;
 }
-v5652=v5689;
+_v4982=_v5010;
 }
-v5633=v5652;
+_v4965=_v4982;
 }
-v5596=v5633;
+_v4939=_v4965;
 }
-v5571=v5596;
+_v4919=_v4939;
 }
-v5544=v5571;
+_v4898=_v4919;
 }
-v5525=v5544;
+_v4881=_v4898;
 }
-v5490=v5525;
+_v4854=_v4881;
 }
-v5463=v5490;
+_v4833=_v4854;
 }
-v5399=v5463;
+_v4785=_v4833;
 }
-v5372=v5399;
+_v4764=_v4785;
 }
-return v5372;
+return _v4764;
 };
-var v5808=v5365;
-v5808=runJTramp(v5808);
-if (typeof v5808 !== "function") {
+var _v5105=_v4758;
+_v5105=runJTramp(_v5105);
+if (typeof _v5105 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5809=new JTramp(v5808, [runJTramp(v5364)]);
-return v5809;
+var _v5106=new JTramp(_v5105, [runJTramp(_v4740)]);
+return _v5106;
 };
-v5340=v5341;
-lglobal["copy-propagate-midir"]=runJTramp(v5340);
+_v4738=_v4739;
+lglobal["copy-propagate-midir"]=runJTramp(_v4738);
 })();
 (function () {
-var v5810;
-var v5811=function (v5812,v5813) {
+var _v5107;
+var _v5108=function (_v5109,_v5110) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5815;
-var v5816;
-var v5817;
-var v5818=function (v5819) {
+var _v5112;
+var _v5113;
+var _v5114=lglobal["null"];
+if (_v5114 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5115=_v5112=runJTramp(_v5114);
+var _v5116=function (_v5117) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5821=v5819;
-var v5822=v5813;
-var v5823=lglobal["compile-midir-to-lambdas"];
-var v5824=v5823;
-v5824=runJTramp(v5824);
-if (typeof v5824 !== "function") {
+var _v5119=lglobal["read:has-another?"];
+if (_v5119 === undefined) { throw new Error("No such global: " + "read:has-another?"); }
+var _v5120=_v5119;
+_v5120=runJTramp(_v5120);
+if (typeof _v5120 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5825=new JTramp(v5824, [runJTramp(v5821),runJTramp(v5822)]);
-return v5825;
-};
-var v5826=v5815=runJTramp(v5818);
-var v5827=function (v5828) {
+var _v5121=new JTramp(_v5120, [runJTramp(_v5117)]);
+var _v5122;
+if(runJTramp(_v5121)) {
+var _v5123=lglobal["read:sexp"];
+if (_v5123 === undefined) { throw new Error("No such global: " + "read:sexp"); }
+var _v5124=_v5123;
+_v5124=runJTramp(_v5124);
+if (typeof _v5124 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5125=new JTramp(_v5124, [runJTramp(_v5117)]);
+var _v5126=_v5125;
+var _v5127=function (_v5128) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5830=function (v5831) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
+var _v5130="Compiling ";
+var _v5131=_v5130;
+var _v5132=lglobal["repr"];
+if (_v5132 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v5133=_v5132;
+_v5133=runJTramp(_v5133);
+if (typeof _v5133 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
+var _v5134=new JTramp(_v5133, [runJTramp(_v5128)]);
+var _v5135=_v5134;
+var _v5136="\n";
+var _v5137=_v5136;
+var _v5138=lglobal["print"];
+if (_v5138 === undefined) { throw new Error("No such global: " + "print"); }
+var _v5139=_v5138;
+_v5139=runJTramp(_v5139);
+if (typeof _v5139 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-return v5828;
+var _v5140=new JTramp(_v5139, [runJTramp(_v5131),runJTramp(_v5135),runJTramp(_v5137)]);
+_v5140=runJTramp(_v5140);
+var _v5141=lglobal["compile-toplevel-to-midir"];
+if (_v5141 === undefined) { throw new Error("No such global: " + "compile-toplevel-to-midir"); }
+var _v5142=_v5141;
+_v5142=runJTramp(_v5142);
+if (typeof _v5142 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5143=new JTramp(_v5142, [runJTramp(_v5128)]);
+var _v5144=_v5112=runJTramp(_v5143);
+_v5144=runJTramp(_v5144);
+_v5113=runJTramp(_v5113);
+if (typeof _v5113 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5145=new JTramp(_v5113, [runJTramp(_v5117)]);
+return _v5145;
 };
-return v5830;
-};
-var v5833=v5816=runJTramp(v5827);
-var v5834=function (v5835,v5836) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v5838=function (v5839) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v5841=v5839;
-var v5842=v5839;
-var v5843=v5835;
-v5843=runJTramp(v5843);
-if (typeof v5843 !== "function") {
+var _v5146=_v5127;
+_v5146=runJTramp(_v5146);
+if (typeof _v5146 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5844=new JTramp(v5843, [runJTramp(v5842)]);
-var v5845=v5844;
-var v5846=v5836;
-v5846=runJTramp(v5846);
-if (typeof v5846 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5847=new JTramp(v5846, [runJTramp(v5845)]);
-var v5848=v5847;
-v5848=runJTramp(v5848);
-if (typeof v5848 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5849=new JTramp(v5848, [runJTramp(v5841)]);
-return v5849;
-};
-return v5838;
-};
-var v5850=v5817=runJTramp(v5834);
-var v5851=v5812;
-var v5852=function (v5853) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v5855=v5853;
-var v5856=lglobal["midir:lit?"];
-var v5857=v5856;
-v5857=runJTramp(v5857);
-if (typeof v5857 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5858=new JTramp(v5857, [runJTramp(v5855)]);
-var v5859;
-if(runJTramp(v5858)) {
-var v5860=function (v5861,v5862) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v5864=v5862;
-var v5865=v5815;
-v5865=runJTramp(v5865);
-if (typeof v5865 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5866=new JTramp(v5865, [runJTramp(v5864)]);
-var v5867=v5866;
-var v5868=function (v5869) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v5871=v5861;
-var v5872=v5816;
-v5872=runJTramp(v5872);
-if (typeof v5872 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5873=new JTramp(v5872, [runJTramp(v5871)]);
-var v5874=v5873;
-var v5875=v5869;
-var v5876=v5817;
-v5876=runJTramp(v5876);
-if (typeof v5876 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5877=new JTramp(v5876, [runJTramp(v5874),runJTramp(v5875)]);
-var v5878=v5877;
-var v5879=lglobal["const"];
-var v5880=v5879;
-v5880=runJTramp(v5880);
-if (typeof v5880 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5881=new JTramp(v5880, [runJTramp(v5878)]);
-return v5881;
-};
-var v5882=v5868;
-v5882=runJTramp(v5882);
-if (typeof v5882 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5883=new JTramp(v5882, [runJTramp(v5867)]);
-return v5883;
-};
-var v5884=v5860;
-var v5885=v5853;
-var v5886=lglobal["tail"];
-var v5887=v5886;
-v5887=runJTramp(v5887);
-if (typeof v5887 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5888=new JTramp(v5887, [runJTramp(v5885)]);
-var v5889=v5888;
-var v5890=lglobal["apply"];
-var v5891=v5890;
-v5891=runJTramp(v5891);
-if (typeof v5891 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5892=new JTramp(v5891, [runJTramp(v5884),runJTramp(v5889)]);
-v5859=v5892;
+var _v5147=new JTramp(_v5146, [runJTramp(_v5126)]);
+_v5122=_v5147;
 } else {
-var v5893=v5853;
-var v5894=lglobal["midir:lookup?"];
-var v5895=v5894;
-v5895=runJTramp(v5895);
-if (typeof v5895 !== "function") {
+var _v5148=null;
+_v5122=_v5148;
+}
+return _v5122;
+};
+var _v5149=_v5113=runJTramp(_v5116);
+var _v5150=lglobal["stream:make"];
+if (_v5150 === undefined) { throw new Error("No such global: " + "stream:make"); }
+var _v5151=_v5150;
+_v5151=runJTramp(_v5151);
+if (typeof _v5151 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5896=new JTramp(v5895, [runJTramp(v5893)]);
-var v5897;
-if(runJTramp(v5896)) {
-var v5898=function (v5899,v5900) {
+var _v5152=new JTramp(_v5151, [runJTramp(_v5109),runJTramp(_v5110)]);
+var _v5153=_v5152;
+var _v5154=function (_v5155) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+_v5113=runJTramp(_v5113);
+if (typeof _v5113 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5157=new JTramp(_v5113, [runJTramp(_v5155)]);
+_v5157=runJTramp(_v5157);
+return _v5112;
+};
+var _v5158=_v5154;
+_v5158=runJTramp(_v5158);
+if (typeof _v5158 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5159=new JTramp(_v5158, [runJTramp(_v5153)]);
+return _v5159;
+};
+_v5107=_v5108;
+lglobal["compile-file"]=runJTramp(_v5107);
+})();
+(function () {
+var _v5160;
+var _v5161=function () {
+if (arguments.length > 0) {
+throw new Error("Expecting at most 0 arguments.");
+}
+var _v5163=lglobal["reset-midir-compile"];
+if (_v5163 === undefined) { throw new Error("No such global: " + "reset-midir-compile"); }
+var _v5164=_v5163;
+_v5164=runJTramp(_v5164);
+if (typeof _v5164 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5165=new JTramp(_v5164, []);
+_v5165=runJTramp(_v5165);
+var _v5166=lglobal["compile-too"];
+if (_v5166 === undefined) { throw new Error("No such global: " + "compile-too"); }
+var _v5167=_v5166;
+_v5167=runJTramp(_v5167);
+if (typeof _v5167 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5168=new JTramp(_v5167, []);
+return _v5168;
+};
+_v5160=_v5161;
+lglobal["compile"]=runJTramp(_v5160);
+})();
+(function () {
+var _v5169;
+var _v5170=function () {
+if (arguments.length > 0) {
+throw new Error("Expecting at most 0 arguments.");
+}
+var _v5172="*file*";
+var _v5173=_v5172;
+var _v5174=lglobal["jsui:input-file"];
+if (_v5174 === undefined) { throw new Error("No such global: " + "jsui:input-file"); }
+var _v5175=_v5174;
+var _v5176=lglobal["compile-file"];
+if (_v5176 === undefined) { throw new Error("No such global: " + "compile-file"); }
+var _v5177=_v5176;
+_v5177=runJTramp(_v5177);
+if (typeof _v5177 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5178=new JTramp(_v5177, [runJTramp(_v5173),runJTramp(_v5175)]);
+_v5178=runJTramp(_v5178);
+var _v5179="(function () { // Compiled\n";
+var _v5180=_v5179;
+var _v5181=lglobal["++"];
+if (_v5181 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5182=_v5181;
+var _v5183=lglobal["midir-toplevel-defs"];
+if (_v5183 === undefined) { throw new Error("No such global: " + "midir-toplevel-defs"); }
+var _v5184=_v5183;
+var _v5185=lglobal["reverse"];
+if (_v5185 === undefined) { throw new Error("No such global: " + "reverse"); }
+var _v5186=_v5185;
+_v5186=runJTramp(_v5186);
+if (typeof _v5186 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5187=new JTramp(_v5186, [runJTramp(_v5184)]);
+var _v5188=_v5187;
+var _v5189=lglobal["apply"];
+if (_v5189 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5190=_v5189;
+_v5190=runJTramp(_v5190);
+if (typeof _v5190 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5191=new JTramp(_v5190, [runJTramp(_v5182),runJTramp(_v5188)]);
+var _v5192=_v5191;
+var _v5193="})();\n";
+var _v5194=_v5193;
+var _v5195=lglobal["++"];
+if (_v5195 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5196=_v5195;
+_v5196=runJTramp(_v5196);
+if (typeof _v5196 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5197=new JTramp(_v5196, [runJTramp(_v5180),runJTramp(_v5192),runJTramp(_v5194)]);
+var _v5198=_v5197;
+var _v5199="(function (v) {$('#compiled').val(v); return null;})";
+var _v5200=_v5199;
+var _v5201=lglobal["js:eval"];
+if (_v5201 === undefined) { throw new Error("No such global: " + "js:eval"); }
+var _v5202=_v5201;
+_v5202=runJTramp(_v5202);
+if (typeof _v5202 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5203=new JTramp(_v5202, [runJTramp(_v5200)]);
+var _v5204=_v5203;
+_v5204=runJTramp(_v5204);
+if (typeof _v5204 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5205=new JTramp(_v5204, [runJTramp(_v5198)]);
+return _v5205;
+};
+_v5169=_v5170;
+lglobal["compile-too"]=runJTramp(_v5169);
+})();
+(function () {
+var _v5206;
+var _v5207=function (_v5208) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5210="*eval*";
+var _v5211=_v5210;
+var _v5212=lglobal["compile-file"];
+if (_v5212 === undefined) { throw new Error("No such global: " + "compile-file"); }
+var _v5213=_v5212;
+_v5213=runJTramp(_v5213);
+if (typeof _v5213 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5214=new JTramp(_v5213, [runJTramp(_v5211),runJTramp(_v5208)]);
+return _v5214;
+};
+_v5206=_v5207;
+lglobal["midir-eval-all"]=runJTramp(_v5206);
+})();
+(function () {
+var _v5215;
+var _v5216=function (_v5217) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5219;
+var _v5220;
+var _v5221=lglobal["null"];
+if (_v5221 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5222=_v5219=runJTramp(_v5221);
+var _v5223=function (_v5224) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5226=lglobal["read:has-another?"];
+if (_v5226 === undefined) { throw new Error("No such global: " + "read:has-another?"); }
+var _v5227=_v5226;
+_v5227=runJTramp(_v5227);
+if (typeof _v5227 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5228=new JTramp(_v5227, [runJTramp(_v5224)]);
+var _v5229;
+if(runJTramp(_v5228)) {
+var _v5230=lglobal["read:sexp"];
+if (_v5230 === undefined) { throw new Error("No such global: " + "read:sexp"); }
+var _v5231=_v5230;
+_v5231=runJTramp(_v5231);
+if (typeof _v5231 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5232=new JTramp(_v5231, [runJTramp(_v5224)]);
+var _v5233=_v5232;
+var _v5234=function (_v5235) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5237="Compiling ";
+var _v5238=_v5237;
+var _v5239=lglobal["repr"];
+if (_v5239 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v5240=_v5239;
+_v5240=runJTramp(_v5240);
+if (typeof _v5240 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5241=new JTramp(_v5240, [runJTramp(_v5235)]);
+var _v5242=_v5241;
+var _v5243="\n";
+var _v5244=_v5243;
+var _v5245=lglobal["print"];
+if (_v5245 === undefined) { throw new Error("No such global: " + "print"); }
+var _v5246=_v5245;
+_v5246=runJTramp(_v5246);
+if (typeof _v5246 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5247=new JTramp(_v5246, [runJTramp(_v5238),runJTramp(_v5242),runJTramp(_v5244)]);
+_v5247=runJTramp(_v5247);
+var _v5248=lglobal["compile-toplevel-to-midir"];
+if (_v5248 === undefined) { throw new Error("No such global: " + "compile-toplevel-to-midir"); }
+var _v5249=_v5248;
+_v5249=runJTramp(_v5249);
+if (typeof _v5249 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5250=new JTramp(_v5249, [runJTramp(_v5235)]);
+var _v5251=_v5219=runJTramp(_v5250);
+_v5251=runJTramp(_v5251);
+_v5220=runJTramp(_v5220);
+if (typeof _v5220 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5252=new JTramp(_v5220, [runJTramp(_v5224)]);
+return _v5252;
+};
+var _v5253=_v5234;
+_v5253=runJTramp(_v5253);
+if (typeof _v5253 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5254=new JTramp(_v5253, [runJTramp(_v5233)]);
+_v5229=_v5254;
+} else {
+var _v5255=null;
+_v5229=_v5255;
+}
+return _v5229;
+};
+var _v5256=_v5220=runJTramp(_v5223);
+var _v5257="*repl*";
+var _v5258=_v5257;
+var _v5259=lglobal["stream:make"];
+if (_v5259 === undefined) { throw new Error("No such global: " + "stream:make"); }
+var _v5260=_v5259;
+_v5260=runJTramp(_v5260);
+if (typeof _v5260 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5261=new JTramp(_v5260, [runJTramp(_v5258),runJTramp(_v5217)]);
+var _v5262=_v5261;
+var _v5263=function (_v5264) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+_v5220=runJTramp(_v5220);
+if (typeof _v5220 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5266=new JTramp(_v5220, [runJTramp(_v5264)]);
+_v5266=runJTramp(_v5266);
+var _v5267="\n";
+var _v5268=_v5267;
+var _v5269=lglobal["print"];
+if (_v5269 === undefined) { throw new Error("No such global: " + "print"); }
+var _v5270=_v5269;
+_v5270=runJTramp(_v5270);
+if (typeof _v5270 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5271=new JTramp(_v5270, [runJTramp(_v5219),runJTramp(_v5268)]);
+return _v5271;
+};
+var _v5272=_v5263;
+_v5272=runJTramp(_v5272);
+if (typeof _v5272 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5273=new JTramp(_v5272, [runJTramp(_v5262)]);
+return _v5273;
+};
+_v5215=_v5216;
+lglobal["run-repl"]=runJTramp(_v5215);
+})();
+(function () {
+var _v5274;
+var _v5275=0;
+var _v5276=_v5275;
+var _v5277=lglobal["dict"];
+if (_v5277 === undefined) { throw new Error("No such global: " + "dict"); }
+var _v5278=_v5277;
+_v5278=runJTramp(_v5278);
+if (typeof _v5278 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5279=new JTramp(_v5278, []);
+var _v5280=_v5279;
+var _v5281=function (_v5282,_v5283) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5902=v5900;
-var v5903=v5815;
-v5903=runJTramp(v5903);
-if (typeof v5903 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5904=new JTramp(v5903, [runJTramp(v5902)]);
-var v5905=v5904;
-var v5906=function (v5907) {
+var _v5285=function (_v5286) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5909=function (v5910) {
+var _v5288=lglobal["null?"];
+if (_v5288 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v5289=_v5288;
+_v5289=runJTramp(_v5289);
+if (typeof _v5289 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5290=new JTramp(_v5289, [runJTramp(_v5286)]);
+var _v5291=_v5290;
+var _v5292=lglobal["not"];
+if (_v5292 === undefined) { throw new Error("No such global: " + "not"); }
+var _v5293=_v5292;
+_v5293=runJTramp(_v5293);
+if (typeof _v5293 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5294=new JTramp(_v5293, [runJTramp(_v5291)]);
+var _v5295=_v5294;
+var _v5296=function (_v5297) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5912="lookup";
-var v5913=v5912;
-var v5914=v5899;
-var v5915=v5910;
-v5915=runJTramp(v5915);
-if (typeof v5915 !== "function") {
+var _v5299;
+if(runJTramp(_v5297)) {
+var _v5300=lglobal["dict:has?"];
+if (_v5300 === undefined) { throw new Error("No such global: " + "dict:has?"); }
+var _v5301=_v5300;
+_v5301=runJTramp(_v5301);
+if (typeof _v5301 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5916=new JTramp(v5915, [runJTramp(v5913),runJTramp(v5914)]);
-return v5916;
-};
-var v5917=v5909;
-var v5918=v5907;
-var v5919=v5817;
-v5919=runJTramp(v5919);
-if (typeof v5919 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5920=new JTramp(v5919, [runJTramp(v5917),runJTramp(v5918)]);
-var v5921=v5920;
-var v5922=lglobal["const"];
-var v5923=v5922;
-v5923=runJTramp(v5923);
-if (typeof v5923 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5924=new JTramp(v5923, [runJTramp(v5921)]);
-return v5924;
-};
-var v5925=v5906;
-v5925=runJTramp(v5925);
-if (typeof v5925 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5926=new JTramp(v5925, [runJTramp(v5905)]);
-return v5926;
-};
-var v5927=v5898;
-var v5928=v5853;
-var v5929=lglobal["tail"];
-var v5930=v5929;
-v5930=runJTramp(v5930);
-if (typeof v5930 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5931=new JTramp(v5930, [runJTramp(v5928)]);
-var v5932=v5931;
-var v5933=lglobal["apply"];
-var v5934=v5933;
-v5934=runJTramp(v5934);
-if (typeof v5934 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5935=new JTramp(v5934, [runJTramp(v5927),runJTramp(v5932)]);
-v5897=v5935;
+var _v5302=new JTramp(_v5301, [runJTramp(_v5283),runJTramp(_v5286)]);
+_v5299=_v5302;
 } else {
-var v5936=v5853;
-var v5937=lglobal["midir:glookup?"];
-var v5938=v5937;
-v5938=runJTramp(v5938);
-if (typeof v5938 !== "function") {
+_v5299=_v5297;
+}
+return _v5299;
+};
+var _v5303=_v5296;
+_v5303=runJTramp(_v5303);
+if (typeof _v5303 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5939=new JTramp(v5938, [runJTramp(v5936)]);
-var v5940;
-if(runJTramp(v5939)) {
-var v5941=function (v5942,v5943) {
+var _v5304=new JTramp(_v5303, [runJTramp(_v5295)]);
+var _v5305;
+if(runJTramp(_v5304)) {
+var _v5306=lglobal["dict:get"];
+if (_v5306 === undefined) { throw new Error("No such global: " + "dict:get"); }
+var _v5307=_v5306;
+_v5307=runJTramp(_v5307);
+if (typeof _v5307 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5308=new JTramp(_v5307, [runJTramp(_v5283),runJTramp(_v5286)]);
+_v5305=_v5308;
+} else {
+var _v5309=1;
+var _v5310=_v5309;
+var _v5311=lglobal["+"];
+if (_v5311 === undefined) { throw new Error("No such global: " + "+"); }
+var _v5312=_v5311;
+_v5312=runJTramp(_v5312);
+if (typeof _v5312 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5313=new JTramp(_v5312, [runJTramp(_v5310),runJTramp(_v5282)]);
+var _v5314=_v5282=runJTramp(_v5313);
+_v5314=runJTramp(_v5314);
+var _v5315="_v";
+var _v5316=_v5315;
+var _v5317=lglobal["++"];
+if (_v5317 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5318=_v5317;
+_v5318=runJTramp(_v5318);
+if (typeof _v5318 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5319=new JTramp(_v5318, [runJTramp(_v5316),runJTramp(_v5282)]);
+var _v5320=_v5319;
+var _v5321=function (_v5322) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5324=lglobal["dict:set!"];
+if (_v5324 === undefined) { throw new Error("No such global: " + "dict:set!"); }
+var _v5325=_v5324;
+_v5325=runJTramp(_v5325);
+if (typeof _v5325 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5326=new JTramp(_v5325, [runJTramp(_v5283),runJTramp(_v5286),runJTramp(_v5322)]);
+_v5326=runJTramp(_v5326);
+return _v5322;
+};
+var _v5327=_v5321;
+_v5327=runJTramp(_v5327);
+if (typeof _v5327 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5328=new JTramp(_v5327, [runJTramp(_v5320)]);
+_v5305=_v5328;
+}
+return _v5305;
+};
+return _v5285;
+};
+var _v5329=_v5281;
+_v5329=runJTramp(_v5329);
+if (typeof _v5329 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5330=new JTramp(_v5329, [runJTramp(_v5276),runJTramp(_v5280)]);
+_v5274=_v5330;
+lglobal["make-js-var"]=runJTramp(_v5274);
+})();
+(function () {
+var _v5331;
+var _v5332=function (_v5333,_v5334,_v5335) {
+if (arguments.length < 3) {
+throw new Error("Expecting at least 3 arguments.");
+}
+if (arguments.length > 3) {
+throw new Error("Expecting at most 3 arguments.");
+}
+var _v5337=function (_v5338) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5340=lglobal["midir:lit?"];
+if (_v5340 === undefined) { throw new Error("No such global: " + "midir:lit?"); }
+var _v5341=_v5340;
+_v5341=runJTramp(_v5341);
+if (typeof _v5341 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5342=new JTramp(_v5341, [runJTramp(_v5338)]);
+var _v5343;
+if(runJTramp(_v5342)) {
+var _v5344=function (_v5345,_v5346) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v5945=v5943;
-var v5946=v5815;
-v5946=runJTramp(v5946);
-if (typeof v5946 !== "function") {
+var _v5348=lglobal["null"];
+if (_v5348 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5349=_v5348;
+var _v5350=lglobal["make-js-var"];
+if (_v5350 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5351=_v5350;
+_v5351=runJTramp(_v5351);
+if (typeof _v5351 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5947=new JTramp(v5946, [runJTramp(v5945)]);
-var v5948=v5947;
-var v5949=function (v5950) {
+var _v5352=new JTramp(_v5351, [runJTramp(_v5349)]);
+var _v5353=_v5352;
+var _v5354=function (_v5355) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5952=function (v5953) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v5955="lookup";
-var v5956=v5955;
-var v5957=v5942;
-var v5958=v5953;
-v5958=runJTramp(v5958);
-if (typeof v5958 !== "function") {
+var _v5357="var ";
+var _v5358=_v5357;
+var _v5359="=";
+var _v5360=_v5359;
+var _v5361=lglobal["compile-lit"];
+if (_v5361 === undefined) { throw new Error("No such global: " + "compile-lit"); }
+var _v5362=_v5361;
+_v5362=runJTramp(_v5362);
+if (typeof _v5362 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5959=new JTramp(v5958, [runJTramp(v5956),runJTramp(v5957)]);
-return v5959;
+var _v5363=new JTramp(_v5362, [runJTramp(_v5345)]);
+var _v5364=_v5363;
+var _v5365=";\n";
+var _v5366=_v5365;
+var _v5367=lglobal["compile-midir-to-js"];
+if (_v5367 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5368=_v5367;
+_v5368=runJTramp(_v5368);
+if (typeof _v5368 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5369=new JTramp(_v5368, [runJTramp(_v5346),runJTramp(_v5355),runJTramp(_v5335)]);
+var _v5370=_v5369;
+var _v5371=lglobal["++"];
+if (_v5371 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5372=_v5371;
+_v5372=runJTramp(_v5372);
+if (typeof _v5372 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5373=new JTramp(_v5372, [runJTramp(_v5358),runJTramp(_v5355),runJTramp(_v5360),runJTramp(_v5364),runJTramp(_v5366),runJTramp(_v5370)]);
+return _v5373;
 };
-var v5960=v5952;
-var v5961=v5950;
-var v5962=v5817;
-v5962=runJTramp(v5962);
-if (typeof v5962 !== "function") {
+var _v5374=_v5354;
+_v5374=runJTramp(_v5374);
+if (typeof _v5374 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5963=new JTramp(v5962, [runJTramp(v5960),runJTramp(v5961)]);
-var v5964=v5963;
-var v5965=lglobal["const"];
-var v5966=v5965;
-v5966=runJTramp(v5966);
-if (typeof v5966 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5967=new JTramp(v5966, [runJTramp(v5964)]);
-return v5967;
+var _v5375=new JTramp(_v5374, [runJTramp(_v5353)]);
+return _v5375;
 };
-var v5968=v5949;
-v5968=runJTramp(v5968);
-if (typeof v5968 !== "function") {
+var _v5376=_v5344;
+var _v5377=lglobal["tail"];
+if (_v5377 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5378=_v5377;
+_v5378=runJTramp(_v5378);
+if (typeof _v5378 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5969=new JTramp(v5968, [runJTramp(v5948)]);
-return v5969;
-};
-var v5970=v5941;
-var v5971=v5853;
-var v5972=lglobal["tail"];
-var v5973=v5972;
-v5973=runJTramp(v5973);
-if (typeof v5973 !== "function") {
+var _v5379=new JTramp(_v5378, [runJTramp(_v5338)]);
+var _v5380=_v5379;
+var _v5381=lglobal["apply"];
+if (_v5381 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5382=_v5381;
+_v5382=runJTramp(_v5382);
+if (typeof _v5382 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5974=new JTramp(v5973, [runJTramp(v5971)]);
-var v5975=v5974;
-var v5976=lglobal["apply"];
-var v5977=v5976;
-v5977=runJTramp(v5977);
-if (typeof v5977 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v5978=new JTramp(v5977, [runJTramp(v5970),runJTramp(v5975)]);
-v5940=v5978;
+var _v5383=new JTramp(_v5382, [runJTramp(_v5376),runJTramp(_v5380)]);
+_v5343=_v5383;
 } else {
-var v5979=v5853;
-var v5980=lglobal["midir:enter?"];
-var v5981=v5980;
-v5981=runJTramp(v5981);
-if (typeof v5981 !== "function") {
+var _v5384=lglobal["midir:lookup?"];
+if (_v5384 === undefined) { throw new Error("No such global: " + "midir:lookup?"); }
+var _v5385=_v5384;
+_v5385=runJTramp(_v5385);
+if (typeof _v5385 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5982=new JTramp(v5981, [runJTramp(v5979)]);
-var v5983;
-if(runJTramp(v5982)) {
-var v5984=function (v5985,v5986,v5987,v5988) {
+var _v5386=new JTramp(_v5385, [runJTramp(_v5338)]);
+var _v5387;
+if(runJTramp(_v5386)) {
+var _v5388=function (_v5389,_v5390) {
+if (arguments.length < 2) {
+throw new Error("Expecting at least 2 arguments.");
+}
+if (arguments.length > 2) {
+throw new Error("Expecting at most 2 arguments.");
+}
+var _v5392=lglobal["make-js-var"];
+if (_v5392 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5393=_v5392;
+_v5393=runJTramp(_v5393);
+if (typeof _v5393 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5394=new JTramp(_v5393, [runJTramp(_v5389)]);
+var _v5395=_v5394;
+var _v5396=lglobal["compile-midir-to-js"];
+if (_v5396 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5397=_v5396;
+_v5397=runJTramp(_v5397);
+if (typeof _v5397 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5398=new JTramp(_v5397, [runJTramp(_v5390),runJTramp(_v5395),runJTramp(_v5335)]);
+return _v5398;
+};
+var _v5399=_v5388;
+var _v5400=lglobal["tail"];
+if (_v5400 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5401=_v5400;
+_v5401=runJTramp(_v5401);
+if (typeof _v5401 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5402=new JTramp(_v5401, [runJTramp(_v5338)]);
+var _v5403=_v5402;
+var _v5404=lglobal["apply"];
+if (_v5404 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5405=_v5404;
+_v5405=runJTramp(_v5405);
+if (typeof _v5405 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5406=new JTramp(_v5405, [runJTramp(_v5399),runJTramp(_v5403)]);
+_v5387=_v5406;
+} else {
+var _v5407=lglobal["midir:glookup?"];
+if (_v5407 === undefined) { throw new Error("No such global: " + "midir:glookup?"); }
+var _v5408=_v5407;
+_v5408=runJTramp(_v5408);
+if (typeof _v5408 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5409=new JTramp(_v5408, [runJTramp(_v5338)]);
+var _v5410;
+if(runJTramp(_v5409)) {
+var _v5411=function (_v5412,_v5413) {
+if (arguments.length < 2) {
+throw new Error("Expecting at least 2 arguments.");
+}
+if (arguments.length > 2) {
+throw new Error("Expecting at most 2 arguments.");
+}
+var _v5415=lglobal["null"];
+if (_v5415 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5416=_v5415;
+var _v5417=lglobal["make-js-var"];
+if (_v5417 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5418=_v5417;
+_v5418=runJTramp(_v5418);
+if (typeof _v5418 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5419=new JTramp(_v5418, [runJTramp(_v5416)]);
+var _v5420=_v5419;
+var _v5421=function (_v5422) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5424="var ";
+var _v5425=_v5424;
+var _v5426="=lglobal[";
+var _v5427=_v5426;
+var _v5428=lglobal["js-escape-string"];
+if (_v5428 === undefined) { throw new Error("No such global: " + "js-escape-string"); }
+var _v5429=_v5428;
+_v5429=runJTramp(_v5429);
+if (typeof _v5429 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5430=new JTramp(_v5429, [runJTramp(_v5412)]);
+var _v5431=_v5430;
+var _v5432="];\n";
+var _v5433=_v5432;
+var _v5434="if (";
+var _v5435=_v5434;
+var _v5436=" === undefined) { throw new Error(\"No such global: \" + ";
+var _v5437=_v5436;
+var _v5438=lglobal["js-escape-string"];
+if (_v5438 === undefined) { throw new Error("No such global: " + "js-escape-string"); }
+var _v5439=_v5438;
+_v5439=runJTramp(_v5439);
+if (typeof _v5439 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5440=new JTramp(_v5439, [runJTramp(_v5412)]);
+var _v5441=_v5440;
+var _v5442="); }\n";
+var _v5443=_v5442;
+var _v5444=lglobal["compile-midir-to-js"];
+if (_v5444 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5445=_v5444;
+_v5445=runJTramp(_v5445);
+if (typeof _v5445 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5446=new JTramp(_v5445, [runJTramp(_v5413),runJTramp(_v5422),runJTramp(_v5335)]);
+var _v5447=_v5446;
+var _v5448=lglobal["++"];
+if (_v5448 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5449=_v5448;
+_v5449=runJTramp(_v5449);
+if (typeof _v5449 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5450=new JTramp(_v5449, [runJTramp(_v5425),runJTramp(_v5422),runJTramp(_v5427),runJTramp(_v5431),runJTramp(_v5433),runJTramp(_v5435),runJTramp(_v5422),runJTramp(_v5437),runJTramp(_v5441),runJTramp(_v5443),runJTramp(_v5447)]);
+return _v5450;
+};
+var _v5451=_v5421;
+_v5451=runJTramp(_v5451);
+if (typeof _v5451 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5452=new JTramp(_v5451, [runJTramp(_v5420)]);
+return _v5452;
+};
+var _v5453=_v5411;
+var _v5454=lglobal["tail"];
+if (_v5454 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5455=_v5454;
+_v5455=runJTramp(_v5455);
+if (typeof _v5455 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5456=new JTramp(_v5455, [runJTramp(_v5338)]);
+var _v5457=_v5456;
+var _v5458=lglobal["apply"];
+if (_v5458 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5459=_v5458;
+_v5459=runJTramp(_v5459);
+if (typeof _v5459 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5460=new JTramp(_v5459, [runJTramp(_v5453),runJTramp(_v5457)]);
+_v5410=_v5460;
+} else {
+var _v5461=lglobal["midir:enter?"];
+if (_v5461 === undefined) { throw new Error("No such global: " + "midir:enter?"); }
+var _v5462=_v5461;
+_v5462=runJTramp(_v5462);
+if (typeof _v5462 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5463=new JTramp(_v5462, [runJTramp(_v5338)]);
+var _v5464;
+if(runJTramp(_v5463)) {
+var _v5465=function (_v5466,_v5467,_v5468,_v5469) {
 if (arguments.length < 4) {
 throw new Error("Expecting at least 4 arguments.");
 }
 if (arguments.length > 4) {
 throw new Error("Expecting at most 4 arguments.");
 }
-var v5990=v5988;
-var v5991=v5815;
-v5991=runJTramp(v5991);
-if (typeof v5991 !== "function") {
+var _v5471=lglobal["make-js-var"];
+if (_v5471 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5472=_v5471;
+var _v5473=lglobal["map"];
+if (_v5473 === undefined) { throw new Error("No such global: " + "map"); }
+var _v5474=_v5473;
+_v5474=runJTramp(_v5474);
+if (typeof _v5474 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v5992=new JTramp(v5991, [runJTramp(v5990)]);
-var v5993=v5992;
-var v5994=function (v5995) {
+var _v5475=new JTramp(_v5474, [runJTramp(_v5472),runJTramp(_v5466)]);
+var _v5476=_v5475;
+var _v5477=lglobal["make-js-var"];
+if (_v5477 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5478=_v5477;
+_v5478=runJTramp(_v5478);
+if (typeof _v5478 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5479=new JTramp(_v5478, [runJTramp(_v5467)]);
+var _v5480=_v5479;
+var _v5481=lglobal["make-js-var"];
+if (_v5481 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5482=_v5481;
+var _v5483=lglobal["map"];
+if (_v5483 === undefined) { throw new Error("No such global: " + "map"); }
+var _v5484=_v5483;
+_v5484=runJTramp(_v5484);
+if (typeof _v5484 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5485=new JTramp(_v5484, [runJTramp(_v5482),runJTramp(_v5468)]);
+var _v5486=_v5485;
+var _v5487=function (_v5488,_v5489,_v5490) {
+if (arguments.length < 3) {
+throw new Error("Expecting at least 3 arguments.");
+}
+if (arguments.length > 3) {
+throw new Error("Expecting at most 3 arguments.");
+}
+var _v5492="function (";
+var _v5493=_v5492;
+var _v5494=",";
+var _v5495=_v5494;
+var _v5496=lglobal["s:join"];
+if (_v5496 === undefined) { throw new Error("No such global: " + "s:join"); }
+var _v5497=_v5496;
+_v5497=runJTramp(_v5497);
+if (typeof _v5497 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5498=new JTramp(_v5497, [runJTramp(_v5495),runJTramp(_v5488)]);
+var _v5499=_v5498;
+var _v5500=") {\n";
+var _v5501=_v5500;
+var _v5502=lglobal["length"];
+if (_v5502 === undefined) { throw new Error("No such global: " + "length"); }
+var _v5503=_v5502;
+_v5503=runJTramp(_v5503);
+if (typeof _v5503 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5504=new JTramp(_v5503, [runJTramp(_v5488)]);
+var _v5505=_v5504;
+var _v5506=lglobal["null?"];
+if (_v5506 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v5507=_v5506;
+_v5507=runJTramp(_v5507);
+if (typeof _v5507 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5508=new JTramp(_v5507, [runJTramp(_v5467)]);
+var _v5509=_v5508;
+var _v5510=lglobal["not"];
+if (_v5510 === undefined) { throw new Error("No such global: " + "not"); }
+var _v5511=_v5510;
+_v5511=runJTramp(_v5511);
+if (typeof _v5511 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5512=new JTramp(_v5511, [runJTramp(_v5509)]);
+var _v5513=_v5512;
+var _v5514=lglobal["js-check-num-args"];
+if (_v5514 === undefined) { throw new Error("No such global: " + "js-check-num-args"); }
+var _v5515=_v5514;
+_v5515=runJTramp(_v5515);
+if (typeof _v5515 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5516=new JTramp(_v5515, [runJTramp(_v5505),runJTramp(_v5513)]);
+var _v5517=_v5516;
+var _v5518=lglobal["null?"];
+if (_v5518 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v5519=_v5518;
+_v5519=runJTramp(_v5519);
+if (typeof _v5519 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5520=new JTramp(_v5519, [runJTramp(_v5467)]);
+var _v5521;
+if(runJTramp(_v5520)) {
+var _v5522="";
+_v5521=_v5522;
+} else {
+var _v5523=lglobal["length"];
+if (_v5523 === undefined) { throw new Error("No such global: " + "length"); }
+var _v5524=_v5523;
+_v5524=runJTramp(_v5524);
+if (typeof _v5524 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5525=new JTramp(_v5524, [runJTramp(_v5488)]);
+var _v5526=_v5525;
+var _v5527=lglobal["js-handleVarArg"];
+if (_v5527 === undefined) { throw new Error("No such global: " + "js-handleVarArg"); }
+var _v5528=_v5527;
+_v5528=runJTramp(_v5528);
+if (typeof _v5528 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5529=new JTramp(_v5528, [runJTramp(_v5526),runJTramp(_v5489)]);
+_v5521=_v5529;
+}
+var _v5530=_v5521;
+var _v5531=lglobal["++"];
+if (_v5531 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5532=_v5531;
+var _v5533=function (_v5534) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v5997;
-var v5998=function (v5999,v6000,v6001,v6002) {
-if (arguments.length < 4) {
-throw new Error("Expecting at least 4 arguments.");
-}
-if (arguments.length > 4) {
-throw new Error("Expecting at most 4 arguments.");
-}
-var v6004=v6000;
-var v6005=lglobal["nil?"];
-var v6006=v6005;
-v6006=runJTramp(v6006);
-if (typeof v6006 !== "function") {
+var _v5536="var ";
+var _v5537=_v5536;
+var _v5538=";\n";
+var _v5539=_v5538;
+var _v5540=lglobal["++"];
+if (_v5540 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5541=_v5540;
+_v5541=runJTramp(_v5541);
+if (typeof _v5541 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6007=new JTramp(v6006, [runJTramp(v6004)]);
-var v6008=v6007;
-var v6009=function (v6010) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6012;
-if(runJTramp(v6010)) {
-var v6013=v6001;
-var v6014=lglobal["null?"];
-var v6015=v6014;
-v6015=runJTramp(v6015);
-if (typeof v6015 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6016=new JTramp(v6015, [runJTramp(v6013)]);
-var v6017=v6016;
-var v6018=function (v6019) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6021;
-if(runJTramp(v6019)) {
-var v6022=v6002;
-var v6023=lglobal["nil?"];
-var v6024=v6023;
-v6024=runJTramp(v6024);
-if (typeof v6024 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6025=new JTramp(v6024, [runJTramp(v6022)]);
-var v6026=v6025;
-var v6027=lglobal["not"];
-var v6028=v6027;
-v6028=runJTramp(v6028);
-if (typeof v6028 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6029=new JTramp(v6028, [runJTramp(v6026)]);
-v6021=v6029;
-} else {
-v6021=v6019;
-}
-return v6021;
+var _v5542=new JTramp(_v5541, [runJTramp(_v5537),runJTramp(_v5534),runJTramp(_v5539)]);
+return _v5542;
 };
-var v6030=v6018;
-v6030=runJTramp(v6030);
-if (typeof v6030 !== "function") {
+var _v5543=_v5533;
+var _v5544=lglobal["map"];
+if (_v5544 === undefined) { throw new Error("No such global: " + "map"); }
+var _v5545=_v5544;
+_v5545=runJTramp(_v5545);
+if (typeof _v5545 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6031=new JTramp(v6030, [runJTramp(v6017)]);
-v6012=v6031;
-} else {
-v6012=v6010;
+var _v5546=new JTramp(_v5545, [runJTramp(_v5543),runJTramp(_v5490)]);
+var _v5547=_v5546;
+var _v5548=lglobal["apply"];
+if (_v5548 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5549=_v5548;
+_v5549=runJTramp(_v5549);
+if (typeof _v5549 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-return v6012;
+var _v5550=new JTramp(_v5549, [runJTramp(_v5532),runJTramp(_v5547)]);
+var _v5551=_v5550;
+var _v5552="ERROR";
+var _v5553=_v5552;
+var _v5554="ERROR";
+var _v5555=_v5554;
+var _v5556=lglobal["compile-midir-to-js"];
+if (_v5556 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5557=_v5556;
+_v5557=runJTramp(_v5557);
+if (typeof _v5557 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5558=new JTramp(_v5557, [runJTramp(_v5469),runJTramp(_v5553),runJTramp(_v5555)]);
+var _v5559=_v5558;
+var _v5560="}";
+var _v5561=_v5560;
+var _v5562=lglobal["++"];
+if (_v5562 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5563=_v5562;
+_v5563=runJTramp(_v5563);
+if (typeof _v5563 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5564=new JTramp(_v5563, [runJTramp(_v5493),runJTramp(_v5499),runJTramp(_v5501),runJTramp(_v5517),runJTramp(_v5530),runJTramp(_v5551),runJTramp(_v5559),runJTramp(_v5561)]);
+return _v5564;
 };
-var v6032=v6009;
-v6032=runJTramp(v6032);
-if (typeof v6032 !== "function") {
+var _v5565=_v5487;
+_v5565=runJTramp(_v5565);
+if (typeof _v5565 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6033=new JTramp(v6032, [runJTramp(v6008)]);
-var v6034;
-if(runJTramp(v6033)) {
-var v6035="Too many arguments passed to function.";
-var v6036=v6035;
-var v6037=lglobal["error"];
-var v6038=v6037;
-v6038=runJTramp(v6038);
-if (typeof v6038 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6039=new JTramp(v6038, [runJTramp(v6036)]);
-v6034=v6039;
-} else {
-var v6040=v6000;
-var v6041=lglobal["nil?"];
-var v6042=v6041;
-v6042=runJTramp(v6042);
-if (typeof v6042 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6043=new JTramp(v6042, [runJTramp(v6040)]);
-var v6044;
-if(runJTramp(v6043)) {
-var v6045=v6001;
-var v6046=lglobal["null?"];
-var v6047=v6046;
-v6047=runJTramp(v6047);
-if (typeof v6047 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6048=new JTramp(v6047, [runJTramp(v6045)]);
-var v6049=v6048;
-var v6050=lglobal["not"];
-var v6051=v6050;
-v6051=runJTramp(v6051);
-if (typeof v6051 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6052=new JTramp(v6051, [runJTramp(v6049)]);
-var v6053;
-if(runJTramp(v6052)) {
-var v6054="set!";
-var v6055=v6054;
-var v6056=v6001;
-var v6057=v6002;
-var v6058=v5999;
-v6058=runJTramp(v6058);
-if (typeof v6058 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6059=new JTramp(v6058, [runJTramp(v6055),runJTramp(v6056),runJTramp(v6057)]);
-v6053=v6059;
-} else {
-var v6060=null;
-v6053=v6060;
-}
-v6053=runJTramp(v6053);
-v6044=v5999;
-} else {
-var v6061=v6002;
-var v6062=lglobal["nil?"];
-var v6063=v6062;
-v6063=runJTramp(v6063);
-if (typeof v6063 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6064=new JTramp(v6063, [runJTramp(v6061)]);
-var v6065;
-if(runJTramp(v6064)) {
-var v6066="Too few arguments passed to function.";
-var v6067=v6066;
-var v6068=lglobal["error"];
-var v6069=v6068;
-v6069=runJTramp(v6069);
-if (typeof v6069 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6070=new JTramp(v6069, [runJTramp(v6067)]);
-v6065=v6070;
-} else {
-var v6071=lglobal["otherwise"];
-var v6072;
-if(runJTramp(v6071)) {
-var v6073="set!";
-var v6074=v6073;
-var v6075=v6000;
-var v6076=lglobal["head"];
-var v6077=v6076;
-v6077=runJTramp(v6077);
-if (typeof v6077 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6078=new JTramp(v6077, [runJTramp(v6075)]);
-var v6079=v6078;
-var v6080=v6002;
-var v6081=lglobal["head"];
-var v6082=v6081;
-v6082=runJTramp(v6082);
-if (typeof v6082 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6083=new JTramp(v6082, [runJTramp(v6080)]);
-var v6084=v6083;
-var v6085=v5999;
-v6085=runJTramp(v6085);
-if (typeof v6085 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6086=new JTramp(v6085, [runJTramp(v6074),runJTramp(v6079),runJTramp(v6084)]);
-v6086=runJTramp(v6086);
-var v6087=v5999;
-var v6088=v6000;
-var v6089=lglobal["tail"];
-var v6090=v6089;
-v6090=runJTramp(v6090);
-if (typeof v6090 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6091=new JTramp(v6090, [runJTramp(v6088)]);
-var v6092=v6091;
-var v6093=v6001;
-var v6094=v6002;
-var v6095=lglobal["tail"];
-var v6096=v6095;
-v6096=runJTramp(v6096);
-if (typeof v6096 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6097=new JTramp(v6096, [runJTramp(v6094)]);
-var v6098=v6097;
-var v6099=v5997;
-v6099=runJTramp(v6099);
-if (typeof v6099 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6100=new JTramp(v6099, [runJTramp(v6087),runJTramp(v6092),runJTramp(v6093),runJTramp(v6098)]);
-v6072=v6100;
-} else {
-var v6101=null;
-v6072=v6101;
-}
-v6065=v6072;
-}
-v6044=v6065;
-}
-v6034=v6044;
-}
-return v6034;
+var _v5566=new JTramp(_v5565, [runJTramp(_v5476),runJTramp(_v5480),runJTramp(_v5486)]);
+return _v5566;
 };
-var v6102=v5997=runJTramp(v5998);
-var v6103=function (v6104) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6106=function () {
-var v6107 = new Nil();
-for (var v6108 = arguments.length - 1; v6108 >= 0; v6108--) {
-  v6107 = new Cons(arguments[v6108], v6107);
-}
-var v6109=v6104;
-var v6110=lglobal["make-env"];
-var v6111=v6110;
-v6111=runJTramp(v6111);
-if (typeof v6111 !== "function") {
+var _v5567=_v5465;
+var _v5568=lglobal["tail"];
+if (_v5568 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5569=_v5568;
+_v5569=runJTramp(_v5569);
+if (typeof _v5569 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6112=new JTramp(v6111, [runJTramp(v6109)]);
-var v6113=v6112;
-var v6114=v5985;
-var v6115=v5986;
-var v6116=v6107;
-var v6117=v5997;
-v6117=runJTramp(v6117);
-if (typeof v6117 !== "function") {
+var _v5570=new JTramp(_v5569, [runJTramp(_v5338)]);
+var _v5571=_v5570;
+var _v5572=lglobal["apply"];
+if (_v5572 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5573=_v5572;
+_v5573=runJTramp(_v5573);
+if (typeof _v5573 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6118=new JTramp(v6117, [runJTramp(v6113),runJTramp(v6114),runJTramp(v6115),runJTramp(v6116)]);
-var v6119=v6118;
-var v6120=function (v6121) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6123=v6121;
-var v6124=lglobal["null"];
-var v6125=v6124;
-var v6126=v5995;
-v6126=runJTramp(v6126);
-if (typeof v6126 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6127=new JTramp(v6126, [runJTramp(v6125)]);
-var v6128=v6127;
-v6128=runJTramp(v6128);
-if (typeof v6128 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6129=new JTramp(v6128, [runJTramp(v6123)]);
-return v6129;
-};
-var v6130=v6120;
-v6130=runJTramp(v6130);
-if (typeof v6130 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6131=new JTramp(v6130, [runJTramp(v6119)]);
-return v6131;
-};
-return v6106;
-};
-return v6103;
-};
-var v6132=v5994;
-v6132=runJTramp(v6132);
-if (typeof v6132 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6133=new JTramp(v6132, [runJTramp(v5993)]);
-return v6133;
-};
-var v6134=v5984;
-var v6135=v5853;
-var v6136=lglobal["tail"];
-var v6137=v6136;
-v6137=runJTramp(v6137);
-if (typeof v6137 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6138=new JTramp(v6137, [runJTramp(v6135)]);
-var v6139=v6138;
-var v6140=lglobal["apply"];
-var v6141=v6140;
-v6141=runJTramp(v6141);
-if (typeof v6141 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6142=new JTramp(v6141, [runJTramp(v6134),runJTramp(v6139)]);
-v5983=v6142;
+var _v5574=new JTramp(_v5573, [runJTramp(_v5567),runJTramp(_v5571)]);
+_v5464=_v5574;
 } else {
-var v6143=v5853;
-var v6144=lglobal["midir:return?"];
-var v6145=v6144;
-v6145=runJTramp(v6145);
-if (typeof v6145 !== "function") {
+var _v5575=lglobal["midir:return?"];
+if (_v5575 === undefined) { throw new Error("No such global: " + "midir:return?"); }
+var _v5576=_v5575;
+_v5576=runJTramp(_v5576);
+if (typeof _v5576 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6146=new JTramp(v6145, [runJTramp(v6143)]);
-var v6147;
-if(runJTramp(v6146)) {
-var v6148=function () {
+var _v5577=new JTramp(_v5576, [runJTramp(_v5338)]);
+var _v5578;
+if(runJTramp(_v5577)) {
+var _v5579=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v6150=function (v6151) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6153=function (v6154) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-return v6151;
-};
-return v6153;
-};
-return v6150;
-};
-var v6156=v6148;
-var v6157=v5853;
-var v6158=lglobal["tail"];
-var v6159=v6158;
-v6159=runJTramp(v6159);
-if (typeof v6159 !== "function") {
+var _v5581="return ";
+var _v5582=_v5581;
+var _v5583=";\n";
+var _v5584=_v5583;
+var _v5585=lglobal["++"];
+if (_v5585 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5586=_v5585;
+_v5586=runJTramp(_v5586);
+if (typeof _v5586 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6160=new JTramp(v6159, [runJTramp(v6157)]);
-var v6161=v6160;
-var v6162=lglobal["apply"];
-var v6163=v6162;
-v6163=runJTramp(v6163);
-if (typeof v6163 !== "function") {
+var _v5587=new JTramp(_v5586, [runJTramp(_v5582),runJTramp(_v5334),runJTramp(_v5584)]);
+return _v5587;
+};
+var _v5588=_v5579;
+var _v5589=lglobal["tail"];
+if (_v5589 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5590=_v5589;
+_v5590=runJTramp(_v5590);
+if (typeof _v5590 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6164=new JTramp(v6163, [runJTramp(v6156),runJTramp(v6161)]);
-v6147=v6164;
+var _v5591=new JTramp(_v5590, [runJTramp(_v5338)]);
+var _v5592=_v5591;
+var _v5593=lglobal["apply"];
+if (_v5593 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5594=_v5593;
+_v5594=runJTramp(_v5594);
+if (typeof _v5594 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5595=new JTramp(_v5594, [runJTramp(_v5588),runJTramp(_v5592)]);
+_v5578=_v5595;
 } else {
-var v6165=v5853;
-var v6166=lglobal["midir:bind?"];
-var v6167=v6166;
-v6167=runJTramp(v6167);
-if (typeof v6167 !== "function") {
+var _v5596=lglobal["midir:bind?"];
+if (_v5596 === undefined) { throw new Error("No such global: " + "midir:bind?"); }
+var _v5597=_v5596;
+_v5597=runJTramp(_v5597);
+if (typeof _v5597 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6168=new JTramp(v6167, [runJTramp(v6165)]);
-var v6169;
-if(runJTramp(v6168)) {
-var v6170=function (v6171,v6172) {
+var _v5598=new JTramp(_v5597, [runJTramp(_v5338)]);
+var _v5599;
+if(runJTramp(_v5598)) {
+var _v5600=function (_v5601,_v5602) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v6174=v6172;
-var v6175=v5815;
-v6175=runJTramp(v6175);
-if (typeof v6175 !== "function") {
+var _v5604="var ";
+var _v5605=_v5604;
+var _v5606=lglobal["make-js-var"];
+if (_v5606 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5607=_v5606;
+_v5607=runJTramp(_v5607);
+if (typeof _v5607 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6176=new JTramp(v6175, [runJTramp(v6174)]);
-var v6177=v6176;
-var v6178=function (v6179) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6181=function (v6182) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6184=function (v6185) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6187="set!";
-var v6188=v6187;
-var v6189=v6171;
-var v6190=v6182;
-var v6191=v6185;
-v6191=runJTramp(v6191);
-if (typeof v6191 !== "function") {
+var _v5608=new JTramp(_v5607, [runJTramp(_v5601)]);
+var _v5609=_v5608;
+var _v5610="=";
+var _v5611=_v5610;
+var _v5612=";\n";
+var _v5613=_v5612;
+var _v5614="ERROR";
+var _v5615=_v5614;
+var _v5616=lglobal["compile-midir-to-js"];
+if (_v5616 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5617=_v5616;
+_v5617=runJTramp(_v5617);
+if (typeof _v5617 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6192=new JTramp(v6191, [runJTramp(v6188),runJTramp(v6189),runJTramp(v6190)]);
-v6192=runJTramp(v6192);
-var v6193=v6185;
-var v6194=lglobal["null"];
-var v6195=v6194;
-var v6196=v6179;
-v6196=runJTramp(v6196);
-if (typeof v6196 !== "function") {
+var _v5618=new JTramp(_v5617, [runJTramp(_v5602),runJTramp(_v5615),runJTramp(_v5335)]);
+var _v5619=_v5618;
+var _v5620=lglobal["++"];
+if (_v5620 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5621=_v5620;
+_v5621=runJTramp(_v5621);
+if (typeof _v5621 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6197=new JTramp(v6196, [runJTramp(v6195)]);
-var v6198=v6197;
-v6198=runJTramp(v6198);
-if (typeof v6198 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6199=new JTramp(v6198, [runJTramp(v6193)]);
-return v6199;
+var _v5622=new JTramp(_v5621, [runJTramp(_v5605),runJTramp(_v5609),runJTramp(_v5611),runJTramp(_v5334),runJTramp(_v5613),runJTramp(_v5619)]);
+return _v5622;
 };
-return v6184;
-};
-return v6181;
-};
-var v6200=v6178;
-v6200=runJTramp(v6200);
-if (typeof v6200 !== "function") {
+var _v5623=_v5600;
+var _v5624=lglobal["tail"];
+if (_v5624 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5625=_v5624;
+_v5625=runJTramp(_v5625);
+if (typeof _v5625 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6201=new JTramp(v6200, [runJTramp(v6177)]);
-return v6201;
-};
-var v6202=v6170;
-var v6203=v5853;
-var v6204=lglobal["tail"];
-var v6205=v6204;
-v6205=runJTramp(v6205);
-if (typeof v6205 !== "function") {
+var _v5626=new JTramp(_v5625, [runJTramp(_v5338)]);
+var _v5627=_v5626;
+var _v5628=lglobal["apply"];
+if (_v5628 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5629=_v5628;
+_v5629=runJTramp(_v5629);
+if (typeof _v5629 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6206=new JTramp(v6205, [runJTramp(v6203)]);
-var v6207=v6206;
-var v6208=lglobal["apply"];
-var v6209=v6208;
-v6209=runJTramp(v6209);
-if (typeof v6209 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6210=new JTramp(v6209, [runJTramp(v6202),runJTramp(v6207)]);
-v6169=v6210;
+var _v5630=new JTramp(_v5629, [runJTramp(_v5623),runJTramp(_v5627)]);
+_v5599=_v5630;
 } else {
-var v6211=v5853;
-var v6212=lglobal["midir:if?"];
-var v6213=v6212;
-v6213=runJTramp(v6213);
-if (typeof v6213 !== "function") {
+var _v5631=lglobal["midir:bind-drop?"];
+if (_v5631 === undefined) { throw new Error("No such global: " + "midir:bind-drop?"); }
+var _v5632=_v5631;
+_v5632=runJTramp(_v5632);
+if (typeof _v5632 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6214=new JTramp(v6213, [runJTramp(v6211)]);
-var v6215;
-if(runJTramp(v6214)) {
-var v6216=function (v6217,v6218,v6219) {
+var _v5633=new JTramp(_v5632, [runJTramp(_v5338)]);
+var _v5634;
+if(runJTramp(_v5633)) {
+var _v5635=function (_v5636) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5638="=runJTramp(";
+var _v5639=_v5638;
+var _v5640=");\n";
+var _v5641=_v5640;
+var _v5642="ERROR";
+var _v5643=_v5642;
+var _v5644=lglobal["compile-midir-to-js"];
+if (_v5644 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5645=_v5644;
+_v5645=runJTramp(_v5645);
+if (typeof _v5645 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5646=new JTramp(_v5645, [runJTramp(_v5636),runJTramp(_v5643),runJTramp(_v5335)]);
+var _v5647=_v5646;
+var _v5648=lglobal["++"];
+if (_v5648 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5649=_v5648;
+_v5649=runJTramp(_v5649);
+if (typeof _v5649 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5650=new JTramp(_v5649, [runJTramp(_v5334),runJTramp(_v5639),runJTramp(_v5334),runJTramp(_v5641),runJTramp(_v5647)]);
+return _v5650;
+};
+var _v5651=_v5635;
+var _v5652=lglobal["tail"];
+if (_v5652 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5653=_v5652;
+_v5653=runJTramp(_v5653);
+if (typeof _v5653 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5654=new JTramp(_v5653, [runJTramp(_v5338)]);
+var _v5655=_v5654;
+var _v5656=lglobal["apply"];
+if (_v5656 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5657=_v5656;
+_v5657=runJTramp(_v5657);
+if (typeof _v5657 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5658=new JTramp(_v5657, [runJTramp(_v5651),runJTramp(_v5655)]);
+_v5634=_v5658;
+} else {
+var _v5659=lglobal["midir:if?"];
+if (_v5659 === undefined) { throw new Error("No such global: " + "midir:if?"); }
+var _v5660=_v5659;
+_v5660=runJTramp(_v5660);
+if (typeof _v5660 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5661=new JTramp(_v5660, [runJTramp(_v5338)]);
+var _v5662;
+if(runJTramp(_v5661)) {
+var _v5663=function (_v5664,_v5665,_v5666) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v6221=v6219;
-var v6222=v5815;
-v6222=runJTramp(v6222);
-if (typeof v6222 !== "function") {
+var _v5668=lglobal["null"];
+if (_v5668 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5669=_v5668;
+var _v5670=lglobal["make-js-var"];
+if (_v5670 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5671=_v5670;
+_v5671=runJTramp(_v5671);
+if (typeof _v5671 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6223=new JTramp(v6222, [runJTramp(v6221)]);
-var v6224=v6223;
-var v6225=function (v6226) {
+var _v5672=new JTramp(_v5671, [runJTramp(_v5669)]);
+var _v5673=_v5672;
+var _v5674=function (_v5675) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v6228=v6217;
-var v6229=lglobal["null"];
-var v6230=v6229;
-var v6231=lglobal["compile-midir-to-lambdas"];
-var v6232=v6231;
-v6232=runJTramp(v6232);
-if (typeof v6232 !== "function") {
+var _v5677="var ";
+var _v5678=_v5677;
+var _v5679=";\n";
+var _v5680=_v5679;
+var _v5681="if(runJTramp(";
+var _v5682=_v5681;
+var _v5683=")) {\n";
+var _v5684=_v5683;
+var _v5685="ERROR";
+var _v5686=_v5685;
+var _v5687=lglobal["compile-midir-to-js"];
+if (_v5687 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5688=_v5687;
+_v5688=runJTramp(_v5688);
+if (typeof _v5688 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6233=new JTramp(v6232, [runJTramp(v6228),runJTramp(v6230)]);
-var v6234=v6233;
-var v6235=v6218;
-var v6236=lglobal["null"];
-var v6237=v6236;
-var v6238=lglobal["compile-midir-to-lambdas"];
-var v6239=v6238;
-v6239=runJTramp(v6239);
-if (typeof v6239 !== "function") {
+var _v5689=new JTramp(_v5688, [runJTramp(_v5664),runJTramp(_v5686),runJTramp(_v5675)]);
+var _v5690=_v5689;
+var _v5691="} else {\n";
+var _v5692=_v5691;
+var _v5693="ERROR";
+var _v5694=_v5693;
+var _v5695=lglobal["compile-midir-to-js"];
+if (_v5695 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5696=_v5695;
+_v5696=runJTramp(_v5696);
+if (typeof _v5696 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6240=new JTramp(v6239, [runJTramp(v6235),runJTramp(v6237)]);
-var v6241=v6240;
-var v6242=function (v6243,v6244) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
+var _v5697=new JTramp(_v5696, [runJTramp(_v5665),runJTramp(_v5694),runJTramp(_v5675)]);
+var _v5698=_v5697;
+var _v5699="}\n";
+var _v5700=_v5699;
+var _v5701=lglobal["compile-midir-to-js"];
+if (_v5701 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5702=_v5701;
+_v5702=runJTramp(_v5702);
+if (typeof _v5702 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
+var _v5703=new JTramp(_v5702, [runJTramp(_v5666),runJTramp(_v5675),runJTramp(_v5335)]);
+var _v5704=_v5703;
+var _v5705=lglobal["++"];
+if (_v5705 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5706=_v5705;
+_v5706=runJTramp(_v5706);
+if (typeof _v5706 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-var v6246=function (v6247) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
+var _v5707=new JTramp(_v5706, [runJTramp(_v5678),runJTramp(_v5675),runJTramp(_v5680),runJTramp(_v5682),runJTramp(_v5334),runJTramp(_v5684),runJTramp(_v5690),runJTramp(_v5692),runJTramp(_v5698),runJTramp(_v5700),runJTramp(_v5704)]);
+return _v5707;
+};
+var _v5708=_v5674;
+_v5708=runJTramp(_v5708);
+if (typeof _v5708 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
+var _v5709=new JTramp(_v5708, [runJTramp(_v5673)]);
+return _v5709;
+};
+var _v5710=_v5663;
+var _v5711=lglobal["tail"];
+if (_v5711 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5712=_v5711;
+_v5712=runJTramp(_v5712);
+if (typeof _v5712 !== "function") {
+throw new Error("Cannot call non-function.");
 }
-var v6249=lglobal["null"];
-var v6250=v6249;
-var v6251;
-if(runJTramp(v6247)) {
-v6251=v6243;
+var _v5713=new JTramp(_v5712, [runJTramp(_v5338)]);
+var _v5714=_v5713;
+var _v5715=lglobal["apply"];
+if (_v5715 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5716=_v5715;
+_v5716=runJTramp(_v5716);
+if (typeof _v5716 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5717=new JTramp(_v5716, [runJTramp(_v5710),runJTramp(_v5714)]);
+_v5662=_v5717;
 } else {
-v6251=v6244;
-}
-var v6252=v6251;
-v6252=runJTramp(v6252);
-if (typeof v6252 !== "function") {
+var _v5718=lglobal["midir:leave?"];
+if (_v5718 === undefined) { throw new Error("No such global: " + "midir:leave?"); }
+var _v5719=_v5718;
+_v5719=runJTramp(_v5719);
+if (typeof _v5719 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6253=new JTramp(v6252, [runJTramp(v6250)]);
-var v6254=v6253;
-var v6255=v6226;
-var v6256=v5817;
-v6256=runJTramp(v6256);
-if (typeof v6256 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6257=new JTramp(v6256, [runJTramp(v6254),runJTramp(v6255)]);
-return v6257;
-};
-return v6246;
-};
-var v6258=v6242;
-v6258=runJTramp(v6258);
-if (typeof v6258 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6259=new JTramp(v6258, [runJTramp(v6234),runJTramp(v6241)]);
-return v6259;
-};
-var v6260=v6225;
-v6260=runJTramp(v6260);
-if (typeof v6260 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6261=new JTramp(v6260, [runJTramp(v6224)]);
-return v6261;
-};
-var v6262=v6216;
-var v6263=v5853;
-var v6264=lglobal["tail"];
-var v6265=v6264;
-v6265=runJTramp(v6265);
-if (typeof v6265 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6266=new JTramp(v6265, [runJTramp(v6263)]);
-var v6267=v6266;
-var v6268=lglobal["apply"];
-var v6269=v6268;
-v6269=runJTramp(v6269);
-if (typeof v6269 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6270=new JTramp(v6269, [runJTramp(v6262),runJTramp(v6267)]);
-v6215=v6270;
-} else {
-var v6271=v5853;
-var v6272=lglobal["midir:leave?"];
-var v6273=v6272;
-v6273=runJTramp(v6273);
-if (typeof v6273 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6274=new JTramp(v6273, [runJTramp(v6271)]);
-var v6275;
-if(runJTramp(v6274)) {
-var v6276=function () {
+var _v5720=new JTramp(_v5719, [runJTramp(_v5338)]);
+var _v5721;
+if(runJTramp(_v5720)) {
+var _v5722=function () {
 if (arguments.length > 0) {
 throw new Error("Expecting at most 0 arguments.");
 }
-var v6278=function (v6279) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6281=function (v6282) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-return v6279;
-};
-return v6281;
-};
-return v6278;
-};
-var v6284=v6276;
-var v6285=v5853;
-var v6286=lglobal["tail"];
-var v6287=v6286;
-v6287=runJTramp(v6287);
-if (typeof v6287 !== "function") {
+var _v5724="=";
+var _v5725=_v5724;
+var _v5726=";\n";
+var _v5727=_v5726;
+var _v5728=lglobal["++"];
+if (_v5728 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5729=_v5728;
+_v5729=runJTramp(_v5729);
+if (typeof _v5729 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6288=new JTramp(v6287, [runJTramp(v6285)]);
-var v6289=v6288;
-var v6290=lglobal["apply"];
-var v6291=v6290;
-v6291=runJTramp(v6291);
-if (typeof v6291 !== "function") {
+var _v5730=new JTramp(_v5729, [runJTramp(_v5335),runJTramp(_v5725),runJTramp(_v5334),runJTramp(_v5727)]);
+return _v5730;
+};
+var _v5731=_v5722;
+var _v5732=lglobal["tail"];
+if (_v5732 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5733=_v5732;
+_v5733=runJTramp(_v5733);
+if (typeof _v5733 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6292=new JTramp(v6291, [runJTramp(v6284),runJTramp(v6289)]);
-v6275=v6292;
+var _v5734=new JTramp(_v5733, [runJTramp(_v5338)]);
+var _v5735=_v5734;
+var _v5736=lglobal["apply"];
+if (_v5736 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5737=_v5736;
+_v5737=runJTramp(_v5737);
+if (typeof _v5737 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5738=new JTramp(_v5737, [runJTramp(_v5731),runJTramp(_v5735)]);
+_v5721=_v5738;
 } else {
-var v6293=v5853;
-var v6294=lglobal["midir:funcall?"];
-var v6295=v6294;
-v6295=runJTramp(v6295);
-if (typeof v6295 !== "function") {
+var _v5739=lglobal["midir:funcall?"];
+if (_v5739 === undefined) { throw new Error("No such global: " + "midir:funcall?"); }
+var _v5740=_v5739;
+_v5740=runJTramp(_v5740);
+if (typeof _v5740 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6296=new JTramp(v6295, [runJTramp(v6293)]);
-var v6297;
-if(runJTramp(v6296)) {
-var v6298=function (v6299,v6300,v6301) {
+var _v5741=new JTramp(_v5740, [runJTramp(_v5338)]);
+var _v5742;
+if(runJTramp(_v5741)) {
+var _v5743=function (_v5744,_v5745,_v5746) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v6303=v6301;
-var v6304=v5815;
-v6304=runJTramp(v6304);
-if (typeof v6304 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6305=new JTramp(v6304, [runJTramp(v6303)]);
-var v6306=v6305;
-var v6307=function (v6308) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6310=function (v6311) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6313=function (v6314) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6316="lookup";
-var v6317=v6316;
-var v6318=v6299;
-var v6319=v6314;
-v6319=runJTramp(v6319);
-if (typeof v6319 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6320=new JTramp(v6319, [runJTramp(v6317),runJTramp(v6318)]);
-var v6321=v6320;
-var v6322=function (v6323) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6325="lookup";
-var v6326=v6325;
-var v6327=v6323;
-var v6328=v6314;
-v6328=runJTramp(v6328);
-if (typeof v6328 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6329=new JTramp(v6328, [runJTramp(v6326),runJTramp(v6327)]);
-return v6329;
-};
-var v6330=v6322;
-var v6331=v6300;
-var v6332=lglobal["map"];
-var v6333=v6332;
-v6333=runJTramp(v6333);
-if (typeof v6333 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6334=new JTramp(v6333, [runJTramp(v6330),runJTramp(v6331)]);
-var v6335=v6334;
-var v6336=function (v6337,v6338) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6340=v6314;
-var v6341=v6337;
-var v6342=v6338;
-var v6343=lglobal["apply"];
-var v6344=v6343;
-v6344=runJTramp(v6344);
-if (typeof v6344 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6345=new JTramp(v6344, [runJTramp(v6341),runJTramp(v6342)]);
-var v6346=v6345;
-var v6347=v6308;
-v6347=runJTramp(v6347);
-if (typeof v6347 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6348=new JTramp(v6347, [runJTramp(v6346)]);
-var v6349=v6348;
-v6349=runJTramp(v6349);
-if (typeof v6349 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6350=new JTramp(v6349, [runJTramp(v6340)]);
-return v6350;
-};
-var v6351=v6336;
-v6351=runJTramp(v6351);
-if (typeof v6351 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6352=new JTramp(v6351, [runJTramp(v6321),runJTramp(v6335)]);
-return v6352;
-};
-return v6313;
-};
-return v6310;
-};
-var v6353=v6307;
-v6353=runJTramp(v6353);
-if (typeof v6353 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6354=new JTramp(v6353, [runJTramp(v6306)]);
-return v6354;
-};
-var v6355=v6298;
-var v6356=v5853;
-var v6357=lglobal["tail"];
-var v6358=v6357;
-v6358=runJTramp(v6358);
-if (typeof v6358 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6359=new JTramp(v6358, [runJTramp(v6356)]);
-var v6360=v6359;
-var v6361=lglobal["apply"];
-var v6362=v6361;
-v6362=runJTramp(v6362);
-if (typeof v6362 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6363=new JTramp(v6362, [runJTramp(v6355),runJTramp(v6360)]);
-v6297=v6363;
-} else {
-var v6364=v5853;
-var v6365=lglobal["midir:closure?"];
-var v6366=v6365;
-v6366=runJTramp(v6366);
-if (typeof v6366 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6367=new JTramp(v6366, [runJTramp(v6364)]);
-var v6368;
-if(runJTramp(v6367)) {
-var v6369=function (v6370,v6371) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6373=v6370;
-var v6374=lglobal["null"];
-var v6375=v6374;
-var v6376=lglobal["compile-midir-to-lambdas"];
-var v6377=v6376;
-v6377=runJTramp(v6377);
-if (typeof v6377 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6378=new JTramp(v6377, [runJTramp(v6373),runJTramp(v6375)]);
-var v6379=v6378;
-var v6380=v6371;
-var v6381=v5815;
-v6381=runJTramp(v6381);
-if (typeof v6381 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6382=new JTramp(v6381, [runJTramp(v6380)]);
-var v6383=v6382;
-var v6384=function (v6385,v6386) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6388=v6385;
-var v6389=v6386;
-var v6390=v5817;
-v6390=runJTramp(v6390);
-if (typeof v6390 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6391=new JTramp(v6390, [runJTramp(v6388),runJTramp(v6389)]);
-var v6392=v6391;
-var v6393=lglobal["const"];
-var v6394=v6393;
-v6394=runJTramp(v6394);
-if (typeof v6394 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6395=new JTramp(v6394, [runJTramp(v6392)]);
-return v6395;
-};
-var v6396=v6384;
-v6396=runJTramp(v6396);
-if (typeof v6396 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6397=new JTramp(v6396, [runJTramp(v6379),runJTramp(v6383)]);
-return v6397;
-};
-var v6398=v6369;
-var v6399=v5853;
-var v6400=lglobal["tail"];
-var v6401=v6400;
-v6401=runJTramp(v6401);
-if (typeof v6401 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6402=new JTramp(v6401, [runJTramp(v6399)]);
-var v6403=v6402;
-var v6404=lglobal["apply"];
-var v6405=v6404;
-v6405=runJTramp(v6405);
-if (typeof v6405 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6406=new JTramp(v6405, [runJTramp(v6398),runJTramp(v6403)]);
-v6368=v6406;
-} else {
-var v6407=v5853;
-var v6408=lglobal["midir:set!?"];
-var v6409=v6408;
-v6409=runJTramp(v6409);
-if (typeof v6409 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6410=new JTramp(v6409, [runJTramp(v6407)]);
-var v6411;
-if(runJTramp(v6410)) {
-var v6412=function (v6413,v6414) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6416=v6414;
-var v6417=v5815;
-v6417=runJTramp(v6417);
-if (typeof v6417 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6418=new JTramp(v6417, [runJTramp(v6416)]);
-var v6419=v6418;
-var v6420=function (v6421) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6423=function (v6424) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6426=function (v6427) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6429="set!";
-var v6430=v6429;
-var v6431=v6413;
-var v6432=v6424;
-var v6433=v6427;
-v6433=runJTramp(v6433);
-if (typeof v6433 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6434=new JTramp(v6433, [runJTramp(v6430),runJTramp(v6431),runJTramp(v6432)]);
-v6434=runJTramp(v6434);
-var v6435=v6427;
-var v6436=lglobal["null"];
-var v6437=v6436;
-var v6438=v6421;
-v6438=runJTramp(v6438);
-if (typeof v6438 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6439=new JTramp(v6438, [runJTramp(v6437)]);
-var v6440=v6439;
-v6440=runJTramp(v6440);
-if (typeof v6440 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6441=new JTramp(v6440, [runJTramp(v6435)]);
-return v6441;
-};
-return v6426;
-};
-return v6423;
-};
-var v6442=v6420;
-v6442=runJTramp(v6442);
-if (typeof v6442 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6443=new JTramp(v6442, [runJTramp(v6419)]);
-return v6443;
-};
-var v6444=v6412;
-var v6445=v5853;
-var v6446=lglobal["tail"];
-var v6447=v6446;
-v6447=runJTramp(v6447);
-if (typeof v6447 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6448=new JTramp(v6447, [runJTramp(v6445)]);
-var v6449=v6448;
-var v6450=lglobal["apply"];
-var v6451=v6450;
-v6451=runJTramp(v6451);
-if (typeof v6451 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6452=new JTramp(v6451, [runJTramp(v6444),runJTramp(v6449)]);
-v6411=v6452;
-} else {
-var v6453=v5853;
-var v6454=lglobal["midir:ffi?"];
-var v6455=v6454;
-v6455=runJTramp(v6455);
-if (typeof v6455 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6456=new JTramp(v6455, [runJTramp(v6453)]);
-var v6457;
-if(runJTramp(v6456)) {
-var v6458=function (v6459) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6461=v6459;
-var v6462=v5815;
-v6462=runJTramp(v6462);
-if (typeof v6462 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6463=new JTramp(v6462, [runJTramp(v6461)]);
-var v6464=v6463;
-var v6465=function (v6466) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6468=function (v6469) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6471=function (v6472) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6474=v6472;
-var v6475=v6469;
-var v6476=lglobal["ffi"];
-var v6477=v6476;
-v6477=runJTramp(v6477);
-if (typeof v6477 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6478=new JTramp(v6477, [runJTramp(v6475)]);
-var v6479=v6478;
-var v6480=v6466;
-v6480=runJTramp(v6480);
-if (typeof v6480 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6481=new JTramp(v6480, [runJTramp(v6479)]);
-var v6482=v6481;
-v6482=runJTramp(v6482);
-if (typeof v6482 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6483=new JTramp(v6482, [runJTramp(v6474)]);
-return v6483;
-};
-return v6471;
-};
-return v6468;
-};
-var v6484=v6465;
-v6484=runJTramp(v6484);
-if (typeof v6484 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6485=new JTramp(v6484, [runJTramp(v6464)]);
-return v6485;
-};
-var v6486=v6458;
-var v6487=v5853;
-var v6488=lglobal["tail"];
-var v6489=v6488;
-v6489=runJTramp(v6489);
-if (typeof v6489 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6490=new JTramp(v6489, [runJTramp(v6487)]);
-var v6491=v6490;
-var v6492=lglobal["apply"];
-var v6493=v6492;
-v6493=runJTramp(v6493);
-if (typeof v6493 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6494=new JTramp(v6493, [runJTramp(v6486),runJTramp(v6491)]);
-v6457=v6494;
-} else {
-var v6495="Unknown midir ";
-var v6496=v6495;
-var v6497=v5812;
-var v6498=lglobal["repr"];
-var v6499=v6498;
-v6499=runJTramp(v6499);
-if (typeof v6499 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6500=new JTramp(v6499, [runJTramp(v6497)]);
-var v6501=v6500;
-var v6502=lglobal["++"];
-var v6503=v6502;
-v6503=runJTramp(v6503);
-if (typeof v6503 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6504=new JTramp(v6503, [runJTramp(v6496),runJTramp(v6501)]);
-var v6505=v6504;
-var v6506=lglobal["error"];
-var v6507=v6506;
-v6507=runJTramp(v6507);
-if (typeof v6507 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6508=new JTramp(v6507, [runJTramp(v6505)]);
-v6457=v6508;
-}
-v6411=v6457;
-}
-v6368=v6411;
-}
-v6297=v6368;
-}
-v6275=v6297;
-}
-v6215=v6275;
-}
-v6169=v6215;
-}
-v6147=v6169;
-}
-v5983=v6147;
-}
-v5940=v5983;
-}
-v5897=v5940;
-}
-v5859=v5897;
-}
-return v5859;
-};
-var v6509=v5852;
-v6509=runJTramp(v6509);
-if (typeof v6509 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6510=new JTramp(v6509, [runJTramp(v5851)]);
-return v6510;
-};
-v5810=v5811;
-lglobal["compile-midir-to-lambdas"]=runJTramp(v5810);
-})();
-(function () {
-var v6511;
-var v6512=function (v6513,v6514) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6516;
-var v6517=function (v6518) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6520=v6518;
-var v6521=lglobal["read:has-another?"];
-var v6522=v6521;
-v6522=runJTramp(v6522);
-if (typeof v6522 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6523=new JTramp(v6522, [runJTramp(v6520)]);
-var v6524;
-if(runJTramp(v6523)) {
-var v6525=v6518;
-var v6526=lglobal["read:sexp"];
-var v6527=v6526;
-v6527=runJTramp(v6527);
-if (typeof v6527 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6528=new JTramp(v6527, [runJTramp(v6525)]);
-var v6529=v6528;
-var v6530=function (v6531) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6533="Compiling ";
-var v6534=v6533;
-var v6535=v6531;
-var v6536=lglobal["repr"];
-var v6537=v6536;
-v6537=runJTramp(v6537);
-if (typeof v6537 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6538=new JTramp(v6537, [runJTramp(v6535)]);
-var v6539=v6538;
-var v6540="\n";
-var v6541=v6540;
-var v6542=lglobal["print"];
-var v6543=v6542;
-v6543=runJTramp(v6543);
-if (typeof v6543 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6544=new JTramp(v6543, [runJTramp(v6534),runJTramp(v6539),runJTramp(v6541)]);
-v6544=runJTramp(v6544);
-var v6545=v6531;
-var v6546=lglobal["compile-toplevel-to-midir"];
-var v6547=v6546;
-v6547=runJTramp(v6547);
-if (typeof v6547 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6548=new JTramp(v6547, [runJTramp(v6545)]);
-v6548=runJTramp(v6548);
-var v6549=v6518;
-var v6550=v6516;
-v6550=runJTramp(v6550);
-if (typeof v6550 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6551=new JTramp(v6550, [runJTramp(v6549)]);
-return v6551;
-};
-var v6552=v6530;
-v6552=runJTramp(v6552);
-if (typeof v6552 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6553=new JTramp(v6552, [runJTramp(v6529)]);
-v6524=v6553;
-} else {
-var v6554=null;
-v6524=v6554;
-}
-return v6524;
-};
-var v6555=v6516=runJTramp(v6517);
-var v6556=v6513;
-var v6557=v6514;
-var v6558=lglobal["stream:make"];
-var v6559=v6558;
-v6559=runJTramp(v6559);
-if (typeof v6559 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6560=new JTramp(v6559, [runJTramp(v6556),runJTramp(v6557)]);
-var v6561=v6560;
-var v6562=function (v6563) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6565=v6563;
-var v6566=v6516;
-v6566=runJTramp(v6566);
-if (typeof v6566 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6567=new JTramp(v6566, [runJTramp(v6565)]);
-return v6567;
-};
-var v6568=v6562;
-v6568=runJTramp(v6568);
-if (typeof v6568 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6569=new JTramp(v6568, [runJTramp(v6561)]);
-return v6569;
-};
-v6511=v6512;
-lglobal["compile-file"]=runJTramp(v6511);
-})();
-(function () {
-var v6570;
-var v6571=function () {
-if (arguments.length > 0) {
-throw new Error("Expecting at most 0 arguments.");
-}
-var v6573=lglobal["reset-midir-compile"];
-var v6574=v6573;
-v6574=runJTramp(v6574);
-if (typeof v6574 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6575=new JTramp(v6574, []);
-v6575=runJTramp(v6575);
-var v6576=lglobal["compile-too"];
-var v6577=v6576;
-v6577=runJTramp(v6577);
-if (typeof v6577 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6578=new JTramp(v6577, []);
-return v6578;
-};
-v6570=v6571;
-lglobal["compile"]=runJTramp(v6570);
-})();
-(function () {
-var v6579;
-var v6580=function () {
-if (arguments.length > 0) {
-throw new Error("Expecting at most 0 arguments.");
-}
-var v6582="*file*";
-var v6583=v6582;
-var v6584=lglobal["jsui:input-file"];
-var v6585=v6584;
-var v6586=lglobal["compile-file"];
-var v6587=v6586;
-v6587=runJTramp(v6587);
-if (typeof v6587 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6588=new JTramp(v6587, [runJTramp(v6583),runJTramp(v6585)]);
-v6588=runJTramp(v6588);
-var v6589=lglobal["++"];
-var v6590=v6589;
-var v6591=lglobal["midir-toplevel-defs"];
-var v6592=v6591;
-var v6593=lglobal["reverse"];
-var v6594=v6593;
-v6594=runJTramp(v6594);
-if (typeof v6594 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6595=new JTramp(v6594, [runJTramp(v6592)]);
-var v6596=v6595;
-var v6597=lglobal["apply"];
-var v6598=v6597;
-v6598=runJTramp(v6598);
-if (typeof v6598 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6599=new JTramp(v6598, [runJTramp(v6590),runJTramp(v6596)]);
-var v6600=v6599;
-var v6601="(function (v) {$('#compiled').val(v); return null;})";
-var v6602=v6601;
-var v6603=lglobal["ffi"];
-var v6604=v6603;
-v6604=runJTramp(v6604);
-if (typeof v6604 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6605=new JTramp(v6604, [runJTramp(v6602)]);
-var v6606=v6605;
-v6606=runJTramp(v6606);
-if (typeof v6606 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6607=new JTramp(v6606, [runJTramp(v6600)]);
-return v6607;
-};
-v6579=v6580;
-lglobal["compile-too"]=runJTramp(v6579);
-})();
-(function () {
-var v6608;
-var v6609=function (v6610) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6612="*eval*";
-var v6613=v6612;
-var v6614=v6610;
-var v6615=lglobal["compile-file"];
-var v6616=v6615;
-v6616=runJTramp(v6616);
-if (typeof v6616 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6617=new JTramp(v6616, [runJTramp(v6613),runJTramp(v6614)]);
-return v6617;
-};
-v6608=v6609;
-lglobal["midir-eval-all"]=runJTramp(v6608);
-})();
-(function () {
-var v6618;
-var v6619=0;
-var v6620=v6619;
-var v6621=lglobal["dict"];
-var v6622=v6621;
-v6622=runJTramp(v6622);
-if (typeof v6622 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6623=new JTramp(v6622, []);
-var v6624=v6623;
-var v6625=function (v6626,v6627) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6629=function (v6630) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6632=v6630;
-var v6633=lglobal["null?"];
-var v6634=v6633;
-v6634=runJTramp(v6634);
-if (typeof v6634 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6635=new JTramp(v6634, [runJTramp(v6632)]);
-var v6636=v6635;
-var v6637=lglobal["not"];
-var v6638=v6637;
-v6638=runJTramp(v6638);
-if (typeof v6638 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6639=new JTramp(v6638, [runJTramp(v6636)]);
-var v6640=v6639;
-var v6641=function (v6642) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6644;
-if(runJTramp(v6642)) {
-var v6645=v6627;
-var v6646=v6630;
-var v6647=lglobal["dict:has?"];
-var v6648=v6647;
-v6648=runJTramp(v6648);
-if (typeof v6648 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6649=new JTramp(v6648, [runJTramp(v6645),runJTramp(v6646)]);
-v6644=v6649;
-} else {
-v6644=v6642;
-}
-return v6644;
-};
-var v6650=v6641;
-v6650=runJTramp(v6650);
-if (typeof v6650 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6651=new JTramp(v6650, [runJTramp(v6640)]);
-var v6652;
-if(runJTramp(v6651)) {
-var v6653=v6627;
-var v6654=v6630;
-var v6655=lglobal["dict:get"];
-var v6656=v6655;
-v6656=runJTramp(v6656);
-if (typeof v6656 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6657=new JTramp(v6656, [runJTramp(v6653),runJTramp(v6654)]);
-v6652=v6657;
-} else {
-var v6658=1;
-var v6659=v6658;
-var v6660=v6626;
-var v6661=lglobal["+"];
-var v6662=v6661;
-v6662=runJTramp(v6662);
-if (typeof v6662 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6663=new JTramp(v6662, [runJTramp(v6659),runJTramp(v6660)]);
-var v6664=v6626=runJTramp(v6663);
-v6664=runJTramp(v6664);
-var v6665="v";
-var v6666=v6665;
-var v6667=v6626;
-var v6668=lglobal["++"];
-var v6669=v6668;
-v6669=runJTramp(v6669);
-if (typeof v6669 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6670=new JTramp(v6669, [runJTramp(v6666),runJTramp(v6667)]);
-var v6671=v6670;
-var v6672=function (v6673) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v6675=v6627;
-var v6676=v6630;
-var v6677=v6673;
-var v6678=lglobal["dict:set!"];
-var v6679=v6678;
-v6679=runJTramp(v6679);
-if (typeof v6679 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6680=new JTramp(v6679, [runJTramp(v6675),runJTramp(v6676),runJTramp(v6677)]);
-v6680=runJTramp(v6680);
-return v6673;
-};
-var v6681=v6672;
-v6681=runJTramp(v6681);
-if (typeof v6681 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6682=new JTramp(v6681, [runJTramp(v6671)]);
-v6652=v6682;
-}
-return v6652;
-};
-return v6629;
-};
-var v6683=v6625;
-v6683=runJTramp(v6683);
-if (typeof v6683 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6684=new JTramp(v6683, [runJTramp(v6620),runJTramp(v6624)]);
-v6618=v6684;
-lglobal["make-js-var"]=runJTramp(v6618);
-})();
-(function () {
-var v6685;
-var v6686=function (v6687,v6688,v6689) {
+var _v5748=lglobal["null"];
+if (_v5748 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5749=_v5748;
+var _v5750=lglobal["make-js-var"];
+if (_v5750 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5751=_v5750;
+_v5751=runJTramp(_v5751);
+if (typeof _v5751 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5752=new JTramp(_v5751, [runJTramp(_v5749)]);
+var _v5753=_v5752;
+var _v5754=lglobal["make-js-var"];
+if (_v5754 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5755=_v5754;
+_v5755=runJTramp(_v5755);
+if (typeof _v5755 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5756=new JTramp(_v5755, [runJTramp(_v5744)]);
+var _v5757=_v5756;
+var _v5758=lglobal["make-js-var"];
+if (_v5758 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5759=_v5758;
+var _v5760=lglobal["map"];
+if (_v5760 === undefined) { throw new Error("No such global: " + "map"); }
+var _v5761=_v5760;
+_v5761=runJTramp(_v5761);
+if (typeof _v5761 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5762=new JTramp(_v5761, [runJTramp(_v5759),runJTramp(_v5745)]);
+var _v5763=_v5762;
+var _v5764=function (_v5765,_v5766,_v5767) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v6691=v6687;
-var v6692=function (v6693) {
+var _v5769="=runJTramp(";
+var _v5770=_v5769;
+var _v5771=");\n";
+var _v5772=_v5771;
+var _v5773="if (typeof ";
+var _v5774=_v5773;
+var _v5775=" !== \"function\") {\n";
+var _v5776=_v5775;
+var _v5777="throw new Error(\"Cannot call non-function.\");\n";
+var _v5778=_v5777;
+var _v5779="}\n";
+var _v5780=_v5779;
+var _v5781="var ";
+var _v5782=_v5781;
+var _v5783="=new JTramp(";
+var _v5784=_v5783;
+var _v5785=", [";
+var _v5786=_v5785;
+var _v5787=",";
+var _v5788=_v5787;
+var _v5789=function (_v5790) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v6695=v6693;
-var v6696=lglobal["midir:lit?"];
-var v6697=v6696;
-v6697=runJTramp(v6697);
-if (typeof v6697 !== "function") {
+var _v5792="runJTramp(";
+var _v5793=_v5792;
+var _v5794=")";
+var _v5795=_v5794;
+var _v5796=lglobal["++"];
+if (_v5796 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5797=_v5796;
+_v5797=runJTramp(_v5797);
+if (typeof _v5797 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6698=new JTramp(v6697, [runJTramp(v6695)]);
-var v6699;
-if(runJTramp(v6698)) {
-var v6700=function (v6701,v6702) {
+var _v5798=new JTramp(_v5797, [runJTramp(_v5793),runJTramp(_v5790),runJTramp(_v5795)]);
+return _v5798;
+};
+var _v5799=_v5789;
+var _v5800=lglobal["map"];
+if (_v5800 === undefined) { throw new Error("No such global: " + "map"); }
+var _v5801=_v5800;
+_v5801=runJTramp(_v5801);
+if (typeof _v5801 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5802=new JTramp(_v5801, [runJTramp(_v5799),runJTramp(_v5767)]);
+var _v5803=_v5802;
+var _v5804=lglobal["s:join"];
+if (_v5804 === undefined) { throw new Error("No such global: " + "s:join"); }
+var _v5805=_v5804;
+_v5805=runJTramp(_v5805);
+if (typeof _v5805 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5806=new JTramp(_v5805, [runJTramp(_v5788),runJTramp(_v5803)]);
+var _v5807=_v5806;
+var _v5808="]);\n";
+var _v5809=_v5808;
+var _v5810=lglobal["compile-midir-to-js"];
+if (_v5810 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5811=_v5810;
+_v5811=runJTramp(_v5811);
+if (typeof _v5811 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5812=new JTramp(_v5811, [runJTramp(_v5746),runJTramp(_v5765),runJTramp(_v5335)]);
+var _v5813=_v5812;
+var _v5814=lglobal["++"];
+if (_v5814 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5815=_v5814;
+_v5815=runJTramp(_v5815);
+if (typeof _v5815 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5816=new JTramp(_v5815, [runJTramp(_v5766),runJTramp(_v5770),runJTramp(_v5766),runJTramp(_v5772),runJTramp(_v5774),runJTramp(_v5766),runJTramp(_v5776),runJTramp(_v5778),runJTramp(_v5780),runJTramp(_v5782),runJTramp(_v5765),runJTramp(_v5784),runJTramp(_v5766),runJTramp(_v5786),runJTramp(_v5807),runJTramp(_v5809),runJTramp(_v5813)]);
+return _v5816;
+};
+var _v5817=_v5764;
+_v5817=runJTramp(_v5817);
+if (typeof _v5817 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5818=new JTramp(_v5817, [runJTramp(_v5753),runJTramp(_v5757),runJTramp(_v5763)]);
+return _v5818;
+};
+var _v5819=_v5743;
+var _v5820=lglobal["tail"];
+if (_v5820 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5821=_v5820;
+_v5821=runJTramp(_v5821);
+if (typeof _v5821 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5822=new JTramp(_v5821, [runJTramp(_v5338)]);
+var _v5823=_v5822;
+var _v5824=lglobal["apply"];
+if (_v5824 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5825=_v5824;
+_v5825=runJTramp(_v5825);
+if (typeof _v5825 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5826=new JTramp(_v5825, [runJTramp(_v5819),runJTramp(_v5823)]);
+_v5742=_v5826;
+} else {
+var _v5827=lglobal["midir:closure?"];
+if (_v5827 === undefined) { throw new Error("No such global: " + "midir:closure?"); }
+var _v5828=_v5827;
+_v5828=runJTramp(_v5828);
+if (typeof _v5828 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5829=new JTramp(_v5828, [runJTramp(_v5338)]);
+var _v5830;
+if(runJTramp(_v5829)) {
+var _v5831=function (_v5832,_v5833) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v6704=lglobal["null"];
-var v6705=v6704;
-var v6706=lglobal["make-js-var"];
-var v6707=v6706;
-v6707=runJTramp(v6707);
-if (typeof v6707 !== "function") {
+var _v5835=lglobal["null"];
+if (_v5835 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5836=_v5835;
+var _v5837=lglobal["make-js-var"];
+if (_v5837 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5838=_v5837;
+_v5838=runJTramp(_v5838);
+if (typeof _v5838 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6708=new JTramp(v6707, [runJTramp(v6705)]);
-var v6709=v6708;
-var v6710=function (v6711) {
+var _v5839=new JTramp(_v5838, [runJTramp(_v5836)]);
+var _v5840=_v5839;
+var _v5841=function (_v5842) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v6713="var ";
-var v6714=v6713;
-var v6715=v6711;
-var v6716="=";
-var v6717=v6716;
-var v6718=v6701;
-var v6719=lglobal["compile-lit"];
-var v6720=v6719;
-v6720=runJTramp(v6720);
-if (typeof v6720 !== "function") {
+var _v5844="var ";
+var _v5845=_v5844;
+var _v5846="=";
+var _v5847=_v5846;
+var _v5848="ERROR";
+var _v5849=_v5848;
+var _v5850="ERROR";
+var _v5851=_v5850;
+var _v5852=lglobal["compile-midir-to-js"];
+if (_v5852 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5853=_v5852;
+_v5853=runJTramp(_v5853);
+if (typeof _v5853 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6721=new JTramp(v6720, [runJTramp(v6718)]);
-var v6722=v6721;
-var v6723=";\n";
-var v6724=v6723;
-var v6725=v6702;
-var v6726=v6711;
-var v6727=v6689;
-var v6728=lglobal["compile-midir-to-js"];
-var v6729=v6728;
-v6729=runJTramp(v6729);
-if (typeof v6729 !== "function") {
+var _v5854=new JTramp(_v5853, [runJTramp(_v5832),runJTramp(_v5849),runJTramp(_v5851)]);
+var _v5855=_v5854;
+var _v5856=";\n";
+var _v5857=_v5856;
+var _v5858=lglobal["compile-midir-to-js"];
+if (_v5858 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5859=_v5858;
+_v5859=runJTramp(_v5859);
+if (typeof _v5859 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6730=new JTramp(v6729, [runJTramp(v6725),runJTramp(v6726),runJTramp(v6727)]);
-var v6731=v6730;
-var v6732=lglobal["++"];
-var v6733=v6732;
-v6733=runJTramp(v6733);
-if (typeof v6733 !== "function") {
+var _v5860=new JTramp(_v5859, [runJTramp(_v5833),runJTramp(_v5842),runJTramp(_v5335)]);
+var _v5861=_v5860;
+var _v5862=lglobal["++"];
+if (_v5862 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5863=_v5862;
+_v5863=runJTramp(_v5863);
+if (typeof _v5863 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6734=new JTramp(v6733, [runJTramp(v6714),runJTramp(v6715),runJTramp(v6717),runJTramp(v6722),runJTramp(v6724),runJTramp(v6731)]);
-return v6734;
+var _v5864=new JTramp(_v5863, [runJTramp(_v5845),runJTramp(_v5842),runJTramp(_v5847),runJTramp(_v5855),runJTramp(_v5857),runJTramp(_v5861)]);
+return _v5864;
 };
-var v6735=v6710;
-v6735=runJTramp(v6735);
-if (typeof v6735 !== "function") {
+var _v5865=_v5841;
+_v5865=runJTramp(_v5865);
+if (typeof _v5865 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6736=new JTramp(v6735, [runJTramp(v6709)]);
-return v6736;
+var _v5866=new JTramp(_v5865, [runJTramp(_v5840)]);
+return _v5866;
 };
-var v6737=v6700;
-var v6738=v6693;
-var v6739=lglobal["tail"];
-var v6740=v6739;
-v6740=runJTramp(v6740);
-if (typeof v6740 !== "function") {
+var _v5867=_v5831;
+var _v5868=lglobal["tail"];
+if (_v5868 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5869=_v5868;
+_v5869=runJTramp(_v5869);
+if (typeof _v5869 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6741=new JTramp(v6740, [runJTramp(v6738)]);
-var v6742=v6741;
-var v6743=lglobal["apply"];
-var v6744=v6743;
-v6744=runJTramp(v6744);
-if (typeof v6744 !== "function") {
+var _v5870=new JTramp(_v5869, [runJTramp(_v5338)]);
+var _v5871=_v5870;
+var _v5872=lglobal["apply"];
+if (_v5872 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5873=_v5872;
+_v5873=runJTramp(_v5873);
+if (typeof _v5873 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6745=new JTramp(v6744, [runJTramp(v6737),runJTramp(v6742)]);
-v6699=v6745;
+var _v5874=new JTramp(_v5873, [runJTramp(_v5867),runJTramp(_v5871)]);
+_v5830=_v5874;
 } else {
-var v6746=v6693;
-var v6747=lglobal["midir:lookup?"];
-var v6748=v6747;
-v6748=runJTramp(v6748);
-if (typeof v6748 !== "function") {
+var _v5875=lglobal["midir:set!?"];
+if (_v5875 === undefined) { throw new Error("No such global: " + "midir:set!?"); }
+var _v5876=_v5875;
+_v5876=runJTramp(_v5876);
+if (typeof _v5876 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6749=new JTramp(v6748, [runJTramp(v6746)]);
-var v6750;
-if(runJTramp(v6749)) {
-var v6751=function (v6752,v6753) {
+var _v5877=new JTramp(_v5876, [runJTramp(_v5338)]);
+var _v5878;
+if(runJTramp(_v5877)) {
+var _v5879=function (_v5880,_v5881) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v6755=v6753;
-var v6756=v6752;
-var v6757=lglobal["make-js-var"];
-var v6758=v6757;
-v6758=runJTramp(v6758);
-if (typeof v6758 !== "function") {
+var _v5883=lglobal["null"];
+if (_v5883 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5884=_v5883;
+var _v5885=lglobal["make-js-var"];
+if (_v5885 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5886=_v5885;
+_v5886=runJTramp(_v5886);
+if (typeof _v5886 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6759=new JTramp(v6758, [runJTramp(v6756)]);
-var v6760=v6759;
-var v6761=v6689;
-var v6762=lglobal["compile-midir-to-js"];
-var v6763=v6762;
-v6763=runJTramp(v6763);
-if (typeof v6763 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6764=new JTramp(v6763, [runJTramp(v6755),runJTramp(v6760),runJTramp(v6761)]);
-return v6764;
-};
-var v6765=v6751;
-var v6766=v6693;
-var v6767=lglobal["tail"];
-var v6768=v6767;
-v6768=runJTramp(v6768);
-if (typeof v6768 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6769=new JTramp(v6768, [runJTramp(v6766)]);
-var v6770=v6769;
-var v6771=lglobal["apply"];
-var v6772=v6771;
-v6772=runJTramp(v6772);
-if (typeof v6772 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6773=new JTramp(v6772, [runJTramp(v6765),runJTramp(v6770)]);
-v6750=v6773;
-} else {
-var v6774=v6693;
-var v6775=lglobal["midir:glookup?"];
-var v6776=v6775;
-v6776=runJTramp(v6776);
-if (typeof v6776 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6777=new JTramp(v6776, [runJTramp(v6774)]);
-var v6778;
-if(runJTramp(v6777)) {
-var v6779=function (v6780,v6781) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6783=lglobal["null"];
-var v6784=v6783;
-var v6785=lglobal["make-js-var"];
-var v6786=v6785;
-v6786=runJTramp(v6786);
-if (typeof v6786 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6787=new JTramp(v6786, [runJTramp(v6784)]);
-var v6788=v6787;
-var v6789=function (v6790) {
+var _v5887=new JTramp(_v5886, [runJTramp(_v5884)]);
+var _v5888=_v5887;
+var _v5889=function (_v5890) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v6792="var ";
-var v6793=v6792;
-var v6794=v6790;
-var v6795="=lglobal[";
-var v6796=v6795;
-var v6797=v6780;
-var v6798=lglobal["js-escape-string"];
-var v6799=v6798;
-v6799=runJTramp(v6799);
-if (typeof v6799 !== "function") {
+var _v5892="var ";
+var _v5893=_v5892;
+var _v5894="=";
+var _v5895=_v5894;
+var _v5896=lglobal["make-js-var"];
+if (_v5896 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5897=_v5896;
+_v5897=runJTramp(_v5897);
+if (typeof _v5897 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6800=new JTramp(v6799, [runJTramp(v6797)]);
-var v6801=v6800;
-var v6802="];\n";
-var v6803=v6802;
-var v6804=v6781;
-var v6805=v6790;
-var v6806=v6689;
-var v6807=lglobal["compile-midir-to-js"];
-var v6808=v6807;
-v6808=runJTramp(v6808);
-if (typeof v6808 !== "function") {
+var _v5898=new JTramp(_v5897, [runJTramp(_v5880)]);
+var _v5899=_v5898;
+var _v5900="=runJTramp(";
+var _v5901=_v5900;
+var _v5902=");\n";
+var _v5903=_v5902;
+var _v5904=lglobal["compile-midir-to-js"];
+if (_v5904 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5905=_v5904;
+_v5905=runJTramp(_v5905);
+if (typeof _v5905 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6809=new JTramp(v6808, [runJTramp(v6804),runJTramp(v6805),runJTramp(v6806)]);
-var v6810=v6809;
-var v6811=lglobal["++"];
-var v6812=v6811;
-v6812=runJTramp(v6812);
-if (typeof v6812 !== "function") {
+var _v5906=new JTramp(_v5905, [runJTramp(_v5881),runJTramp(_v5890),runJTramp(_v5335)]);
+var _v5907=_v5906;
+var _v5908=lglobal["++"];
+if (_v5908 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5909=_v5908;
+_v5909=runJTramp(_v5909);
+if (typeof _v5909 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6813=new JTramp(v6812, [runJTramp(v6793),runJTramp(v6794),runJTramp(v6796),runJTramp(v6801),runJTramp(v6803),runJTramp(v6810)]);
-return v6813;
+var _v5910=new JTramp(_v5909, [runJTramp(_v5893),runJTramp(_v5890),runJTramp(_v5895),runJTramp(_v5899),runJTramp(_v5901),runJTramp(_v5334),runJTramp(_v5903),runJTramp(_v5907)]);
+return _v5910;
 };
-var v6814=v6789;
-v6814=runJTramp(v6814);
-if (typeof v6814 !== "function") {
+var _v5911=_v5889;
+_v5911=runJTramp(_v5911);
+if (typeof _v5911 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6815=new JTramp(v6814, [runJTramp(v6788)]);
-return v6815;
+var _v5912=new JTramp(_v5911, [runJTramp(_v5888)]);
+return _v5912;
 };
-var v6816=v6779;
-var v6817=v6693;
-var v6818=lglobal["tail"];
-var v6819=v6818;
-v6819=runJTramp(v6819);
-if (typeof v6819 !== "function") {
+var _v5913=_v5879;
+var _v5914=lglobal["tail"];
+if (_v5914 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5915=_v5914;
+_v5915=runJTramp(_v5915);
+if (typeof _v5915 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6820=new JTramp(v6819, [runJTramp(v6817)]);
-var v6821=v6820;
-var v6822=lglobal["apply"];
-var v6823=v6822;
-v6823=runJTramp(v6823);
-if (typeof v6823 !== "function") {
+var _v5916=new JTramp(_v5915, [runJTramp(_v5338)]);
+var _v5917=_v5916;
+var _v5918=lglobal["apply"];
+if (_v5918 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5919=_v5918;
+_v5919=runJTramp(_v5919);
+if (typeof _v5919 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6824=new JTramp(v6823, [runJTramp(v6816),runJTramp(v6821)]);
-v6778=v6824;
+var _v5920=new JTramp(_v5919, [runJTramp(_v5913),runJTramp(_v5917)]);
+_v5878=_v5920;
 } else {
-var v6825=v6693;
-var v6826=lglobal["midir:enter?"];
-var v6827=v6826;
-v6827=runJTramp(v6827);
-if (typeof v6827 !== "function") {
+var _v5921=lglobal["midir:gset!?"];
+if (_v5921 === undefined) { throw new Error("No such global: " + "midir:gset!?"); }
+var _v5922=_v5921;
+_v5922=runJTramp(_v5922);
+if (typeof _v5922 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6828=new JTramp(v6827, [runJTramp(v6825)]);
-var v6829;
-if(runJTramp(v6828)) {
-var v6830=function (v6831,v6832,v6833,v6834) {
-if (arguments.length < 4) {
-throw new Error("Expecting at least 4 arguments.");
+var _v5923=new JTramp(_v5922, [runJTramp(_v5338)]);
+var _v5924;
+if(runJTramp(_v5923)) {
+var _v5925=function (_v5926,_v5927) {
+if (arguments.length < 2) {
+throw new Error("Expecting at least 2 arguments.");
 }
-if (arguments.length > 4) {
-throw new Error("Expecting at most 4 arguments.");
+if (arguments.length > 2) {
+throw new Error("Expecting at most 2 arguments.");
 }
-var v6836=lglobal["make-js-var"];
-var v6837=v6836;
-var v6838=v6831;
-var v6839=lglobal["map"];
-var v6840=v6839;
-v6840=runJTramp(v6840);
-if (typeof v6840 !== "function") {
+var _v5929=lglobal["null"];
+if (_v5929 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5930=_v5929;
+var _v5931=lglobal["make-js-var"];
+if (_v5931 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5932=_v5931;
+_v5932=runJTramp(_v5932);
+if (typeof _v5932 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6841=new JTramp(v6840, [runJTramp(v6837),runJTramp(v6838)]);
-var v6842=v6841;
-var v6843=v6832;
-var v6844=lglobal["make-js-var"];
-var v6845=v6844;
-v6845=runJTramp(v6845);
-if (typeof v6845 !== "function") {
+var _v5933=new JTramp(_v5932, [runJTramp(_v5930)]);
+var _v5934=_v5933;
+var _v5935=function (_v5936) {
+if (arguments.length < 1) {
+throw new Error("Expecting at least 1 arguments.");
+}
+if (arguments.length > 1) {
+throw new Error("Expecting at most 1 arguments.");
+}
+var _v5938="var ";
+var _v5939=_v5938;
+var _v5940="=";
+var _v5941=_v5940;
+var _v5942="lglobal[";
+var _v5943=_v5942;
+var _v5944=lglobal["js-escape-string"];
+if (_v5944 === undefined) { throw new Error("No such global: " + "js-escape-string"); }
+var _v5945=_v5944;
+_v5945=runJTramp(_v5945);
+if (typeof _v5945 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6846=new JTramp(v6845, [runJTramp(v6843)]);
-var v6847=v6846;
-var v6848=lglobal["make-js-var"];
-var v6849=v6848;
-var v6850=v6833;
-var v6851=lglobal["map"];
-var v6852=v6851;
-v6852=runJTramp(v6852);
-if (typeof v6852 !== "function") {
+var _v5946=new JTramp(_v5945, [runJTramp(_v5926)]);
+var _v5947=_v5946;
+var _v5948="]=runJTramp(";
+var _v5949=_v5948;
+var _v5950=");\n";
+var _v5951=_v5950;
+var _v5952=lglobal["compile-midir-to-js"];
+if (_v5952 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5953=_v5952;
+_v5953=runJTramp(_v5953);
+if (typeof _v5953 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6853=new JTramp(v6852, [runJTramp(v6849),runJTramp(v6850)]);
-var v6854=v6853;
-var v6855=function (v6856,v6857,v6858) {
+var _v5954=new JTramp(_v5953, [runJTramp(_v5927),runJTramp(_v5936),runJTramp(_v5335)]);
+var _v5955=_v5954;
+var _v5956=lglobal["++"];
+if (_v5956 === undefined) { throw new Error("No such global: " + "++"); }
+var _v5957=_v5956;
+_v5957=runJTramp(_v5957);
+if (typeof _v5957 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5958=new JTramp(_v5957, [runJTramp(_v5939),runJTramp(_v5936),runJTramp(_v5941),runJTramp(_v5943),runJTramp(_v5947),runJTramp(_v5949),runJTramp(_v5334),runJTramp(_v5951),runJTramp(_v5955)]);
+return _v5958;
+};
+var _v5959=_v5935;
+_v5959=runJTramp(_v5959);
+if (typeof _v5959 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5960=new JTramp(_v5959, [runJTramp(_v5934)]);
+return _v5960;
+};
+var _v5961=_v5925;
+var _v5962=lglobal["tail"];
+if (_v5962 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v5963=_v5962;
+_v5963=runJTramp(_v5963);
+if (typeof _v5963 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5964=new JTramp(_v5963, [runJTramp(_v5338)]);
+var _v5965=_v5964;
+var _v5966=lglobal["apply"];
+if (_v5966 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v5967=_v5966;
+_v5967=runJTramp(_v5967);
+if (typeof _v5967 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5968=new JTramp(_v5967, [runJTramp(_v5961),runJTramp(_v5965)]);
+_v5924=_v5968;
+} else {
+var _v5969=lglobal["midir:ffi?"];
+if (_v5969 === undefined) { throw new Error("No such global: " + "midir:ffi?"); }
+var _v5970=_v5969;
+_v5970=runJTramp(_v5970);
+if (typeof _v5970 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v5971=new JTramp(_v5970, [runJTramp(_v5338)]);
+var _v5972;
+if(runJTramp(_v5971)) {
+var _v5973=function (_v5974,_v5975,_v5976) {
 if (arguments.length < 3) {
 throw new Error("Expecting at least 3 arguments.");
 }
 if (arguments.length > 3) {
 throw new Error("Expecting at most 3 arguments.");
 }
-var v6860="function (";
-var v6861=v6860;
-var v6862=",";
-var v6863=v6862;
-var v6864=v6856;
-var v6865=lglobal["s:join"];
-var v6866=v6865;
-v6866=runJTramp(v6866);
-if (typeof v6866 !== "function") {
+var _v5978=lglobal["null?"];
+if (_v5978 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v5979=_v5978;
+_v5979=runJTramp(_v5979);
+if (typeof _v5979 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6867=new JTramp(v6866, [runJTramp(v6863),runJTramp(v6864)]);
-var v6868=v6867;
-var v6869=") {\n";
-var v6870=v6869;
-var v6871=v6856;
-var v6872=lglobal["length"];
-var v6873=v6872;
-v6873=runJTramp(v6873);
-if (typeof v6873 !== "function") {
+var _v5980=new JTramp(_v5979, [runJTramp(_v5975)]);
+var _v5981;
+if(runJTramp(_v5980)) {
+var _v5982=lglobal["null"];
+if (_v5982 === undefined) { throw new Error("No such global: " + "null"); }
+var _v5983=_v5982;
+var _v5984=lglobal["make-js-var"];
+if (_v5984 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v5985=_v5984;
+_v5985=runJTramp(_v5985);
+if (typeof _v5985 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6874=new JTramp(v6873, [runJTramp(v6871)]);
-var v6875=v6874;
-var v6876=v6832;
-var v6877=lglobal["null?"];
-var v6878=v6877;
-v6878=runJTramp(v6878);
-if (typeof v6878 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6879=new JTramp(v6878, [runJTramp(v6876)]);
-var v6880=v6879;
-var v6881=lglobal["not"];
-var v6882=v6881;
-v6882=runJTramp(v6882);
-if (typeof v6882 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6883=new JTramp(v6882, [runJTramp(v6880)]);
-var v6884=v6883;
-var v6885=lglobal["js-check-num-args"];
-var v6886=v6885;
-v6886=runJTramp(v6886);
-if (typeof v6886 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6887=new JTramp(v6886, [runJTramp(v6875),runJTramp(v6884)]);
-var v6888=v6887;
-var v6889=v6832;
-var v6890=lglobal["null?"];
-var v6891=v6890;
-v6891=runJTramp(v6891);
-if (typeof v6891 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6892=new JTramp(v6891, [runJTramp(v6889)]);
-var v6893;
-if(runJTramp(v6892)) {
-var v6894="";
-v6893=v6894;
-} else {
-var v6895=v6856;
-var v6896=lglobal["length"];
-var v6897=v6896;
-v6897=runJTramp(v6897);
-if (typeof v6897 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6898=new JTramp(v6897, [runJTramp(v6895)]);
-var v6899=v6898;
-var v6900=v6857;
-var v6901=lglobal["js-handleVarArg"];
-var v6902=v6901;
-v6902=runJTramp(v6902);
-if (typeof v6902 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6903=new JTramp(v6902, [runJTramp(v6899),runJTramp(v6900)]);
-v6893=v6903;
-}
-var v6904=v6893;
-var v6905=lglobal["++"];
-var v6906=v6905;
-var v6907=function (v6908) {
+var _v5986=new JTramp(_v5985, [runJTramp(_v5983)]);
+var _v5987=_v5986;
+var _v5988=function (_v5989) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v6910="var ";
-var v6911=v6910;
-var v6912=v6908;
-var v6913=";\n";
-var v6914=v6913;
-var v6915=lglobal["++"];
-var v6916=v6915;
-v6916=runJTramp(v6916);
-if (typeof v6916 !== "function") {
+var _v5991="var ";
+var _v5992=_v5991;
+var _v5993="=(";
+var _v5994=_v5993;
+var _v5995=");\n";
+var _v5996=_v5995;
+var _v5997=lglobal["compile-midir-to-js"];
+if (_v5997 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v5998=_v5997;
+_v5998=runJTramp(_v5998);
+if (typeof _v5998 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6917=new JTramp(v6916, [runJTramp(v6911),runJTramp(v6912),runJTramp(v6914)]);
-return v6917;
+var _v5999=new JTramp(_v5998, [runJTramp(_v5976),runJTramp(_v5989),runJTramp(_v5335)]);
+var _v6000=_v5999;
+var _v6001=lglobal["++"];
+if (_v6001 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6002=_v6001;
+_v6002=runJTramp(_v6002);
+if (typeof _v6002 !== "function") {
+throw new Error("Cannot call non-function.");
+}
+var _v6003=new JTramp(_v6002, [runJTramp(_v5992),runJTramp(_v5989),runJTramp(_v5994),runJTramp(_v5974),runJTramp(_v5996),runJTramp(_v6000)]);
+return _v6003;
 };
-var v6918=v6907;
-var v6919=v6858;
-var v6920=lglobal["map"];
-var v6921=v6920;
-v6921=runJTramp(v6921);
-if (typeof v6921 !== "function") {
+var _v6004=_v5988;
+_v6004=runJTramp(_v6004);
+if (typeof _v6004 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6922=new JTramp(v6921, [runJTramp(v6918),runJTramp(v6919)]);
-var v6923=v6922;
-var v6924=lglobal["apply"];
-var v6925=v6924;
-v6925=runJTramp(v6925);
-if (typeof v6925 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6926=new JTramp(v6925, [runJTramp(v6906),runJTramp(v6923)]);
-var v6927=v6926;
-var v6928=v6834;
-var v6929="ERROR";
-var v6930=v6929;
-var v6931="ERROR";
-var v6932=v6931;
-var v6933=lglobal["compile-midir-to-js"];
-var v6934=v6933;
-v6934=runJTramp(v6934);
-if (typeof v6934 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6935=new JTramp(v6934, [runJTramp(v6928),runJTramp(v6930),runJTramp(v6932)]);
-var v6936=v6935;
-var v6937="}";
-var v6938=v6937;
-var v6939=lglobal["++"];
-var v6940=v6939;
-v6940=runJTramp(v6940);
-if (typeof v6940 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6941=new JTramp(v6940, [runJTramp(v6861),runJTramp(v6868),runJTramp(v6870),runJTramp(v6888),runJTramp(v6904),runJTramp(v6927),runJTramp(v6936),runJTramp(v6938)]);
-return v6941;
-};
-var v6942=v6855;
-v6942=runJTramp(v6942);
-if (typeof v6942 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6943=new JTramp(v6942, [runJTramp(v6842),runJTramp(v6847),runJTramp(v6854)]);
-return v6943;
-};
-var v6944=v6830;
-var v6945=v6693;
-var v6946=lglobal["tail"];
-var v6947=v6946;
-v6947=runJTramp(v6947);
-if (typeof v6947 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6948=new JTramp(v6947, [runJTramp(v6945)]);
-var v6949=v6948;
-var v6950=lglobal["apply"];
-var v6951=v6950;
-v6951=runJTramp(v6951);
-if (typeof v6951 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v6952=new JTramp(v6951, [runJTramp(v6944),runJTramp(v6949)]);
-v6829=v6952;
+var _v6005=new JTramp(_v6004, [runJTramp(_v5987)]);
+_v5981=_v6005;
 } else {
-var v6953=v6693;
-var v6954=lglobal["midir:return?"];
-var v6955=v6954;
-v6955=runJTramp(v6955);
-if (typeof v6955 !== "function") {
+var _v6006=";\n";
+var _v6007=_v6006;
+var _v6008=lglobal["compile-midir-to-js"];
+if (_v6008 === undefined) { throw new Error("No such global: " + "compile-midir-to-js"); }
+var _v6009=_v6008;
+_v6009=runJTramp(_v6009);
+if (typeof _v6009 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6956=new JTramp(v6955, [runJTramp(v6953)]);
-var v6957;
-if(runJTramp(v6956)) {
-var v6958=function () {
-if (arguments.length > 0) {
-throw new Error("Expecting at most 0 arguments.");
-}
-var v6960="return ";
-var v6961=v6960;
-var v6962=v6688;
-var v6963=";\n";
-var v6964=v6963;
-var v6965=lglobal["++"];
-var v6966=v6965;
-v6966=runJTramp(v6966);
-if (typeof v6966 !== "function") {
+var _v6010=new JTramp(_v6009, [runJTramp(_v5976),runJTramp(_v5975),runJTramp(_v5335)]);
+var _v6011=_v6010;
+var _v6012=lglobal["++"];
+if (_v6012 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6013=_v6012;
+_v6013=runJTramp(_v6013);
+if (typeof _v6013 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6967=new JTramp(v6966, [runJTramp(v6961),runJTramp(v6962),runJTramp(v6964)]);
-return v6967;
+var _v6014=new JTramp(_v6013, [runJTramp(_v5974),runJTramp(_v6007),runJTramp(_v6011)]);
+_v5981=_v6014;
+}
+return _v5981;
 };
-var v6968=v6958;
-var v6969=v6693;
-var v6970=lglobal["tail"];
-var v6971=v6970;
-v6971=runJTramp(v6971);
-if (typeof v6971 !== "function") {
+var _v6015=_v5973;
+var _v6016=lglobal["tail"];
+if (_v6016 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v6017=_v6016;
+_v6017=runJTramp(_v6017);
+if (typeof _v6017 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6972=new JTramp(v6971, [runJTramp(v6969)]);
-var v6973=v6972;
-var v6974=lglobal["apply"];
-var v6975=v6974;
-v6975=runJTramp(v6975);
-if (typeof v6975 !== "function") {
+var _v6018=new JTramp(_v6017, [runJTramp(_v5338)]);
+var _v6019=_v6018;
+var _v6020=lglobal["apply"];
+if (_v6020 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v6021=_v6020;
+_v6021=runJTramp(_v6021);
+if (typeof _v6021 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6976=new JTramp(v6975, [runJTramp(v6968),runJTramp(v6973)]);
-v6957=v6976;
+var _v6022=new JTramp(_v6021, [runJTramp(_v6015),runJTramp(_v6019)]);
+_v5972=_v6022;
 } else {
-var v6977=v6693;
-var v6978=lglobal["midir:bind?"];
-var v6979=v6978;
-v6979=runJTramp(v6979);
-if (typeof v6979 !== "function") {
+var _v6023="Unknown midir ";
+var _v6024=_v6023;
+var _v6025=lglobal["++"];
+if (_v6025 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6026=_v6025;
+_v6026=runJTramp(_v6026);
+if (typeof _v6026 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6980=new JTramp(v6979, [runJTramp(v6977)]);
-var v6981;
-if(runJTramp(v6980)) {
-var v6982=function (v6983,v6984) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v6986="var ";
-var v6987=v6986;
-var v6988=v6983;
-var v6989=lglobal["make-js-var"];
-var v6990=v6989;
-v6990=runJTramp(v6990);
-if (typeof v6990 !== "function") {
+var _v6027=new JTramp(_v6026, [runJTramp(_v6024),runJTramp(_v5333)]);
+var _v6028=_v6027;
+var _v6029=lglobal["error"];
+if (_v6029 === undefined) { throw new Error("No such global: " + "error"); }
+var _v6030=_v6029;
+_v6030=runJTramp(_v6030);
+if (typeof _v6030 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v6991=new JTramp(v6990, [runJTramp(v6988)]);
-var v6992=v6991;
-var v6993="=";
-var v6994=v6993;
-var v6995=v6688;
-var v6996=";\n";
-var v6997=v6996;
-var v6998=v6984;
-var v6999="ERROR";
-var v7000=v6999;
-var v7001=v6689;
-var v7002=lglobal["compile-midir-to-js"];
-var v7003=v7002;
-v7003=runJTramp(v7003);
-if (typeof v7003 !== "function") {
-throw new Error("Cannot call non-function.");
+var _v6031=new JTramp(_v6030, [runJTramp(_v6028)]);
+_v5972=_v6031;
 }
-var v7004=new JTramp(v7003, [runJTramp(v6998),runJTramp(v7000),runJTramp(v7001)]);
-var v7005=v7004;
-var v7006=lglobal["++"];
-var v7007=v7006;
-v7007=runJTramp(v7007);
-if (typeof v7007 !== "function") {
-throw new Error("Cannot call non-function.");
+_v5924=_v5972;
 }
-var v7008=new JTramp(v7007, [runJTramp(v6987),runJTramp(v6992),runJTramp(v6994),runJTramp(v6995),runJTramp(v6997),runJTramp(v7005)]);
-return v7008;
+_v5878=_v5924;
+}
+_v5830=_v5878;
+}
+_v5742=_v5830;
+}
+_v5721=_v5742;
+}
+_v5662=_v5721;
+}
+_v5634=_v5662;
+}
+_v5599=_v5634;
+}
+_v5578=_v5599;
+}
+_v5464=_v5578;
+}
+_v5410=_v5464;
+}
+_v5387=_v5410;
+}
+_v5343=_v5387;
+}
+return _v5343;
 };
-var v7009=v6982;
-var v7010=v6693;
-var v7011=lglobal["tail"];
-var v7012=v7011;
-v7012=runJTramp(v7012);
-if (typeof v7012 !== "function") {
+var _v6032=_v5337;
+_v6032=runJTramp(_v6032);
+if (typeof _v6032 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7013=new JTramp(v7012, [runJTramp(v7010)]);
-var v7014=v7013;
-var v7015=lglobal["apply"];
-var v7016=v7015;
-v7016=runJTramp(v7016);
-if (typeof v7016 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7017=new JTramp(v7016, [runJTramp(v7009),runJTramp(v7014)]);
-v6981=v7017;
-} else {
-var v7018=v6693;
-var v7019=lglobal["midir:bind-drop?"];
-var v7020=v7019;
-v7020=runJTramp(v7020);
-if (typeof v7020 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7021=new JTramp(v7020, [runJTramp(v7018)]);
-var v7022;
-if(runJTramp(v7021)) {
-var v7023=function (v7024) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7026=v6688;
-var v7027="=runJTramp(";
-var v7028=v7027;
-var v7029=v6688;
-var v7030=");\n";
-var v7031=v7030;
-var v7032=v7024;
-var v7033="ERROR";
-var v7034=v7033;
-var v7035=v6689;
-var v7036=lglobal["compile-midir-to-js"];
-var v7037=v7036;
-v7037=runJTramp(v7037);
-if (typeof v7037 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7038=new JTramp(v7037, [runJTramp(v7032),runJTramp(v7034),runJTramp(v7035)]);
-var v7039=v7038;
-var v7040=lglobal["++"];
-var v7041=v7040;
-v7041=runJTramp(v7041);
-if (typeof v7041 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7042=new JTramp(v7041, [runJTramp(v7026),runJTramp(v7028),runJTramp(v7029),runJTramp(v7031),runJTramp(v7039)]);
-return v7042;
+var _v6033=new JTramp(_v6032, [runJTramp(_v5333)]);
+return _v6033;
 };
-var v7043=v7023;
-var v7044=v6693;
-var v7045=lglobal["tail"];
-var v7046=v7045;
-v7046=runJTramp(v7046);
-if (typeof v7046 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7047=new JTramp(v7046, [runJTramp(v7044)]);
-var v7048=v7047;
-var v7049=lglobal["apply"];
-var v7050=v7049;
-v7050=runJTramp(v7050);
-if (typeof v7050 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7051=new JTramp(v7050, [runJTramp(v7043),runJTramp(v7048)]);
-v7022=v7051;
-} else {
-var v7052=v6693;
-var v7053=lglobal["midir:if?"];
-var v7054=v7053;
-v7054=runJTramp(v7054);
-if (typeof v7054 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7055=new JTramp(v7054, [runJTramp(v7052)]);
-var v7056;
-if(runJTramp(v7055)) {
-var v7057=function (v7058,v7059,v7060) {
-if (arguments.length < 3) {
-throw new Error("Expecting at least 3 arguments.");
-}
-if (arguments.length > 3) {
-throw new Error("Expecting at most 3 arguments.");
-}
-var v7062=lglobal["null"];
-var v7063=v7062;
-var v7064=lglobal["make-js-var"];
-var v7065=v7064;
-v7065=runJTramp(v7065);
-if (typeof v7065 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7066=new JTramp(v7065, [runJTramp(v7063)]);
-var v7067=v7066;
-var v7068=function (v7069) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7071="var ";
-var v7072=v7071;
-var v7073=v7069;
-var v7074=";\n";
-var v7075=v7074;
-var v7076="if(runJTramp(";
-var v7077=v7076;
-var v7078=v6688;
-var v7079=")) {\n";
-var v7080=v7079;
-var v7081=v7058;
-var v7082="ERROR";
-var v7083=v7082;
-var v7084=v7069;
-var v7085=lglobal["compile-midir-to-js"];
-var v7086=v7085;
-v7086=runJTramp(v7086);
-if (typeof v7086 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7087=new JTramp(v7086, [runJTramp(v7081),runJTramp(v7083),runJTramp(v7084)]);
-var v7088=v7087;
-var v7089="} else {\n";
-var v7090=v7089;
-var v7091=v7059;
-var v7092="ERROR";
-var v7093=v7092;
-var v7094=v7069;
-var v7095=lglobal["compile-midir-to-js"];
-var v7096=v7095;
-v7096=runJTramp(v7096);
-if (typeof v7096 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7097=new JTramp(v7096, [runJTramp(v7091),runJTramp(v7093),runJTramp(v7094)]);
-var v7098=v7097;
-var v7099="}\n";
-var v7100=v7099;
-var v7101=v7060;
-var v7102=v7069;
-var v7103=v6689;
-var v7104=lglobal["compile-midir-to-js"];
-var v7105=v7104;
-v7105=runJTramp(v7105);
-if (typeof v7105 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7106=new JTramp(v7105, [runJTramp(v7101),runJTramp(v7102),runJTramp(v7103)]);
-var v7107=v7106;
-var v7108=lglobal["++"];
-var v7109=v7108;
-v7109=runJTramp(v7109);
-if (typeof v7109 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7110=new JTramp(v7109, [runJTramp(v7072),runJTramp(v7073),runJTramp(v7075),runJTramp(v7077),runJTramp(v7078),runJTramp(v7080),runJTramp(v7088),runJTramp(v7090),runJTramp(v7098),runJTramp(v7100),runJTramp(v7107)]);
-return v7110;
-};
-var v7111=v7068;
-v7111=runJTramp(v7111);
-if (typeof v7111 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7112=new JTramp(v7111, [runJTramp(v7067)]);
-return v7112;
-};
-var v7113=v7057;
-var v7114=v6693;
-var v7115=lglobal["tail"];
-var v7116=v7115;
-v7116=runJTramp(v7116);
-if (typeof v7116 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7117=new JTramp(v7116, [runJTramp(v7114)]);
-var v7118=v7117;
-var v7119=lglobal["apply"];
-var v7120=v7119;
-v7120=runJTramp(v7120);
-if (typeof v7120 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7121=new JTramp(v7120, [runJTramp(v7113),runJTramp(v7118)]);
-v7056=v7121;
-} else {
-var v7122=v6693;
-var v7123=lglobal["midir:leave?"];
-var v7124=v7123;
-v7124=runJTramp(v7124);
-if (typeof v7124 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7125=new JTramp(v7124, [runJTramp(v7122)]);
-var v7126;
-if(runJTramp(v7125)) {
-var v7127=function () {
-if (arguments.length > 0) {
-throw new Error("Expecting at most 0 arguments.");
-}
-var v7129=v6689;
-var v7130="=";
-var v7131=v7130;
-var v7132=v6688;
-var v7133=";\n";
-var v7134=v7133;
-var v7135=lglobal["++"];
-var v7136=v7135;
-v7136=runJTramp(v7136);
-if (typeof v7136 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7137=new JTramp(v7136, [runJTramp(v7129),runJTramp(v7131),runJTramp(v7132),runJTramp(v7134)]);
-return v7137;
-};
-var v7138=v7127;
-var v7139=v6693;
-var v7140=lglobal["tail"];
-var v7141=v7140;
-v7141=runJTramp(v7141);
-if (typeof v7141 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7142=new JTramp(v7141, [runJTramp(v7139)]);
-var v7143=v7142;
-var v7144=lglobal["apply"];
-var v7145=v7144;
-v7145=runJTramp(v7145);
-if (typeof v7145 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7146=new JTramp(v7145, [runJTramp(v7138),runJTramp(v7143)]);
-v7126=v7146;
-} else {
-var v7147=v6693;
-var v7148=lglobal["midir:funcall?"];
-var v7149=v7148;
-v7149=runJTramp(v7149);
-if (typeof v7149 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7150=new JTramp(v7149, [runJTramp(v7147)]);
-var v7151;
-if(runJTramp(v7150)) {
-var v7152=function (v7153,v7154,v7155) {
-if (arguments.length < 3) {
-throw new Error("Expecting at least 3 arguments.");
-}
-if (arguments.length > 3) {
-throw new Error("Expecting at most 3 arguments.");
-}
-var v7157=lglobal["null"];
-var v7158=v7157;
-var v7159=lglobal["make-js-var"];
-var v7160=v7159;
-v7160=runJTramp(v7160);
-if (typeof v7160 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7161=new JTramp(v7160, [runJTramp(v7158)]);
-var v7162=v7161;
-var v7163=v7153;
-var v7164=lglobal["make-js-var"];
-var v7165=v7164;
-v7165=runJTramp(v7165);
-if (typeof v7165 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7166=new JTramp(v7165, [runJTramp(v7163)]);
-var v7167=v7166;
-var v7168=lglobal["make-js-var"];
-var v7169=v7168;
-var v7170=v7154;
-var v7171=lglobal["map"];
-var v7172=v7171;
-v7172=runJTramp(v7172);
-if (typeof v7172 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7173=new JTramp(v7172, [runJTramp(v7169),runJTramp(v7170)]);
-var v7174=v7173;
-var v7175=function (v7176,v7177,v7178) {
-if (arguments.length < 3) {
-throw new Error("Expecting at least 3 arguments.");
-}
-if (arguments.length > 3) {
-throw new Error("Expecting at most 3 arguments.");
-}
-var v7180=v7177;
-var v7181="=runJTramp(";
-var v7182=v7181;
-var v7183=v7177;
-var v7184=");\n";
-var v7185=v7184;
-var v7186="if (typeof ";
-var v7187=v7186;
-var v7188=v7177;
-var v7189=" !== \"function\") {\n";
-var v7190=v7189;
-var v7191="throw new Error(\"Cannot call non-function.\");\n";
-var v7192=v7191;
-var v7193="}\n";
-var v7194=v7193;
-var v7195="var ";
-var v7196=v7195;
-var v7197=v7176;
-var v7198="=new JTramp(";
-var v7199=v7198;
-var v7200=v7177;
-var v7201=", [";
-var v7202=v7201;
-var v7203=",";
-var v7204=v7203;
-var v7205=function (v7206) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7208="runJTramp(";
-var v7209=v7208;
-var v7210=v7206;
-var v7211=")";
-var v7212=v7211;
-var v7213=lglobal["++"];
-var v7214=v7213;
-v7214=runJTramp(v7214);
-if (typeof v7214 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7215=new JTramp(v7214, [runJTramp(v7209),runJTramp(v7210),runJTramp(v7212)]);
-return v7215;
-};
-var v7216=v7205;
-var v7217=v7178;
-var v7218=lglobal["map"];
-var v7219=v7218;
-v7219=runJTramp(v7219);
-if (typeof v7219 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7220=new JTramp(v7219, [runJTramp(v7216),runJTramp(v7217)]);
-var v7221=v7220;
-var v7222=lglobal["s:join"];
-var v7223=v7222;
-v7223=runJTramp(v7223);
-if (typeof v7223 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7224=new JTramp(v7223, [runJTramp(v7204),runJTramp(v7221)]);
-var v7225=v7224;
-var v7226="]);\n";
-var v7227=v7226;
-var v7228=v7155;
-var v7229=v7176;
-var v7230=v6689;
-var v7231=lglobal["compile-midir-to-js"];
-var v7232=v7231;
-v7232=runJTramp(v7232);
-if (typeof v7232 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7233=new JTramp(v7232, [runJTramp(v7228),runJTramp(v7229),runJTramp(v7230)]);
-var v7234=v7233;
-var v7235=lglobal["++"];
-var v7236=v7235;
-v7236=runJTramp(v7236);
-if (typeof v7236 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7237=new JTramp(v7236, [runJTramp(v7180),runJTramp(v7182),runJTramp(v7183),runJTramp(v7185),runJTramp(v7187),runJTramp(v7188),runJTramp(v7190),runJTramp(v7192),runJTramp(v7194),runJTramp(v7196),runJTramp(v7197),runJTramp(v7199),runJTramp(v7200),runJTramp(v7202),runJTramp(v7225),runJTramp(v7227),runJTramp(v7234)]);
-return v7237;
-};
-var v7238=v7175;
-v7238=runJTramp(v7238);
-if (typeof v7238 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7239=new JTramp(v7238, [runJTramp(v7162),runJTramp(v7167),runJTramp(v7174)]);
-return v7239;
-};
-var v7240=v7152;
-var v7241=v6693;
-var v7242=lglobal["tail"];
-var v7243=v7242;
-v7243=runJTramp(v7243);
-if (typeof v7243 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7244=new JTramp(v7243, [runJTramp(v7241)]);
-var v7245=v7244;
-var v7246=lglobal["apply"];
-var v7247=v7246;
-v7247=runJTramp(v7247);
-if (typeof v7247 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7248=new JTramp(v7247, [runJTramp(v7240),runJTramp(v7245)]);
-v7151=v7248;
-} else {
-var v7249=v6693;
-var v7250=lglobal["midir:closure?"];
-var v7251=v7250;
-v7251=runJTramp(v7251);
-if (typeof v7251 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7252=new JTramp(v7251, [runJTramp(v7249)]);
-var v7253;
-if(runJTramp(v7252)) {
-var v7254=function (v7255,v7256) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v7258=lglobal["null"];
-var v7259=v7258;
-var v7260=lglobal["make-js-var"];
-var v7261=v7260;
-v7261=runJTramp(v7261);
-if (typeof v7261 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7262=new JTramp(v7261, [runJTramp(v7259)]);
-var v7263=v7262;
-var v7264=function (v7265) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7267="var ";
-var v7268=v7267;
-var v7269=v7265;
-var v7270="=";
-var v7271=v7270;
-var v7272=v7255;
-var v7273="ERROR";
-var v7274=v7273;
-var v7275="ERROR";
-var v7276=v7275;
-var v7277=lglobal["compile-midir-to-js"];
-var v7278=v7277;
-v7278=runJTramp(v7278);
-if (typeof v7278 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7279=new JTramp(v7278, [runJTramp(v7272),runJTramp(v7274),runJTramp(v7276)]);
-var v7280=v7279;
-var v7281=";\n";
-var v7282=v7281;
-var v7283=v7256;
-var v7284=v7265;
-var v7285=v6689;
-var v7286=lglobal["compile-midir-to-js"];
-var v7287=v7286;
-v7287=runJTramp(v7287);
-if (typeof v7287 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7288=new JTramp(v7287, [runJTramp(v7283),runJTramp(v7284),runJTramp(v7285)]);
-var v7289=v7288;
-var v7290=lglobal["++"];
-var v7291=v7290;
-v7291=runJTramp(v7291);
-if (typeof v7291 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7292=new JTramp(v7291, [runJTramp(v7268),runJTramp(v7269),runJTramp(v7271),runJTramp(v7280),runJTramp(v7282),runJTramp(v7289)]);
-return v7292;
-};
-var v7293=v7264;
-v7293=runJTramp(v7293);
-if (typeof v7293 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7294=new JTramp(v7293, [runJTramp(v7263)]);
-return v7294;
-};
-var v7295=v7254;
-var v7296=v6693;
-var v7297=lglobal["tail"];
-var v7298=v7297;
-v7298=runJTramp(v7298);
-if (typeof v7298 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7299=new JTramp(v7298, [runJTramp(v7296)]);
-var v7300=v7299;
-var v7301=lglobal["apply"];
-var v7302=v7301;
-v7302=runJTramp(v7302);
-if (typeof v7302 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7303=new JTramp(v7302, [runJTramp(v7295),runJTramp(v7300)]);
-v7253=v7303;
-} else {
-var v7304=v6693;
-var v7305=lglobal["midir:set!?"];
-var v7306=v7305;
-v7306=runJTramp(v7306);
-if (typeof v7306 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7307=new JTramp(v7306, [runJTramp(v7304)]);
-var v7308;
-if(runJTramp(v7307)) {
-var v7309=function (v7310,v7311) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v7313=lglobal["null"];
-var v7314=v7313;
-var v7315=lglobal["make-js-var"];
-var v7316=v7315;
-v7316=runJTramp(v7316);
-if (typeof v7316 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7317=new JTramp(v7316, [runJTramp(v7314)]);
-var v7318=v7317;
-var v7319=function (v7320) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7322="var ";
-var v7323=v7322;
-var v7324=v7320;
-var v7325="=";
-var v7326=v7325;
-var v7327=v7310;
-var v7328=lglobal["make-js-var"];
-var v7329=v7328;
-v7329=runJTramp(v7329);
-if (typeof v7329 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7330=new JTramp(v7329, [runJTramp(v7327)]);
-var v7331=v7330;
-var v7332="=runJTramp(";
-var v7333=v7332;
-var v7334=v6688;
-var v7335=");\n";
-var v7336=v7335;
-var v7337=v7311;
-var v7338=v7320;
-var v7339=v6689;
-var v7340=lglobal["compile-midir-to-js"];
-var v7341=v7340;
-v7341=runJTramp(v7341);
-if (typeof v7341 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7342=new JTramp(v7341, [runJTramp(v7337),runJTramp(v7338),runJTramp(v7339)]);
-var v7343=v7342;
-var v7344=lglobal["++"];
-var v7345=v7344;
-v7345=runJTramp(v7345);
-if (typeof v7345 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7346=new JTramp(v7345, [runJTramp(v7323),runJTramp(v7324),runJTramp(v7326),runJTramp(v7331),runJTramp(v7333),runJTramp(v7334),runJTramp(v7336),runJTramp(v7343)]);
-return v7346;
-};
-var v7347=v7319;
-v7347=runJTramp(v7347);
-if (typeof v7347 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7348=new JTramp(v7347, [runJTramp(v7318)]);
-return v7348;
-};
-var v7349=v7309;
-var v7350=v6693;
-var v7351=lglobal["tail"];
-var v7352=v7351;
-v7352=runJTramp(v7352);
-if (typeof v7352 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7353=new JTramp(v7352, [runJTramp(v7350)]);
-var v7354=v7353;
-var v7355=lglobal["apply"];
-var v7356=v7355;
-v7356=runJTramp(v7356);
-if (typeof v7356 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7357=new JTramp(v7356, [runJTramp(v7349),runJTramp(v7354)]);
-v7308=v7357;
-} else {
-var v7358=v6693;
-var v7359=lglobal["midir:gset!?"];
-var v7360=v7359;
-v7360=runJTramp(v7360);
-if (typeof v7360 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7361=new JTramp(v7360, [runJTramp(v7358)]);
-var v7362;
-if(runJTramp(v7361)) {
-var v7363=function (v7364,v7365) {
-if (arguments.length < 2) {
-throw new Error("Expecting at least 2 arguments.");
-}
-if (arguments.length > 2) {
-throw new Error("Expecting at most 2 arguments.");
-}
-var v7367=lglobal["null"];
-var v7368=v7367;
-var v7369=lglobal["make-js-var"];
-var v7370=v7369;
-v7370=runJTramp(v7370);
-if (typeof v7370 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7371=new JTramp(v7370, [runJTramp(v7368)]);
-var v7372=v7371;
-var v7373=function (v7374) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7376="var ";
-var v7377=v7376;
-var v7378=v7374;
-var v7379="=";
-var v7380=v7379;
-var v7381="lglobal[";
-var v7382=v7381;
-var v7383=v7364;
-var v7384=lglobal["js-escape-string"];
-var v7385=v7384;
-v7385=runJTramp(v7385);
-if (typeof v7385 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7386=new JTramp(v7385, [runJTramp(v7383)]);
-var v7387=v7386;
-var v7388="]=runJTramp(";
-var v7389=v7388;
-var v7390=v6688;
-var v7391=");\n";
-var v7392=v7391;
-var v7393=v7365;
-var v7394=v7374;
-var v7395=v6689;
-var v7396=lglobal["compile-midir-to-js"];
-var v7397=v7396;
-v7397=runJTramp(v7397);
-if (typeof v7397 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7398=new JTramp(v7397, [runJTramp(v7393),runJTramp(v7394),runJTramp(v7395)]);
-var v7399=v7398;
-var v7400=lglobal["++"];
-var v7401=v7400;
-v7401=runJTramp(v7401);
-if (typeof v7401 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7402=new JTramp(v7401, [runJTramp(v7377),runJTramp(v7378),runJTramp(v7380),runJTramp(v7382),runJTramp(v7387),runJTramp(v7389),runJTramp(v7390),runJTramp(v7392),runJTramp(v7399)]);
-return v7402;
-};
-var v7403=v7373;
-v7403=runJTramp(v7403);
-if (typeof v7403 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7404=new JTramp(v7403, [runJTramp(v7372)]);
-return v7404;
-};
-var v7405=v7363;
-var v7406=v6693;
-var v7407=lglobal["tail"];
-var v7408=v7407;
-v7408=runJTramp(v7408);
-if (typeof v7408 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7409=new JTramp(v7408, [runJTramp(v7406)]);
-var v7410=v7409;
-var v7411=lglobal["apply"];
-var v7412=v7411;
-v7412=runJTramp(v7412);
-if (typeof v7412 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7413=new JTramp(v7412, [runJTramp(v7405),runJTramp(v7410)]);
-v7362=v7413;
-} else {
-var v7414=v6693;
-var v7415=lglobal["midir:ffi?"];
-var v7416=v7415;
-v7416=runJTramp(v7416);
-if (typeof v7416 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7417=new JTramp(v7416, [runJTramp(v7414)]);
-var v7418;
-if(runJTramp(v7417)) {
-var v7419=function (v7420) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7422=lglobal["null"];
-var v7423=v7422;
-var v7424=lglobal["make-js-var"];
-var v7425=v7424;
-v7425=runJTramp(v7425);
-if (typeof v7425 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7426=new JTramp(v7425, [runJTramp(v7423)]);
-var v7427=v7426;
-var v7428=function (v7429) {
-if (arguments.length < 1) {
-throw new Error("Expecting at least 1 arguments.");
-}
-if (arguments.length > 1) {
-throw new Error("Expecting at most 1 arguments.");
-}
-var v7431="var ";
-var v7432=v7431;
-var v7433=v7429;
-var v7434="=eval(runJTramp(";
-var v7435=v7434;
-var v7436=v6688;
-var v7437="));\n";
-var v7438=v7437;
-var v7439=v7420;
-var v7440=v7429;
-var v7441=v6689;
-var v7442=lglobal["compile-midir-to-js"];
-var v7443=v7442;
-v7443=runJTramp(v7443);
-if (typeof v7443 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7444=new JTramp(v7443, [runJTramp(v7439),runJTramp(v7440),runJTramp(v7441)]);
-var v7445=v7444;
-var v7446=lglobal["++"];
-var v7447=v7446;
-v7447=runJTramp(v7447);
-if (typeof v7447 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7448=new JTramp(v7447, [runJTramp(v7432),runJTramp(v7433),runJTramp(v7435),runJTramp(v7436),runJTramp(v7438),runJTramp(v7445)]);
-return v7448;
-};
-var v7449=v7428;
-v7449=runJTramp(v7449);
-if (typeof v7449 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7450=new JTramp(v7449, [runJTramp(v7427)]);
-return v7450;
-};
-var v7451=v7419;
-var v7452=v6693;
-var v7453=lglobal["tail"];
-var v7454=v7453;
-v7454=runJTramp(v7454);
-if (typeof v7454 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7455=new JTramp(v7454, [runJTramp(v7452)]);
-var v7456=v7455;
-var v7457=lglobal["apply"];
-var v7458=v7457;
-v7458=runJTramp(v7458);
-if (typeof v7458 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7459=new JTramp(v7458, [runJTramp(v7451),runJTramp(v7456)]);
-v7418=v7459;
-} else {
-var v7460="Unknown midir ";
-var v7461=v7460;
-var v7462=v6687;
-var v7463=lglobal["++"];
-var v7464=v7463;
-v7464=runJTramp(v7464);
-if (typeof v7464 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7465=new JTramp(v7464, [runJTramp(v7461),runJTramp(v7462)]);
-var v7466=v7465;
-var v7467=lglobal["error"];
-var v7468=v7467;
-v7468=runJTramp(v7468);
-if (typeof v7468 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7469=new JTramp(v7468, [runJTramp(v7466)]);
-v7418=v7469;
-}
-v7362=v7418;
-}
-v7308=v7362;
-}
-v7253=v7308;
-}
-v7151=v7253;
-}
-v7126=v7151;
-}
-v7056=v7126;
-}
-v7022=v7056;
-}
-v6981=v7022;
-}
-v6957=v6981;
-}
-v6829=v6957;
-}
-v6778=v6829;
-}
-v6750=v6778;
-}
-v6699=v6750;
-}
-return v6699;
-};
-var v7470=v6692;
-v7470=runJTramp(v7470);
-if (typeof v7470 !== "function") {
-throw new Error("Cannot call non-function.");
-}
-var v7471=new JTramp(v7470, [runJTramp(v6691)]);
-return v7471;
-};
-v6685=v6686;
-lglobal["compile-midir-to-js"]=runJTramp(v6685);
+_v5331=_v5332;
+lglobal["compile-midir-to-js"]=runJTramp(_v5331);
 })();
 (function () {
-var v7472;
-var v7473=function (v7474,v7475) {
+var _v6034;
+var _v6035=function (_v6036,_v6037) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v7477=0;
-var v7478=v7477;
-var v7479=v7474;
-var v7480=lglobal["<"];
-var v7481=v7480;
-v7481=runJTramp(v7481);
-if (typeof v7481 !== "function") {
+var _v6039=0;
+var _v6040=_v6039;
+var _v6041=lglobal["<"];
+if (_v6041 === undefined) { throw new Error("No such global: " + "<"); }
+var _v6042=_v6041;
+_v6042=runJTramp(_v6042);
+if (typeof _v6042 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7482=new JTramp(v7481, [runJTramp(v7478),runJTramp(v7479)]);
-var v7483;
-if(runJTramp(v7482)) {
-var v7484="if (arguments.length < ";
-var v7485=v7484;
-var v7486=v7474;
-var v7487=") {\n";
-var v7488=v7487;
-var v7489="throw new Error(\"Expecting at least ";
-var v7490=v7489;
-var v7491=v7474;
-var v7492=" arguments.\");\n";
-var v7493=v7492;
-var v7494="}\n";
-var v7495=v7494;
-var v7496=lglobal["++"];
-var v7497=v7496;
-v7497=runJTramp(v7497);
-if (typeof v7497 !== "function") {
+var _v6043=new JTramp(_v6042, [runJTramp(_v6040),runJTramp(_v6036)]);
+var _v6044;
+if(runJTramp(_v6043)) {
+var _v6045="if (arguments.length < ";
+var _v6046=_v6045;
+var _v6047=") {\n";
+var _v6048=_v6047;
+var _v6049="throw new Error(\"Expecting at least ";
+var _v6050=_v6049;
+var _v6051=" arguments.\");\n";
+var _v6052=_v6051;
+var _v6053="}\n";
+var _v6054=_v6053;
+var _v6055=lglobal["++"];
+if (_v6055 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6056=_v6055;
+_v6056=runJTramp(_v6056);
+if (typeof _v6056 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7498=new JTramp(v7497, [runJTramp(v7485),runJTramp(v7486),runJTramp(v7488),runJTramp(v7490),runJTramp(v7491),runJTramp(v7493),runJTramp(v7495)]);
-v7483=v7498;
+var _v6057=new JTramp(_v6056, [runJTramp(_v6046),runJTramp(_v6036),runJTramp(_v6048),runJTramp(_v6050),runJTramp(_v6036),runJTramp(_v6052),runJTramp(_v6054)]);
+_v6044=_v6057;
 } else {
-var v7499="";
-v7483=v7499;
+var _v6058="";
+_v6044=_v6058;
 }
-var v7500=v7483;
-var v7501;
-if(runJTramp(v7475)) {
-var v7502="";
-v7501=v7502;
+var _v6059=_v6044;
+var _v6060;
+if(runJTramp(_v6037)) {
+var _v6061="";
+_v6060=_v6061;
 } else {
-var v7503="if (arguments.length > ";
-var v7504=v7503;
-var v7505=v7474;
-var v7506=") {\n";
-var v7507=v7506;
-var v7508="throw new Error(\"Expecting at most ";
-var v7509=v7508;
-var v7510=v7474;
-var v7511=" arguments.\");\n";
-var v7512=v7511;
-var v7513="}\n";
-var v7514=v7513;
-var v7515=lglobal["++"];
-var v7516=v7515;
-v7516=runJTramp(v7516);
-if (typeof v7516 !== "function") {
+var _v6062="if (arguments.length > ";
+var _v6063=_v6062;
+var _v6064=") {\n";
+var _v6065=_v6064;
+var _v6066="throw new Error(\"Expecting at most ";
+var _v6067=_v6066;
+var _v6068=" arguments.\");\n";
+var _v6069=_v6068;
+var _v6070="}\n";
+var _v6071=_v6070;
+var _v6072=lglobal["++"];
+if (_v6072 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6073=_v6072;
+_v6073=runJTramp(_v6073);
+if (typeof _v6073 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7517=new JTramp(v7516, [runJTramp(v7504),runJTramp(v7505),runJTramp(v7507),runJTramp(v7509),runJTramp(v7510),runJTramp(v7512),runJTramp(v7514)]);
-v7501=v7517;
+var _v6074=new JTramp(_v6073, [runJTramp(_v6063),runJTramp(_v6036),runJTramp(_v6065),runJTramp(_v6067),runJTramp(_v6036),runJTramp(_v6069),runJTramp(_v6071)]);
+_v6060=_v6074;
 }
-var v7518=v7501;
-var v7519=lglobal["++"];
-var v7520=v7519;
-v7520=runJTramp(v7520);
-if (typeof v7520 !== "function") {
+var _v6075=_v6060;
+var _v6076=lglobal["++"];
+if (_v6076 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6077=_v6076;
+_v6077=runJTramp(_v6077);
+if (typeof _v6077 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7521=new JTramp(v7520, [runJTramp(v7500),runJTramp(v7518)]);
-return v7521;
+var _v6078=new JTramp(_v6077, [runJTramp(_v6059),runJTramp(_v6075)]);
+return _v6078;
 };
-v7472=v7473;
-lglobal["js-check-num-args"]=runJTramp(v7472);
+_v6034=_v6035;
+lglobal["js-check-num-args"]=runJTramp(_v6034);
 })();
 (function () {
-var v7522;
-var v7523=function (v7524,v7525) {
+var _v6079;
+var _v6080=function (_v6081,_v6082) {
 if (arguments.length < 2) {
 throw new Error("Expecting at least 2 arguments.");
 }
 if (arguments.length > 2) {
 throw new Error("Expecting at most 2 arguments.");
 }
-var v7527;
-var v7528=lglobal["null"];
-var v7529=v7528;
-var v7530=lglobal["make-js-var"];
-var v7531=v7530;
-v7531=runJTramp(v7531);
-if (typeof v7531 !== "function") {
+var _v6084;
+var _v6085=lglobal["null"];
+if (_v6085 === undefined) { throw new Error("No such global: " + "null"); }
+var _v6086=_v6085;
+var _v6087=lglobal["make-js-var"];
+if (_v6087 === undefined) { throw new Error("No such global: " + "make-js-var"); }
+var _v6088=_v6087;
+_v6088=runJTramp(_v6088);
+if (typeof _v6088 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7532=new JTramp(v7531, [runJTramp(v7529)]);
-var v7533=v7527=runJTramp(v7532);
-var v7534="var ";
-var v7535=v7534;
-var v7536=v7525;
-var v7537=" = new Nil();\n";
-var v7538=v7537;
-var v7539="for (var ";
-var v7540=v7539;
-var v7541=v7527;
-var v7542=" = arguments.length - 1; ";
-var v7543=v7542;
-var v7544=v7527;
-var v7545=" >= ";
-var v7546=v7545;
-var v7547=v7524;
-var v7548="; ";
-var v7549=v7548;
-var v7550=v7527;
-var v7551="--) {\n";
-var v7552=v7551;
-var v7553="  ";
-var v7554=v7553;
-var v7555=v7525;
-var v7556=" = new Cons(arguments[";
-var v7557=v7556;
-var v7558=v7527;
-var v7559="], ";
-var v7560=v7559;
-var v7561=v7525;
-var v7562=");\n";
-var v7563=v7562;
-var v7564="}\n";
-var v7565=v7564;
-var v7566=lglobal["++"];
-var v7567=v7566;
-v7567=runJTramp(v7567);
-if (typeof v7567 !== "function") {
+var _v6089=new JTramp(_v6088, [runJTramp(_v6086)]);
+var _v6090=_v6084=runJTramp(_v6089);
+var _v6091="var ";
+var _v6092=_v6091;
+var _v6093=" = new Nil();\n";
+var _v6094=_v6093;
+var _v6095="for (var ";
+var _v6096=_v6095;
+var _v6097=" = arguments.length - 1; ";
+var _v6098=_v6097;
+var _v6099=" >= ";
+var _v6100=_v6099;
+var _v6101="; ";
+var _v6102=_v6101;
+var _v6103="--) {\n";
+var _v6104=_v6103;
+var _v6105="  ";
+var _v6106=_v6105;
+var _v6107=" = new Cons(arguments[";
+var _v6108=_v6107;
+var _v6109="], ";
+var _v6110=_v6109;
+var _v6111=");\n";
+var _v6112=_v6111;
+var _v6113="}\n";
+var _v6114=_v6113;
+var _v6115=lglobal["++"];
+if (_v6115 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6116=_v6115;
+_v6116=runJTramp(_v6116);
+if (typeof _v6116 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7568=new JTramp(v7567, [runJTramp(v7535),runJTramp(v7536),runJTramp(v7538),runJTramp(v7540),runJTramp(v7541),runJTramp(v7543),runJTramp(v7544),runJTramp(v7546),runJTramp(v7547),runJTramp(v7549),runJTramp(v7550),runJTramp(v7552),runJTramp(v7554),runJTramp(v7555),runJTramp(v7557),runJTramp(v7558),runJTramp(v7560),runJTramp(v7561),runJTramp(v7563),runJTramp(v7565)]);
-return v7568;
+var _v6117=new JTramp(_v6116, [runJTramp(_v6092),runJTramp(_v6082),runJTramp(_v6094),runJTramp(_v6096),runJTramp(_v6084),runJTramp(_v6098),runJTramp(_v6084),runJTramp(_v6100),runJTramp(_v6081),runJTramp(_v6102),runJTramp(_v6084),runJTramp(_v6104),runJTramp(_v6106),runJTramp(_v6082),runJTramp(_v6108),runJTramp(_v6084),runJTramp(_v6110),runJTramp(_v6082),runJTramp(_v6112),runJTramp(_v6114)]);
+return _v6117;
 };
-v7522=v7523;
-lglobal["js-handleVarArg"]=runJTramp(v7522);
+_v6079=_v6080;
+lglobal["js-handleVarArg"]=runJTramp(_v6079);
 })();
 (function () {
-var v7569;
-var v7570=function (v7571) {
+var _v6118;
+var _v6119=function (_v6120) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v7573=v7571;
-var v7574=lglobal["nil?"];
-var v7575=v7574;
-v7575=runJTramp(v7575);
-if (typeof v7575 !== "function") {
+var _v6122=lglobal["nil?"];
+if (_v6122 === undefined) { throw new Error("No such global: " + "nil?"); }
+var _v6123=_v6122;
+_v6123=runJTramp(_v6123);
+if (typeof _v6123 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7576=new JTramp(v7575, [runJTramp(v7573)]);
-var v7577;
-if(runJTramp(v7576)) {
-var v7578="new Nil()";
-v7577=v7578;
+var _v6124=new JTramp(_v6123, [runJTramp(_v6120)]);
+var _v6125;
+if(runJTramp(_v6124)) {
+var _v6126="new Nil()";
+_v6125=_v6126;
 } else {
-var v7579=v7571;
-var v7580=lglobal["cons?"];
-var v7581=v7580;
-v7581=runJTramp(v7581);
-if (typeof v7581 !== "function") {
+var _v6127=lglobal["cons?"];
+if (_v6127 === undefined) { throw new Error("No such global: " + "cons?"); }
+var _v6128=_v6127;
+_v6128=runJTramp(_v6128);
+if (typeof _v6128 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7582=new JTramp(v7581, [runJTramp(v7579)]);
-var v7583;
-if(runJTramp(v7582)) {
-var v7584="new Cons(";
-var v7585=v7584;
-var v7586=v7571;
-var v7587=lglobal["head"];
-var v7588=v7587;
-v7588=runJTramp(v7588);
-if (typeof v7588 !== "function") {
+var _v6129=new JTramp(_v6128, [runJTramp(_v6120)]);
+var _v6130;
+if(runJTramp(_v6129)) {
+var _v6131="new Cons(";
+var _v6132=_v6131;
+var _v6133=lglobal["head"];
+if (_v6133 === undefined) { throw new Error("No such global: " + "head"); }
+var _v6134=_v6133;
+_v6134=runJTramp(_v6134);
+if (typeof _v6134 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7589=new JTramp(v7588, [runJTramp(v7586)]);
-var v7590=v7589;
-var v7591=lglobal["compile-lit"];
-var v7592=v7591;
-v7592=runJTramp(v7592);
-if (typeof v7592 !== "function") {
+var _v6135=new JTramp(_v6134, [runJTramp(_v6120)]);
+var _v6136=_v6135;
+var _v6137=lglobal["compile-lit"];
+if (_v6137 === undefined) { throw new Error("No such global: " + "compile-lit"); }
+var _v6138=_v6137;
+_v6138=runJTramp(_v6138);
+if (typeof _v6138 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7593=new JTramp(v7592, [runJTramp(v7590)]);
-var v7594=v7593;
-var v7595=", ";
-var v7596=v7595;
-var v7597=v7571;
-var v7598=lglobal["tail"];
-var v7599=v7598;
-v7599=runJTramp(v7599);
-if (typeof v7599 !== "function") {
+var _v6139=new JTramp(_v6138, [runJTramp(_v6136)]);
+var _v6140=_v6139;
+var _v6141=", ";
+var _v6142=_v6141;
+var _v6143=lglobal["tail"];
+if (_v6143 === undefined) { throw new Error("No such global: " + "tail"); }
+var _v6144=_v6143;
+_v6144=runJTramp(_v6144);
+if (typeof _v6144 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7600=new JTramp(v7599, [runJTramp(v7597)]);
-var v7601=v7600;
-var v7602=lglobal["compile-lit"];
-var v7603=v7602;
-v7603=runJTramp(v7603);
-if (typeof v7603 !== "function") {
+var _v6145=new JTramp(_v6144, [runJTramp(_v6120)]);
+var _v6146=_v6145;
+var _v6147=lglobal["compile-lit"];
+if (_v6147 === undefined) { throw new Error("No such global: " + "compile-lit"); }
+var _v6148=_v6147;
+_v6148=runJTramp(_v6148);
+if (typeof _v6148 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7604=new JTramp(v7603, [runJTramp(v7601)]);
-var v7605=v7604;
-var v7606=")";
-var v7607=v7606;
-var v7608=lglobal["++"];
-var v7609=v7608;
-v7609=runJTramp(v7609);
-if (typeof v7609 !== "function") {
+var _v6149=new JTramp(_v6148, [runJTramp(_v6146)]);
+var _v6150=_v6149;
+var _v6151=")";
+var _v6152=_v6151;
+var _v6153=lglobal["++"];
+if (_v6153 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6154=_v6153;
+_v6154=runJTramp(_v6154);
+if (typeof _v6154 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7610=new JTramp(v7609, [runJTramp(v7585),runJTramp(v7594),runJTramp(v7596),runJTramp(v7605),runJTramp(v7607)]);
-v7583=v7610;
+var _v6155=new JTramp(_v6154, [runJTramp(_v6132),runJTramp(_v6140),runJTramp(_v6142),runJTramp(_v6150),runJTramp(_v6152)]);
+_v6130=_v6155;
 } else {
-var v7611=v7571;
-var v7612=lglobal["null?"];
-var v7613=v7612;
-v7613=runJTramp(v7613);
-if (typeof v7613 !== "function") {
+var _v6156=lglobal["null?"];
+if (_v6156 === undefined) { throw new Error("No such global: " + "null?"); }
+var _v6157=_v6156;
+_v6157=runJTramp(_v6157);
+if (typeof _v6157 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7614=new JTramp(v7613, [runJTramp(v7611)]);
-var v7615;
-if(runJTramp(v7614)) {
-var v7616="null";
-v7615=v7616;
+var _v6158=new JTramp(_v6157, [runJTramp(_v6120)]);
+var _v6159;
+if(runJTramp(_v6158)) {
+var _v6160="null";
+_v6159=_v6160;
 } else {
-var v7617=v7571;
-var v7618=lglobal["number?"];
-var v7619=v7618;
-v7619=runJTramp(v7619);
-if (typeof v7619 !== "function") {
+var _v6161=lglobal["number?"];
+if (_v6161 === undefined) { throw new Error("No such global: " + "number?"); }
+var _v6162=_v6161;
+_v6162=runJTramp(_v6162);
+if (typeof _v6162 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7620=new JTramp(v7619, [runJTramp(v7617)]);
-var v7621;
-if(runJTramp(v7620)) {
-var v7622=v7571;
-var v7623=lglobal["js:toString"];
-var v7624=v7623;
-v7624=runJTramp(v7624);
-if (typeof v7624 !== "function") {
+var _v6163=new JTramp(_v6162, [runJTramp(_v6120)]);
+var _v6164;
+if(runJTramp(_v6163)) {
+var _v6165=lglobal["js:toString"];
+if (_v6165 === undefined) { throw new Error("No such global: " + "js:toString"); }
+var _v6166=_v6165;
+_v6166=runJTramp(_v6166);
+if (typeof _v6166 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7625=new JTramp(v7624, [runJTramp(v7622)]);
-v7621=v7625;
+var _v6167=new JTramp(_v6166, [runJTramp(_v6120)]);
+_v6164=_v6167;
 } else {
-var v7626=v7571;
-var v7627=lglobal["string?"];
-var v7628=v7627;
-v7628=runJTramp(v7628);
-if (typeof v7628 !== "function") {
+var _v6168=lglobal["string?"];
+if (_v6168 === undefined) { throw new Error("No such global: " + "string?"); }
+var _v6169=_v6168;
+_v6169=runJTramp(_v6169);
+if (typeof _v6169 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7629=new JTramp(v7628, [runJTramp(v7626)]);
-var v7630;
-if(runJTramp(v7629)) {
-var v7631=v7571;
-var v7632=lglobal["js-escape-string"];
-var v7633=v7632;
-v7633=runJTramp(v7633);
-if (typeof v7633 !== "function") {
+var _v6170=new JTramp(_v6169, [runJTramp(_v6120)]);
+var _v6171;
+if(runJTramp(_v6170)) {
+var _v6172=lglobal["js-escape-string"];
+if (_v6172 === undefined) { throw new Error("No such global: " + "js-escape-string"); }
+var _v6173=_v6172;
+_v6173=runJTramp(_v6173);
+if (typeof _v6173 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7634=new JTramp(v7633, [runJTramp(v7631)]);
-v7630=v7634;
+var _v6174=new JTramp(_v6173, [runJTramp(_v6120)]);
+_v6171=_v6174;
 } else {
-var v7635=lglobal["otherwise"];
-var v7636;
-if(runJTramp(v7635)) {
-var v7637="Cannot compile literal: ";
-var v7638=v7637;
-var v7639=v7571;
-var v7640=lglobal["repr"];
-var v7641=v7640;
-v7641=runJTramp(v7641);
-if (typeof v7641 !== "function") {
+var _v6175=lglobal["otherwise"];
+if (_v6175 === undefined) { throw new Error("No such global: " + "otherwise"); }
+var _v6176;
+if(runJTramp(_v6175)) {
+var _v6177="Cannot compile literal: ";
+var _v6178=_v6177;
+var _v6179=lglobal["repr"];
+if (_v6179 === undefined) { throw new Error("No such global: " + "repr"); }
+var _v6180=_v6179;
+_v6180=runJTramp(_v6180);
+if (typeof _v6180 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7642=new JTramp(v7641, [runJTramp(v7639)]);
-var v7643=v7642;
-var v7644=lglobal["++"];
-var v7645=v7644;
-v7645=runJTramp(v7645);
-if (typeof v7645 !== "function") {
+var _v6181=new JTramp(_v6180, [runJTramp(_v6120)]);
+var _v6182=_v6181;
+var _v6183=lglobal["++"];
+if (_v6183 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6184=_v6183;
+_v6184=runJTramp(_v6184);
+if (typeof _v6184 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7646=new JTramp(v7645, [runJTramp(v7638),runJTramp(v7643)]);
-var v7647=v7646;
-var v7648=lglobal["error"];
-var v7649=v7648;
-v7649=runJTramp(v7649);
-if (typeof v7649 !== "function") {
+var _v6185=new JTramp(_v6184, [runJTramp(_v6178),runJTramp(_v6182)]);
+var _v6186=_v6185;
+var _v6187=lglobal["error"];
+if (_v6187 === undefined) { throw new Error("No such global: " + "error"); }
+var _v6188=_v6187;
+_v6188=runJTramp(_v6188);
+if (typeof _v6188 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7650=new JTramp(v7649, [runJTramp(v7647)]);
-v7636=v7650;
+var _v6189=new JTramp(_v6188, [runJTramp(_v6186)]);
+_v6176=_v6189;
 } else {
-var v7651=null;
-v7636=v7651;
+var _v6190=null;
+_v6176=_v6190;
 }
-v7630=v7636;
+_v6171=_v6176;
 }
-v7621=v7630;
+_v6164=_v6171;
 }
-v7615=v7621;
+_v6159=_v6164;
 }
-v7583=v7615;
+_v6130=_v6159;
 }
-v7577=v7583;
+_v6125=_v6130;
 }
-return v7577;
+return _v6125;
 };
-v7569=v7570;
-lglobal["compile-lit"]=runJTramp(v7569);
+_v6118=_v6119;
+lglobal["compile-lit"]=runJTramp(_v6118);
 })();
 (function () {
-var v7652;
-var v7653=function (v7654) {
+var _v6191;
+var _v6192=function (_v6193) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v7656;
-var v7657=function (v7658) {
+var _v6195;
+var _v6196=function (_v6197) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v7660=v7658;
-var v7661=v7654;
-var v7662=lglobal["s:length"];
-var v7663=v7662;
-v7663=runJTramp(v7663);
-if (typeof v7663 !== "function") {
+var _v6199=lglobal["s:length"];
+if (_v6199 === undefined) { throw new Error("No such global: " + "s:length"); }
+var _v6200=_v6199;
+_v6200=runJTramp(_v6200);
+if (typeof _v6200 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7664=new JTramp(v7663, [runJTramp(v7661)]);
-var v7665=v7664;
-var v7666=lglobal["<"];
-var v7667=v7666;
-v7667=runJTramp(v7667);
-if (typeof v7667 !== "function") {
+var _v6201=new JTramp(_v6200, [runJTramp(_v6193)]);
+var _v6202=_v6201;
+var _v6203=lglobal["<"];
+if (_v6203 === undefined) { throw new Error("No such global: " + "<"); }
+var _v6204=_v6203;
+_v6204=runJTramp(_v6204);
+if (typeof _v6204 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7668=new JTramp(v7667, [runJTramp(v7660),runJTramp(v7665)]);
-var v7669;
-if(runJTramp(v7668)) {
-var v7670=v7654;
-var v7671=v7658;
-var v7672=lglobal["s:charAt"];
-var v7673=v7672;
-v7673=runJTramp(v7673);
-if (typeof v7673 !== "function") {
+var _v6205=new JTramp(_v6204, [runJTramp(_v6197),runJTramp(_v6202)]);
+var _v6206;
+if(runJTramp(_v6205)) {
+var _v6207=lglobal["s:charAt"];
+if (_v6207 === undefined) { throw new Error("No such global: " + "s:charAt"); }
+var _v6208=_v6207;
+_v6208=runJTramp(_v6208);
+if (typeof _v6208 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7674=new JTramp(v7673, [runJTramp(v7670),runJTramp(v7671)]);
-var v7675=v7674;
-var v7676=function (v7677) {
+var _v6209=new JTramp(_v6208, [runJTramp(_v6193),runJTramp(_v6197)]);
+var _v6210=_v6209;
+var _v6211=function (_v6212) {
 if (arguments.length < 1) {
 throw new Error("Expecting at least 1 arguments.");
 }
 if (arguments.length > 1) {
 throw new Error("Expecting at most 1 arguments.");
 }
-var v7679=v7677;
-var v7680="\"";
-var v7681=v7680;
-var v7682=lglobal["="];
-var v7683=v7682;
-v7683=runJTramp(v7683);
-if (typeof v7683 !== "function") {
+var _v6214="\"";
+var _v6215=_v6214;
+var _v6216=lglobal["="];
+if (_v6216 === undefined) { throw new Error("No such global: " + "="); }
+var _v6217=_v6216;
+_v6217=runJTramp(_v6217);
+if (typeof _v6217 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7684=new JTramp(v7683, [runJTramp(v7679),runJTramp(v7681)]);
-var v7685;
-if(runJTramp(v7684)) {
-var v7686="\\\"";
-v7685=v7686;
+var _v6218=new JTramp(_v6217, [runJTramp(_v6212),runJTramp(_v6215)]);
+var _v6219;
+if(runJTramp(_v6218)) {
+var _v6220="\\\"";
+_v6219=_v6220;
 } else {
-var v7687=v7677;
-var v7688="\n";
-var v7689=v7688;
-var v7690=lglobal["="];
-var v7691=v7690;
-v7691=runJTramp(v7691);
-if (typeof v7691 !== "function") {
+var _v6221="\n";
+var _v6222=_v6221;
+var _v6223=lglobal["="];
+if (_v6223 === undefined) { throw new Error("No such global: " + "="); }
+var _v6224=_v6223;
+_v6224=runJTramp(_v6224);
+if (typeof _v6224 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7692=new JTramp(v7691, [runJTramp(v7687),runJTramp(v7689)]);
-var v7693;
-if(runJTramp(v7692)) {
-var v7694="\\n";
-v7693=v7694;
+var _v6225=new JTramp(_v6224, [runJTramp(_v6212),runJTramp(_v6222)]);
+var _v6226;
+if(runJTramp(_v6225)) {
+var _v6227="\\n";
+_v6226=_v6227;
 } else {
-var v7695=v7677;
-var v7696="\t";
-var v7697=v7696;
-var v7698=lglobal["="];
-var v7699=v7698;
-v7699=runJTramp(v7699);
-if (typeof v7699 !== "function") {
+var _v6228="\t";
+var _v6229=_v6228;
+var _v6230=lglobal["="];
+if (_v6230 === undefined) { throw new Error("No such global: " + "="); }
+var _v6231=_v6230;
+_v6231=runJTramp(_v6231);
+if (typeof _v6231 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7700=new JTramp(v7699, [runJTramp(v7695),runJTramp(v7697)]);
-var v7701;
-if(runJTramp(v7700)) {
-var v7702="\\t";
-v7701=v7702;
+var _v6232=new JTramp(_v6231, [runJTramp(_v6212),runJTramp(_v6229)]);
+var _v6233;
+if(runJTramp(_v6232)) {
+var _v6234="\\t";
+_v6233=_v6234;
 } else {
-var v7703=v7677;
-var v7704="\r";
-var v7705=v7704;
-var v7706=lglobal["="];
-var v7707=v7706;
-v7707=runJTramp(v7707);
-if (typeof v7707 !== "function") {
+var _v6235="\r";
+var _v6236=_v6235;
+var _v6237=lglobal["="];
+if (_v6237 === undefined) { throw new Error("No such global: " + "="); }
+var _v6238=_v6237;
+_v6238=runJTramp(_v6238);
+if (typeof _v6238 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7708=new JTramp(v7707, [runJTramp(v7703),runJTramp(v7705)]);
-var v7709;
-if(runJTramp(v7708)) {
-var v7710="\\r";
-v7709=v7710;
+var _v6239=new JTramp(_v6238, [runJTramp(_v6212),runJTramp(_v6236)]);
+var _v6240;
+if(runJTramp(_v6239)) {
+var _v6241="\\r";
+_v6240=_v6241;
 } else {
-var v7711=v7677;
-var v7712="\\";
-var v7713=v7712;
-var v7714=lglobal["="];
-var v7715=v7714;
-v7715=runJTramp(v7715);
-if (typeof v7715 !== "function") {
+var _v6242="\\";
+var _v6243=_v6242;
+var _v6244=lglobal["="];
+if (_v6244 === undefined) { throw new Error("No such global: " + "="); }
+var _v6245=_v6244;
+_v6245=runJTramp(_v6245);
+if (typeof _v6245 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7716=new JTramp(v7715, [runJTramp(v7711),runJTramp(v7713)]);
-var v7717;
-if(runJTramp(v7716)) {
-var v7718="\\\\";
-v7717=v7718;
+var _v6246=new JTramp(_v6245, [runJTramp(_v6212),runJTramp(_v6243)]);
+var _v6247;
+if(runJTramp(_v6246)) {
+var _v6248="\\\\";
+_v6247=_v6248;
 } else {
-var v7719=v7654;
-var v7720=v7658;
-var v7721=lglobal["s:charAt"];
-var v7722=v7721;
-v7722=runJTramp(v7722);
-if (typeof v7722 !== "function") {
+var _v6249=lglobal["s:charAt"];
+if (_v6249 === undefined) { throw new Error("No such global: " + "s:charAt"); }
+var _v6250=_v6249;
+_v6250=runJTramp(_v6250);
+if (typeof _v6250 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7723=new JTramp(v7722, [runJTramp(v7719),runJTramp(v7720)]);
-v7717=v7723;
+var _v6251=new JTramp(_v6250, [runJTramp(_v6193),runJTramp(_v6197)]);
+_v6247=_v6251;
 }
-v7709=v7717;
+_v6240=_v6247;
 }
-v7701=v7709;
+_v6233=_v6240;
 }
-v7693=v7701;
+_v6226=_v6233;
 }
-v7685=v7693;
+_v6219=_v6226;
 }
-return v7685;
+return _v6219;
 };
-var v7724=v7676;
-v7724=runJTramp(v7724);
-if (typeof v7724 !== "function") {
+var _v6252=_v6211;
+_v6252=runJTramp(_v6252);
+if (typeof _v6252 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7725=new JTramp(v7724, [runJTramp(v7675)]);
-var v7726=v7725;
-var v7727=v7658;
-var v7728=1;
-var v7729=v7728;
-var v7730=lglobal["+"];
-var v7731=v7730;
-v7731=runJTramp(v7731);
-if (typeof v7731 !== "function") {
+var _v6253=new JTramp(_v6252, [runJTramp(_v6210)]);
+var _v6254=_v6253;
+var _v6255=1;
+var _v6256=_v6255;
+var _v6257=lglobal["+"];
+if (_v6257 === undefined) { throw new Error("No such global: " + "+"); }
+var _v6258=_v6257;
+_v6258=runJTramp(_v6258);
+if (typeof _v6258 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7732=new JTramp(v7731, [runJTramp(v7727),runJTramp(v7729)]);
-var v7733=v7732;
-var v7734=v7656;
-v7734=runJTramp(v7734);
-if (typeof v7734 !== "function") {
+var _v6259=new JTramp(_v6258, [runJTramp(_v6197),runJTramp(_v6256)]);
+var _v6260=_v6259;
+_v6195=runJTramp(_v6195);
+if (typeof _v6195 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7735=new JTramp(v7734, [runJTramp(v7733)]);
-var v7736=v7735;
-var v7737=lglobal["cons"];
-var v7738=v7737;
-v7738=runJTramp(v7738);
-if (typeof v7738 !== "function") {
+var _v6261=new JTramp(_v6195, [runJTramp(_v6260)]);
+var _v6262=_v6261;
+var _v6263=lglobal["cons"];
+if (_v6263 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v6264=_v6263;
+_v6264=runJTramp(_v6264);
+if (typeof _v6264 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7739=new JTramp(v7738, [runJTramp(v7726),runJTramp(v7736)]);
-v7669=v7739;
+var _v6265=new JTramp(_v6264, [runJTramp(_v6254),runJTramp(_v6262)]);
+_v6206=_v6265;
 } else {
-var v7740="\"";
-var v7741=v7740;
-var v7742=lglobal["list"];
-var v7743=v7742;
-v7743=runJTramp(v7743);
-if (typeof v7743 !== "function") {
+var _v6266="\"";
+var _v6267=_v6266;
+var _v6268=lglobal["list"];
+if (_v6268 === undefined) { throw new Error("No such global: " + "list"); }
+var _v6269=_v6268;
+_v6269=runJTramp(_v6269);
+if (typeof _v6269 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7744=new JTramp(v7743, [runJTramp(v7741)]);
-v7669=v7744;
+var _v6270=new JTramp(_v6269, [runJTramp(_v6267)]);
+_v6206=_v6270;
 }
-return v7669;
+return _v6206;
 };
-var v7745=v7656=runJTramp(v7657);
-var v7746=lglobal["++"];
-var v7747=v7746;
-var v7748="\"";
-var v7749=v7748;
-var v7750=0;
-var v7751=v7750;
-var v7752=v7656;
-v7752=runJTramp(v7752);
-if (typeof v7752 !== "function") {
+var _v6271=_v6195=runJTramp(_v6196);
+var _v6272=lglobal["++"];
+if (_v6272 === undefined) { throw new Error("No such global: " + "++"); }
+var _v6273=_v6272;
+var _v6274="\"";
+var _v6275=_v6274;
+var _v6276=0;
+var _v6277=_v6276;
+_v6195=runJTramp(_v6195);
+if (typeof _v6195 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7753=new JTramp(v7752, [runJTramp(v7751)]);
-var v7754=v7753;
-var v7755=lglobal["cons"];
-var v7756=v7755;
-v7756=runJTramp(v7756);
-if (typeof v7756 !== "function") {
+var _v6278=new JTramp(_v6195, [runJTramp(_v6277)]);
+var _v6279=_v6278;
+var _v6280=lglobal["cons"];
+if (_v6280 === undefined) { throw new Error("No such global: " + "cons"); }
+var _v6281=_v6280;
+_v6281=runJTramp(_v6281);
+if (typeof _v6281 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7757=new JTramp(v7756, [runJTramp(v7749),runJTramp(v7754)]);
-var v7758=v7757;
-var v7759=lglobal["apply"];
-var v7760=v7759;
-v7760=runJTramp(v7760);
-if (typeof v7760 !== "function") {
+var _v6282=new JTramp(_v6281, [runJTramp(_v6275),runJTramp(_v6279)]);
+var _v6283=_v6282;
+var _v6284=lglobal["apply"];
+if (_v6284 === undefined) { throw new Error("No such global: " + "apply"); }
+var _v6285=_v6284;
+_v6285=runJTramp(_v6285);
+if (typeof _v6285 !== "function") {
 throw new Error("Cannot call non-function.");
 }
-var v7761=new JTramp(v7760, [runJTramp(v7747),runJTramp(v7758)]);
-return v7761;
+var _v6286=new JTramp(_v6285, [runJTramp(_v6273),runJTramp(_v6283)]);
+return _v6286;
 };
-v7652=v7653;
-lglobal["js-escape-string"]=runJTramp(v7652);
+_v6191=_v6192;
+lglobal["js-escape-string"]=runJTramp(_v6191);
+})();
 })();
