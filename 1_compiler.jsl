@@ -250,18 +250,16 @@ window.lglobal={
 
 (defun (reset-midir-compile)
   (set! midir-macros (dict))
-	(ffi js-default-lglobal)
+  (ffi js-default-lglobal)
   (set! midir-toplevel-defs
     (reverse
       (list js-default-lglobal)))
 ;  (set! midir-global (make-env null))
 
-  
-
   (set-in-lglobal 'macro:set!
     (fun (name f)
       (dict:set! midir-macros name
-			  (let (f (runJTramp f))
+        (let (f (runJTramp f))
           (fun args (runJTramp (apply f args)))))))
   (set-in-lglobal 'macro:get
     (fun (name)
@@ -273,7 +271,7 @@ window.lglobal={
 ;  (midir-global 'set! 'head head)
 ;  (midir-global 'set! 'tail tail)
 ;  (midir-global 'set! 'nil? nil?))
-	)
+  )
 
 ;; Expands the form until it's not immediately a macro anymore (there may still be sub-macros)
 (defun (midir-macro-expand s)
@@ -304,14 +302,14 @@ window.lglobal={
             ;; ; save for compilation
             ;; (set! midir-toplevel-defs
             ;;       (append (list (head (tail s)) s2) midir-toplevel-defs)))
-						(let* (res (make-js-var null)
-									 js (++ "(function () {\n"
+            (let* (res (make-js-var null)
+                   js (++ "(function () {\n"
                           "var " res ";\n"
-    										  (compile-midir-to-js s2 "ERROR" res)
-													"lglobal[" (js-escape-string (head (tail s))) "]"
-													"=runJTramp(" res ");\n"
-													"})();\n"))
-						  (ffi (scope js))
+                          (compile-midir-to-js s2 "ERROR" res)
+                          "lglobal[" (js-escape-string (head (tail s))) "]"
+                          "=runJTramp(" res ");\n"
+                          "})();\n"))
+              (ffi (scope js))
               (set! midir-toplevel-defs (cons js midir-toplevel-defs))))
         (and (cons? s) (= (head s) 'prim:do))
           (each compile-toplevel-to-midir (tail s))
@@ -320,13 +318,13 @@ window.lglobal={
         otherwise
           ; just run it
 ;          (((compile-midir-to-lambdas (do-compile s) id) null) midir-global))))
-				  (let* (res (make-js-var null)
-								 js (++ "(function () {\n"
+          (let* (res (make-js-var null)
+                 js (++ "(function () {\n"
                         "var " res ";\n"
-											  (compile-midir-to-js (do-compile s) "ERROR" res)
-												"return runJTramp(" res ");\n"
-												"})();\n"))
-						(ffi (scope js))))))
+                        (compile-midir-to-js (do-compile s) "ERROR" res)
+                        "return runJTramp(" res ");\n"
+                        "})();\n"))
+            (ffi (scope js))))))
 
 (defun (when-execute-toplevel s)
   (defun (do-compile s)
@@ -428,9 +426,9 @@ window.lglobal={
 (defun (copy-propagate-midir m binds)
   (def continue copy-propagate-midir)
   (defun (try-get v)
-	  (if (binds 'has? v)
-				(binds 'lookup v)
-				v))
+    (if (binds 'has? v)
+        (binds 'lookup v)
+        v))
   (destruct m
     (midir:lit s next)
       (midir:lit s (continue next binds))
@@ -457,7 +455,7 @@ window.lglobal={
       (midir:leave)
     (midir:funcall f args next)
       (midir:funcall (try-get f) (map try-get args)
-										 (continue next binds))
+                     (continue next binds))
     (midir:closure f next)
       (midir:closure (continue f binds) (continue next binds))
     (midir:set! v next)
@@ -552,17 +550,19 @@ window.lglobal={
 ;;; reading a whole file
 
 (defun (compile-file name s)
+  (def last-out null)
   (defun (compile-all stream)
     (when (read:has-another? stream)
       (let (sexp (read:sexp stream))
         (print "Compiling " (repr sexp) "\n")
-        (compile-toplevel-to-midir sexp)
+        (set! last-out (compile-toplevel-to-midir sexp))
         (compile-all stream))))
   (let (stream (stream:make name s))
-    (compile-all stream)))
+    (compile-all stream)
+    last-out))
 (defun (compile)
   (reset-midir-compile)
-	(compile-too))
+  (compile-too))
 (defun (compile-too)
   (compile-file "*file*" jsui:input-file)
   ((ffi "(function (v) {$('#compiled').val(v); return null;})")
@@ -600,42 +600,42 @@ window.lglobal={
              vargv (make-js-var varg) ; varg may be null
              defsv (map make-js-var defs))
          (++ "function (" (s:join "," argsv) ") {\n"
-						 (js-check-num-args (length argsv) (not (null? varg)))
+             (js-check-num-args (length argsv) (not (null? varg)))
              (if (null? varg)
                  ""
-								 (js-handleVarArg (length argsv) vargv))
-						 (apply ++ (map (fun (v) (++ "var " v ";\n")) defsv))
-						 (compile-midir-to-js next "ERROR" "ERROR")
+                 (js-handleVarArg (length argsv) vargv))
+             (apply ++ (map (fun (v) (++ "var " v ";\n")) defsv))
+             (compile-midir-to-js next "ERROR" "ERROR")
              "}"))
     (midir:return)
       (++ "return " prev ";\n")
     (midir:bind s next)
       (++ "var " (make-js-var s) "=" prev ";\n"
-					(compile-midir-to-js next "ERROR" leavev))
+          (compile-midir-to-js next "ERROR" leavev))
     (midir:bind-drop next)
       (++ prev "=runJTramp(" prev ");\n"
-					(compile-midir-to-js next "ERROR" leavev))
+          (compile-midir-to-js next "ERROR" leavev))
     (midir:if cons alt next)
       (let (leavev2 (make-js-var null))
         (++ "var " leavev2 ";\n"
             "if(runJTramp(" prev ")) {\n"
-	  				(compile-midir-to-js cons "ERROR" leavev2)
-		  			"} else {\n"
-			  		(compile-midir-to-js alt "ERROR" leavev2)
-				  	"}\n"
-				    (compile-midir-to-js next leavev2 leavev)))
+            (compile-midir-to-js cons "ERROR" leavev2)
+            "} else {\n"
+            (compile-midir-to-js alt "ERROR" leavev2)
+            "}\n"
+            (compile-midir-to-js next leavev2 leavev)))
     (midir:leave)
-	    (++ leavev "=" prev ";\n")
+      (++ leavev "=" prev ";\n")
     (midir:funcall f args next) ; TODO tail call
       (let (v (make-js-var null)
-						fv (make-js-var f)
-						argsv (map make-js-var args))
+            fv (make-js-var f)
+            argsv (map make-js-var args))
         (++ fv "=runJTramp(" fv ");\n"
             "if (typeof " fv " !== \"function\") {\n"
             "throw new Error(\"Cannot call non-function.\");\n"
-						"}\n"
-				    "var " v "=new JTramp(" fv ", [" (s:join "," (map (fun (a) (++ "runJTramp(" a ")"))argsv)) "]);\n"
-						(compile-midir-to-js next v leavev)))
+            "}\n"
+            "var " v "=new JTramp(" fv ", [" (s:join "," (map (fun (a) (++ "runJTramp(" a ")"))argsv)) "]);\n"
+            (compile-midir-to-js next v leavev)))
     (midir:closure f next)
       (let (v (make-js-var null))
         (++ "var " v "=" (compile-midir-to-js f "ERROR" "ERROR") ";\n"
@@ -643,28 +643,28 @@ window.lglobal={
     (midir:set! v next)
       (let (v2 (make-js-var null))
         (++ "var " v2 "=" (make-js-var v) "=runJTramp(" prev ");\n"
-	  				(compile-midir-to-js next v2 leavev)))
+            (compile-midir-to-js next v2 leavev)))
     (midir:gset! v next)
       (let (v2 (make-js-var null))
         (++ "var " v2 "=" "lglobal[" (js-escape-string v) "]=runJTramp(" prev ");\n"
-  					(compile-midir-to-js next v2 leavev)))
+            (compile-midir-to-js next v2 leavev)))
     (midir:ffi next)
       (let (v (make-js-var null))
         (++ "var " v "=eval(runJTramp(" prev "));\n"
-						(compile-midir-to-js next v leavev)))
+            (compile-midir-to-js next v leavev)))
     (error (++ "Unknown midir " m))))
 
 (defun (js-check-num-args min-expected has-varargs)
   (++ (if (< 0 min-expected)
-					(++ "if (arguments.length < " min-expected ") {\n"
-							"throw new Error(\"Expecting at least " min-expected " arguments.\");\n"
-							"}\n")
-					"")
-	    (if has-varargs
-					""
-					(++ "if (arguments.length > " min-expected ") {\n"
-							"throw new Error(\"Expecting at most " min-expected " arguments.\");\n"
-							"}\n"))))
+          (++ "if (arguments.length < " min-expected ") {\n"
+              "throw new Error(\"Expecting at least " min-expected " arguments.\");\n"
+              "}\n")
+          "")
+      (if has-varargs
+          ""
+          (++ "if (arguments.length > " min-expected ") {\n"
+              "throw new Error(\"Expecting at most " min-expected " arguments.\");\n"
+              "}\n"))))
 
 (defun (js-handleVarArg offset into)
   (def i (make-js-var null))
@@ -690,12 +690,12 @@ window.lglobal={
     (if (< i (s:length s))
       (cons (switch (s:charAt s i)
               "\""  "\\\""
-							"\n"  "\\n"
-							"\t"  "\\t"
-							"\r"  "\\r"
-							"\\"  "\\\\"
+              "\n"  "\\n"
+              "\t"  "\\t"
+              "\r"  "\\r"
+              "\\"  "\\\\"
               (s:charAt s i))
-						(escape-char (+ i 1)))
+            (escape-char (+ i 1)))
       (list "\"")))
   (apply ++ (cons "\"" (escape-char 0))))
 

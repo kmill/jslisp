@@ -74,8 +74,8 @@
       (prim:if (nil? (tail conds))
         (head conds)
         (list 'prim:if (head conds)
-							(head (tail conds))
-							(cons 'if (tail (tail conds))))))))
+              (head (tail conds))
+              (cons 'if (tail (tail conds))))))))
 (def otherwise true)
 
 ; (defmac (macro a b c) ...)
@@ -143,7 +143,7 @@
 
 (defmac (let bindings # body)
   (cons (list 'fun (a:keys bindings) (cons 'do body))
-				(a:values bindings)))
+        (a:values bindings)))
 
 ; Operators
 (def js:+ (ffi "(function (a, b) { return a + b; })"))
@@ -194,7 +194,7 @@
 (defun (intercalate sep lst)
   (if (nil? lst)        '()
       (nil? (tail lst)) lst
-  		otherwise         (cons (head lst)
+      otherwise         (cons (head lst)
                               (cons sep (intercalate sep (tail lst))))))
 
 (def gensym
@@ -238,9 +238,9 @@
 
 (defun (s:join sep ss)
   (if (nil? ss)        ""
-  	  (nil? (tail ss)) (head ss)
-	  	otherwise        (++ (head ss) sep
-		  	                   (s:join sep (tail ss)))))
+      (nil? (tail ss)) (head ss)
+      otherwise        (++ (head ss) sep
+                           (s:join sep (tail ss)))))
 
 ;;; Dictionaries
 (def js:dictConst (ffi "function Dict () {}; Dict"))
