@@ -11,6 +11,9 @@
 ; literal is a quoted string).
 
 
+;;;; Base Library ;;;;
+
+
 ;;; What primitives are we assuming?
 ; - prim:def
 ; - prim:set!
@@ -321,6 +324,14 @@
   })"))
   (apply (js:join sep) ss))
 
+; Map a function over each character of a string, concatenate the
+; resulting strings.
+(defun (s:map-append f s)
+  (defun (_map i)
+    (if (< i (s:length s))
+      (cons (f (s:charAt s i)) (_map (+ i 1)))
+      '()))
+  (apply ++ (_map 0)))
 
 ;;; Dictionaries
 
@@ -502,9 +513,74 @@
       (list 'apply (cons 'switch (cons v (transform-cases v cases))) args))))
 
 
+;;; Structures
+
+; These somewhat resemble ADTs.
+
+; (defstruct (mystruct a b c))
+(defmac (defstruct form)
+  (let (name (head form)
+        args (tail form))
+    (list 'do
+      (list 'def (++ "js:struct-" name "-constructor")
+        (list 'ffi (++ "(function Struct" (make-js-identifier name) " (comps) { this.components = comps; })")))
+      ;; a constructor
+      (list 'defun form
+        (cons (list (list 'ffi (++ "(function (c) {
+            return function () {
+              return new c(Array.prototype.slice.call(arguments));
+            };
+          })")) (++ "js:struct-" name "-constructor")) args))
+      ;; a predicate
+      (list 'def (++ name "?")
+        (list (list 'ffi "(function (c) {
+           return function (o) { return o instanceof c; };
+         })") (++ "js:struct-" name "-constructor")))
+      ;; a destructor
+      (list 'def (++ name "-destruct")
+        (list 'ffi "(function (o, f) {
+          return f.apply(undefined, o.components);
+        })")))))
+
+; For symmetry, cons and nil should have destructors (they already
+; have predicates).  We don't worry about the fact that nil has no
+; constructor we never would need to use it in our macros.
+
+(defun (cons-destruct o f)
+  (f (head o) (tail o)))
+(defun (nil-destruct o f)
+  (f))
+
+; The destruction macro! Similar to Haskell "case" except doesn't
+; handle sub-patterns.
+; (destruct val (s x y ...) use-x-y (s w z) use-w-z ... [otherwise])
+(defmac (destruct v # bindings)
+  (defun (handle-just-symbol pat)
+    (if (string? pat)
+      (cons pat (gensym))
+      pat))
+  (defun (_destruct vv bindings)
+    (if (nil? bindings)
+          null
+        (nil? (tail bindings))
+          (head bindings)
+        otherwise
+          (let (pat (handle-just-symbol (head bindings))
+                con (head (tail bindings))
+                nextBindings (tail (tail bindings)))
+            (let (pred (++ (head pat) '?))
+              (list 'if (list pred vv)
+                (list (++ (head pat) "-destruct")
+                      vv
+                      (list 'fun (tail pat) con))
+                (_destruct vv nextBindings))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_destruct vv bindings))))
+
 ;;; Output
 
-(def js:print (ffi "(function () { _.each(arguments.output); return null; })"))
+(def js:print (ffi "(function () { _.each(arguments, output); return null; })"))
 (defun (print # xs)
   (foreach x in xs
     (js:print (repr x))))
@@ -517,19 +593,30 @@
 (def js:console (ffi "(function (x) { console.log(x); return null; })"))
 
 (defun (escape-js-string s)
-  (defun (escape-char i)
-    (if (< i (s:length s))
-      (cons (switch (s:charAt s i)
+  (s:map-append
+    (fun (c)
+      (switch c
               "\""  "\\\""
               "\n"  "\\n"
               "\t"  "\\t"
               "\r"  "\\r"
               "\\"  "\\\\"
-              (s:charAt s i))
-            (escape-char (+ i 1)))
-      '()))
-  (apply ++ (escape-char 0)))
+              c))
+    s))
 
+; Makes an identifier out of a string.  Not guaranteed to be
+; injective, but will probably make something recognizable.
+(defun (make-js-identifier s)
+  (++ "_"
+      (s:map-append
+       (fun (char)
+         (let (c (s:charCodeAt char 0))
+           (if (or (and (<= 48 c) (<= c 57)) ; number
+                   (and (<= 65 c) (<= c 90)) ; A-Z
+                   (and (<= 97 c) (<= c 122))) ; a-z
+             char
+             "_")))
+       s)))
 
 (defun (repr x)
   (defun (repr-tail xs)
@@ -545,3 +632,29 @@
                             (++ "'" (repr quoted))))
                   (++ "(" (repr-tail x)))
       otherwise (js:toString x)))
+
+
+;;;; Compiler ;;;;
+
+; Now that there is a base library, we can begin to construct the
+; compiler.
+
+;;; Reader
+
+(def eof '(eof))
+(defun (eof? x) (= x eof))
+
+; Makes a stream with a source label (e.g., "input.jsl") and the
+; string for the source.
+(defun (stream:make source s)
+  (let (i 0
+        len (s:length s)
+        line 1
+        col 0)
+    ; Update line and col based on character.
+    (defun (advance c)
+      (switch c
+        "\n" (do (set! line (+ 1 line))
+                 (set! col 0))
+        (do (set! col (+ 1 col)))))))
+    (defu
