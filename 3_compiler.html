@@ -24,12 +24,31 @@ $(function () {
   lglobal = new Env();
   var run_repl = lglobal['run-repl'];
   $("#runButton").on("click", function () {
-    var s = $("#repl").val();
+    var s = $("#input").val();
     runJTramp(run_repl(s));
   });
-});
-$('input[type="file"]').on("change", function () {
-  alert("File input doesn't do anything.");
+  $("#repl").on("submit", function (e) {
+    e.preventDefault();
+    var s = $("#replinput").val();
+    $("#replinput").val('');
+    output("\n>" + s + "\n");
+    runJTramp(run_repl(s));
+    return false;
+  });
+  $('#loadFile').on("change", function (e) {
+		var files = e.target.files;
+    for (var i = 0; i < files.length; i++) {
+			var reader = new FileReader();
+			reader.onload = (function (theFile) {
+				return function (e) {
+          runJTramp(midir_eval_all(e.target.result));
+          output("Loaded " + theFile.name + "\n");
+				};
+			})(files[i]);
+			reader.readAsText(files[i]);
+		}
+		$("#loadFile").val('');
+  });
 });
 </script>
 <script type="text/jsscheme">
@@ -47,6 +66,8 @@ $('input[type="file"]').on("change", function () {
   (fun (_ # stuff) (cons 'prim:def stuff)))
 (macro:set! 'set!
   (fun (_ # stuff) (cons 'prim:set! stuff)))
+(macro:set! 'ffi
+  (fun (_ # stuff) (cons 'prim:ffi stuff)))
 
 ; (if cond1 cons1 cond2 cons2 ... [alt])
 (macro:set! 'if
@@ -130,6 +151,24 @@ $('input[type="file"]').on("change", function () {
     (list 'let (list vv v)
       (_switch vv cases)))))
 </script>
+<style>
+textarea, output, repl, pre {
+  font-family: "Monaco",monospace;
+  font-size: 11px;
+}
+#output {
+  overflow-y: scroll; max-height: 250px;
+  border-color: #ccc;
+  border-width: 1px;
+  border-style: solid;
+}
+#output pre {
+  white-space: pre-wrap;
+}
+#replinput {
+  width: 100%;
+}
+</style>
 </head>
 <body>
 <input id="runButton" type="submit" value="Run"/>
@@ -138,13 +177,16 @@ $('input[type="file"]').on("change", function () {
 <label>Read file:
 <input id="readFile" type="file"/></label>
 <br/>
-<textarea id="repl" style="width:40%;min-width:30em; min-height: 8em;">
+<textarea id="input" style="width:40%;min-width:30em; min-height: 8em;">
 </textarea>
 <textarea id="compiled" style="width:40%;min-height:8em;"></textarea>
-<div id="output" style="overflow:scroll;max-height:250px;">
+<div id="output">
 <pre>
 Loading...
 </pre>
 </div>
+<form id="repl">
+<input id="replinput" type="text" autocomplete="off"></label>
+</form>
 </body>
 </html>

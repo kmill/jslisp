@@ -1,0 +1,547 @@
+;;;;;;;;;;;;;;;;;;;;
+;; 4_compiler.jsl ;;
+;;;;;;;;;;;;;;;;;;;;
+
+; This should be run in 3_compiler.html.  Since 3_compiler has a bunch
+; of library code built-in, we could use all of it for making macros.
+; However, we want to be able to get this to compile itself, so it
+; needs to include all the definitions anyway.
+
+; TODO make symbols be distinct from strings (right now a string
+; literal is a quoted string).
+
+
+;;; What primitives are we assuming?
+; - prim:def
+; - prim:set!
+; - macro:set!
+; - prim:fun
+; - prim:do
+; - prim:ffi
+
+
+;;; Bootstrap
+; Even though we have a whole programming environment at our disposal,
+; we need to rebuild it anyway for compiling this compiler from
+; scratch, since the latent environment is assumed to only be a macro
+; environment, and as such is not passed on to compiled code.
+
+(def prim:cons (ffi "(function () {
+  if (window.Cons === undefined) {
+    window.Cons = function Cons(head, tail) {
+      this.head = head; this.tail = tail;
+    }
+  }
+  return function prim_cons (head, tail) {
+    return new Cons(head, tail);
+  };
+})()"))
+
+; We give different names to the primitive versions because we may
+; want to change syntax later.  In fact, we will make some of these
+; more robust later.
+
+(macro:set! 'fun
+  (prim:fun (_ # stuff) (prim:cons 'prim:fun stuff)))
+(macro:set! 'do
+  (fun (_ # stuff) (cons 'prim:do stuff)))
+(macro:set! 'def
+  (fun (_ # stuff) (cons 'prim:def stuff)))
+(macro:set! 'set!
+  (fun (_ # stuff) (cons 'prim:set! stuff)))
+
+; A very primitive defun
+(macro:set! 'defun
+  (fun (_ v # body)
+    (def name ((ffi "(function (o) { return o.head; })") v))
+    (def args ((ffi "(function (o) { return o.tail; })") v))
+    (cons 'def (cons name (cons (cons 'fun (cons args body)) '())))))
+
+; (ffi code [outvar]) represents some code which is pasted into the
+; compiled text.  The optional 'outvar' gives which variable should be
+; considered to be the return value; otherwise the code is interpeted
+; as a plain expression.
+(macro:set! 'ffi
+  (fun (_ # stuff) (cons 'prim:ffi stuff)))
+; Because ffi expects a string constant, we provide js:eval as a
+; function which takes a variable piece of code.
+(def js:eval
+  (fun (code)
+    ((ffi "(function js_eval (code) { return (undefined || eval)(code); })") code)))
+
+;;; Tying into javascript substrate
+
+;; Cons and nil
+
+; prim:cons is defined in Bootstrap
+
+(defun (cons head tail)
+  (prim:cons head tail))
+
+(defun (cons? o)
+  ((ffi "(function consQ (o) { return o instanceof Cons; })") o))
+(defun (head o)
+  ((ffi "(function head (o) { return o.head; })") o))
+(defun (tail o)
+  ((ffi "(function tail (o) { return o.tail; })") o))
+
+(def nil (ffi "(function () {
+  if (window.Nil === undefined) {
+    window.Nil = function Nil() {};
+  }
+  var n = new window.Nil();
+  return new Nil();
+})()"))
+
+(defun (nil? o)
+  ((ffi "(function nilQ (o) { return o instanceof Nil; })") o))
+
+;; Other types
+(defun (number? o)
+  ((ffi "(function numberQ (o) { return typeof o === \"number\"; })") o))
+(defun (string? o)
+  ((ffi "(function stringQ (o) { return typeof o === \"string\"; })") o))
+
+(defun (boolean? o)
+  ((ffi "(function booleanQ (o) { return typeof o === \"boolean\"; })") o))
+(def true (ffi "true"))
+(def false (ffi "false"))
+
+; Why a null type? It is because there should be something distinct
+; from nil which represents "no value," whereas nil means "end of
+; list."
+(def null (ffi "null"))
+(defun (null? o)
+  ((ffi "(function nullQ (o) { return o === null; })") o))
+
+
+;;; Basic functions
+
+(def apply (ffi "(function apply (f, args) {
+  var as = [];
+  while (!(args instanceof Nil)) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+})"))
+
+; Makes a list from some arguments
+(def list (fun args args))
+
+
+;;; Macros
+
+; (defmac (n a b c) ...)
+; should be robustified
+(macro:set! 'defmac
+  (fun (_ args # body)
+    (list 'macro:set! (list 'quote (head args))
+      (list 'fun (cons '_ (tail args))
+        (cons 'do body)))))
+
+; (if p1 c1 p2 c2 ... [else]), where pn can be "otherwise"
+(defmac (if # conds)
+  (prim:if (nil? conds)
+    null
+    (prim:if (nil? (tail conds))
+      (head conds)
+      (list 'prim:if (head conds)
+        (head (tail conds))
+        (cons 'if (tail (tail conds)))))))
+(def otherwise true)
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+
+
+;; Robustification
+
+; While we haven't defined repr yet, it exists in the latent
+; environment.  When this will compile itself, the code shouldn't have
+; syntax errors, so the lack of binding should not be an issue.
+
+(defmac (def s v)
+  (if (string? s)
+    (list 'prim:def s v)
+    (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
+
+(defmac (defun flist # body)
+  (if (cons? flist)
+    (list 'def (head flist) (list 'fun (tail flist) (cons 'do body)))
+    (error (++ "Invalid defun arglist: " (repr flist)))))
+
+;;; List processing
+
+(defun (foldl op start lst)
+  (defun (_foldl acc lst)
+    (if (nil? lst)
+      acc
+      (_foldl (op acc (head lst)) (tail lst))))
+  (_foldl start lst))
+
+(defun (foldr op end lst)
+  (if (nil? lst)
+    end
+    (op (head lst) (foldr op end (tail lst)))))
+
+(defun (map op lst)
+  (if (nil? lst)
+    '()
+    (cons (op (head lst)) (map op (tail lst)))))
+(defun (each op lst)
+  (if (nil? lst)
+    null
+    (do (op (head lst))
+        (each op (tail lst)))))
+(defun (reverse lst) (foldl (flip cons) '() lst))
+
+(defun (filter pred lst)
+  (if (nil? lst)        '()
+      (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
+      otherwise         (filter pred (tail lst))))
+
+(defun (append2 lst1 lst2)
+  (foldr cons lst2 lst1))
+
+(defun (append # lsts)
+  (foldr append2 '() lsts))
+
+(defun (map-append f lst)
+  (apply append (map f lst)))
+
+(defun (intercalate sep lst)
+  (if (nil? lst)        '()
+      (nil? (tail lst)) lst
+      otherwise         (cons (head lst)
+                              (cons sep (intercalate sep (tail lst))))))
+
+; Association lists
+(defun (a:keys alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (head alist)
+                                (a:keys (tail (tail alist))))))
+(defun (a:values alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (head (tail alist))
+                                (a:values (tail (tail alist))))))
+
+
+;;; Let macro
+
+; (let (i1 v1 i2 v2 ...) body...)
+(defmac (let bindings # body)
+  (cons (list 'fun (a:keys bindings) (cons 'do body))
+        (a:values bindings)))
+
+
+;;; Operators
+
+(def js:+ (ffi "(function (a, b) { return a + b; })"))
+(defmac (def-ffi-binop name op)
+  (let (op (if (cons? op) ; quoted form?
+             (head (tail op))
+             op))
+    (list 'def name (list 'ffi (list 'quote (js:+ (js:+ "(function (a, b) { return a " op) " b; })"))))))
+(def-ffi-binop js:- '-)
+(def-ffi-binop js:* '*)
+(def-ffi-binop js:/ '/)
+(def-ffi-binop js:% '%)
+(def-ffi-binop js:< '<)
+(def-ffi-binop js:> '>)
+(def-ffi-binop js:<= '<=)
+(def-ffi-binop js:>= '>=)
+(def-ffi-binop js:=== '===)
+(def js:toString (ffi "(function js_toString (a) { return \"\" + a; })"))
+(def js:toNum (ffi "(function js_toNum (a) { return +a; })"))
+(def NaN? (ffi "(function NaNQ (a) { return isNaN(a); })"))
+
+(def / js:/)
+(def % js:%)
+(def < js:<)
+(def > js:>)
+(def <= js:<=)
+(def >= js:>=)
+(def = js:===)
+
+(def ++ (ffi "(function s_concat () {
+  return Array.prototype.join.call(arguments, '');
+})"))
+
+(defun (+ # args) (foldl js:+ 0 args))
+(defun (* # args) (foldl js:* 1 args))
+
+(defun (- s # args)
+  (if (nil? args)
+    (js:- 0 s)
+    (js:- s (apply + args))))
+
+
+;;; Strings
+
+(def s:length (ffi "(function s_length (s) {
+  return s.length;
+})"))
+(def s:charAt (ffi "(function s_charAt (s, i) {
+  return s.charAt(i);
+})"))
+(def s:charCodeAt (ffi "(function s_charCodeAt (s, i) {
+  return s.charCodeAt(i);
+})"))
+(def s:slice (ffi "(function s_slice (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.slice.apply(s, args);
+})"))
+(def s:indexOf (ffi "(function s_indexOf (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.indexOf.apply(s, args);
+})"))
+(def s:fromCharCode (ffi "String.fromCharCode"))
+; Remember: it's javascript split, so (s:split "ababa" 2) gives (a a)
+(def s:split (ffi "(function s_split (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  var ret = new Nil();
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
+})"))
+
+(defun (s:join sep ss)
+  (def js:join (ffi "(function s_join (sep) {
+    return function () {
+      return Array.prototype.join.call(arguments, sep);
+    };
+  })"))
+  (apply (js:join sep) ss))
+
+
+;;; Dictionaries
+
+(def js:makeDict (ffi "(function () {
+  if (window.LDict === undefined) {
+    window.LDict = function Dict () {};
+  }
+  return function js_makeDict () { return new LDict(); };
+})()"))
+(def dict? (ffi "function dictQ (o) { return o instanceof LDict; }"))
+(def dict:get (ffi "(function dict_get (o, k, defv) {
+  if (_.has(o, k)) {
+    return o[k];
+  } else if (defv === undefined) {
+    throw new Error(\"Key error: \" + k);
+  } else {
+    return defv;
+  }
+})"))
+(def dict:set! (ffi "(function dict_set (o) {
+  var k, v;
+  for (var i = 1; i < arguments.length; i += 2) {
+    k = arguments[i];
+    v = arguments[i+1];
+    if (v === undefined) {
+      throw new Error(\"Not enough arguments passed to dict:set!\");
+    }
+    o[k] = v;
+  }
+  return null;
+})"))
+(def dict:has? (ffi "(function dict_has (o, k) {
+  return _.has(o, k);
+})"))
+
+(defun (dict # pairs)
+  (let (d (js:makeDict))
+    (apply dict:set! (cons d pairs))
+    d))
+
+
+;;; Good old gensym
+
+(def gensym
+  (let (count 0)
+    (fun ()
+      (set! count (+ 1 count))
+      (++ "#gensym#" count))))
+
+
+;;; More robustification
+
+(defmac (defmac args # body)
+  (if (cons? args)
+    (let (_ (gensym))
+      (list 'macro:set! (list 'quote (head args))
+        (list 'fun (cons _ (tail args))
+          (cons 'do body))))
+    ; quasi reverse compatibility... for test.jsl
+    (list 'macro:set! (list 'quote args) (head body))))
+    ;(error (++ "defmac given wrong argument list: " (repr args)))))
+
+;;; Logical operators
+
+(defmac (and v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar)))))
+(defmac (or v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args))))))
+(defun (not x) (if x false true))
+(defun (!= a b) (not (= a b)))
+
+(defun (all lst)
+  (and (head lst) (all (tail lst))))
+(defun (any lst)
+  (or (head lst) (any (tail lst))))
+
+
+;;; More list processing
+(defun (length lst)
+  (defun (_length lst acc)
+    (if (nil? lst)
+      acc
+      (_length (tail lst) (+ acc 1))))
+  (_length lst 0))
+(defun (nth lst i)
+  (if (< i 0)    (nth lst (+ i (length lst)))
+      (nil? lst) (error "List index out of bounds.")
+      (= i 0)    (head lst)
+      otherwise  (nth (tail lst) (- i 1))))
+
+;;; Functions
+
+; compose
+(defun (. f # args)
+  (if (nil? args)
+    f
+    (let (composed (apply . args))
+      (fun a (f (apply composed a))))))
+(defun (curry f)
+  (fun (x) (fun (y) (f x y))))
+(defun (uncurry f)
+  (fun (x y) ((f x) y)))
+(defun (partial f # args1)
+  (fun args2
+    (apply f (append args1 args2))))
+(defun (flip f)
+  (fun (x y)
+    (f y x)))
+; also known as 'call'
+(defun ($ f # args)
+  (apply f args))
+(defun (|> x # funcs)
+  (if (nil? funcs)
+    x
+    (apply |> (cons ((head funcs) x) (tail funcs)))))
+(defun (id x) x)
+(defun (const x) (fun (_) x))
+
+
+;;; More control flow
+
+(defmac (let* bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body))))
+
+(defmac (do1 fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v)))
+
+(defmac (foreach v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in foreach.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst)))
+
+(defmac (switch v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases))
+            (head (tail cases))
+            (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases))))
+
+; (dlambda (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
+(defmac (dlambda # cases)
+  (defun (transform-cases v cases)
+    (if (nil? cases)
+          (list (list 'fun '_
+                  (list 'error (list '++ (quote "No such message: ")
+                                         (list 'repr v)))))
+        (nil? (tail cases))
+          (let (_ (gensym))
+            (list (list 'fun _ (head cases))))
+        otherwise
+          (let (msg (head (head cases))
+                args (tail (head cases))
+                conseq (head (tail cases)))
+            (cons msg (cons (list 'fun args conseq)
+                            (transform-cases v (tail (tail cases))))))))
+  (let (v (gensym)
+        args (gensym))
+    (list 'fun (cons v args)
+      (list 'apply (cons 'switch (cons v (transform-cases v cases))) args))))
+
+
+;;; Output
+
+(def js:print (ffi "(function () { _.each(arguments.output); return null; })"))
+(defun (print # xs)
+  (foreach x in xs
+    (js:print (repr x))))
+(defun (println # xs)
+  (apply print xs)
+  (print "\n"))
+
+(defun (probe msg x)
+  (println "probe " msg ": " x))
+(def js:console (ffi "(function (x) { console.log(x); return null; })"))
+
+(defun (escape-js-string s)
+  (defun (escape-char i)
+    (if (< i (s:length s))
+      (cons (switch (s:charAt s i)
+              "\""  "\\\""
+              "\n"  "\\n"
+              "\t"  "\\t"
+              "\r"  "\\r"
+              "\\"  "\\\\"
+              (s:charAt s i))
+            (escape-char (+ i 1)))
+      '()))
+  (apply ++ (escape-char 0)))
+
+
+(defun (repr x)
+  (defun (repr-tail xs)
+    (if (nil? (tail xs))  (++ (repr (head xs)) ")")
+        (cons? (tail xs)) (++ (repr (head xs)) " " (repr-tail (tail xs)))
+        otherwise         (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
+  (if (nil? x)  "()"
+      (cons? x) (switch (head x)
+                  'quote
+                      (let (quoted (head (tail x)))
+                        (if (string? quoted)
+                            (++ "\"" (escape-js-string quoted) "\"")
+                            (++ "'" (repr quoted))))
+                  (++ "(" (repr-tail x)))
+      otherwise (js:toString x)))
