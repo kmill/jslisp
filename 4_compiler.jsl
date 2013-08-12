@@ -7,9 +7,10 @@
 ; However, we want to be able to get this to compile itself, so it
 ; needs to include all the definitions anyway.
 
-; TODO make symbols be distinct from strings (right now a string
-; literal is a quoted string).
-
+; N.B. In this version, we have to be careful with symbols, because in
+; the previous versions, strings have just been quoted symbols.  This
+; is annoying because we want strings to be symbols that always
+; self-evaluate.
 
 ;;;; Base Library ;;;;
 
@@ -92,8 +93,10 @@
   if (window.Nil === undefined) {
     window.Nil = function Nil() {};
   }
-  var n = new window.Nil();
-  return new Nil();
+  if (window.nil === undefined) {
+    window.nil = new Nil();
+  }
+  return nil;
 })()"))
 
 (defun (nil? o)
@@ -117,6 +120,40 @@
 (defun (null? o)
   ((ffi "(function nullQ (o) { return o === null; })") o))
 
+
+;;; Symbols
+
+; Again, we should be careful with these until symbols are actually
+; symbols and not unquoted strings.
+
+; Takes a string and produces a symbol.  Symbols guarantee '= testing.
+(def make-symbol (ffi "(function () {
+  if (window.Symbol === undefined) {
+    window.Symbol = function Symbol(s, printname) {
+      this.s = s;
+      this.printname = printname || s;
+      if (s !== null) {
+        Symbol.symbols[s] = this;
+      }
+    };
+    window.Symbol.prototype.toString = function () {
+      return 'Symbol(' + this.s + ', ' + this.printname + ')';
+    };
+    window.Symbol.symbols = {};
+  }
+  var symbs = Symbol.symbols;
+  return function (s, printname) {
+    if (_.has(symbs, s)) {
+      return symbs[s];
+    } else {
+      return new Symbol(s, printname);
+    }
+  };
+})()"))
+(defun (symbol? o)
+  ((ffi "(function symbolQ (o) { return o instanceof Symbol; })") o))
+(defun (symbol-printname o)
+  ((ffi "(function symbol_string (o) { return o.printname; })") o))
 
 ;;; Basic functions
 
@@ -165,7 +202,7 @@
 ; syntax errors, so the lack of binding should not be an issue.
 
 (defmac (def s v)
-  (if (string? s)
+  (if (or (string? s) (symbol? s)) ; TODO for reverse compatibility
     (list 'prim:def s v)
     (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
 
@@ -220,16 +257,17 @@
                               (cons sep (intercalate sep (tail lst))))))
 
 ; Association lists
+
+(defun (a:map f alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (f (head alist) (head (tail alist)))
+                                (a:map f (tail (tail alist))))))
+
 (defun (a:keys alist)
-  (if (nil? alist)        '()
-      (nil? (tail alist)) (error "Improper alist")
-      otherwise           (cons (head alist)
-                                (a:keys (tail (tail alist))))))
+  (a:map (fun (key value) key) alist))
 (defun (a:values alist)
-  (if (nil? alist)        '()
-      (nil? (tail alist)) (error "Improper alist")
-      otherwise           (cons (head (tail alist))
-                                (a:values (tail (tail alist))))))
+  (a:map (fun (key value) value) alist))
 
 
 ;;; Let macro
@@ -308,7 +346,7 @@
 (def s:split (ffi "(function s_split (s) {
   var args = _.toArray(arguments);
   args.shift();
-  var ret = new Nil();
+  var ret = nil;
   var split = s.split.apply(s, args);
   for (var i = split.length - 1; i >= 0; i--) {
     ret = new Cons(split[i], ret);
@@ -323,6 +361,16 @@
     };
   })"))
   (apply (js:join sep) ss))
+
+(defun (s:contains s sub)
+  (!= -1 (s:indexOf s sub)))
+(defun (s:contains-char s chars)
+  ((ffi "(function (s, chars) {
+    for (var i = 0; i < chars.length; i++) {
+      if (s.indexOf(chars[i]) != -1) return true;
+    }
+    return false;
+   })") s chars))
 
 ; Map a function over each character of a string, concatenate the
 ; resulting strings.
@@ -341,7 +389,8 @@
   }
   return function js_makeDict () { return new LDict(); };
 })()"))
-(def dict? (ffi "function dictQ (o) { return o instanceof LDict; }"))
+(defun (dict? o)
+  ((ffi "function dictQ (o) { return o instanceof LDict; }") o))
 (def dict:get (ffi "(function dict_get (o, k, defv) {
   if (_.has(o, k)) {
     return o[k];
@@ -372,6 +421,13 @@
     (apply dict:set! (cons d pairs))
     d))
 
+(def dict:items (ffi "(function dict_items (d) {
+  var items = nil;
+  _.each(d, function (v, k) {
+    items = new Cons(new Cons(k, new Cons(v, nil)), items);
+  });
+  return items;
+})"))
 
 ;;; Good old gensym
 
@@ -379,7 +435,12 @@
   (let (count 0)
     (fun ()
       (set! count (+ 1 count))
-      (++ "#gensym#" count))))
+      (if (symbol? 'a)
+          (make-symbol null (++ "#gensym#" count))
+          (++ "#gensym#" count))))) ; TODO for reverse compatibility
+
+(defun (symb # parts)
+  (make-symbol (apply ++ parts)))
 
 
 ;;; More robustification
@@ -390,9 +451,28 @@
       (list 'macro:set! (list 'quote (head args))
         (list 'fun (cons _ (tail args))
           (cons 'do body))))
-    ; quasi reverse compatibility... for test.jsl
+    ; TODO for quasi reverse compatibility... for test.jsl
     (list 'macro:set! (list 'quote args) (head body))))
     ;(error (++ "defmac given wrong argument list: " (repr args)))))
+
+
+;;; Shorthand set!-style macros
+
+(defmac (inc! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to inc!"))
+  (let (delta (if (nil? mdelta)
+                1
+                (head mdelta)))
+    (list 'set! s (list '+ s delta))))
+
+(defmac (dec! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to dec!"))
+  (let (delta (if (nil? mdelta)
+                1
+                (head mdelta)))
+    (list 'set! s (list '- s delta))))
 
 ;;; Logical operators
 
@@ -461,12 +541,21 @@
 
 ;;; More control flow
 
+; Sequentially defines bindings (so future bindings can use prior bindings)
 (defmac (let* bindings # body)
   (if (nil? bindings)
     (cons 'do body)
     (list 'let (list (head bindings) (head (tail bindings)))
       (append (list 'let* (tail (tail bindings)))
               body))))
+
+; Defines bindings "at once," so each binding can refer to any of the
+; bindings, even if they are not guaranteed yet to be defined.
+(defmac (letrec bindings # body)
+  (list (list 'fun '()
+          (cons 'do
+            (append (a:map (fun (b v) (list 'def b v)) bindings)
+                    body)))))
 
 (defmac (do1 fst # body)
   (let (v (gensym))
@@ -491,8 +580,10 @@
     (list 'let (list vv v)
       (_switch vv cases))))
 
-; (dlambda (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
-(defmac (dlambda # cases)
+; "dispatch function"
+; (dfun (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
+; Also binds 'self to the created dfun in the body of the functions.
+(defmac (dfun # cases)
   (defun (transform-cases v cases)
     (if (nil? cases)
           (list (list 'fun '_
@@ -509,8 +600,10 @@
                             (transform-cases v (tail (tail cases))))))))
   (let (v (gensym)
         args (gensym))
-    (list 'fun (cons v args)
-      (list 'apply (cons 'switch (cons v (transform-cases v cases))) args))))
+    (list 'letrec
+      (list 'self (list 'fun (cons v args)
+                    (list 'apply (cons 'switch (cons v (transform-cases v cases))) args)))
+      'self)))
 
 
 ;;; Structures
@@ -556,7 +649,7 @@
 ; (destruct val (s x y ...) use-x-y (s w z) use-w-z ... [otherwise])
 (defmac (destruct v # bindings)
   (defun (handle-just-symbol pat)
-    (if (string? pat)
+    (if (or (string? pat) (symbol? pat)) ; TODO reverse compatibility
       (cons pat (gensym))
       pat))
   (defun (_destruct vv bindings)
@@ -592,16 +685,28 @@
   (println "probe " msg ": " x))
 (def js:console (ffi "(function (x) { console.log(x); return null; })"))
 
-(defun (escape-js-string s)
+(defun (string-escape-js s)
   (s:map-append
     (fun (c)
       (switch c
-              "\""  "\\\""
-              "\n"  "\\n"
-              "\t"  "\\t"
-              "\r"  "\\r"
-              "\\"  "\\\\"
-              c))
+        "\""  "\\\""
+        "\n"  "\\n"
+        "\t"  "\\t"
+        "\r"  "\\r"
+        "\\"  "\\\\"
+        c))
+    s))
+
+(defun (symbol-escape s)
+  (s:map-append
+    (fun (c)
+      (switch c
+        "|"   "\\|"
+        "\n"  "\\n"
+        "\t"  "\\t"
+        "\r"  "\\r"
+        "\\"  "\\\\"
+        c))
     s))
 
 ; Makes an identifier out of a string.  Not guaranteed to be
@@ -623,15 +728,27 @@
     (if (nil? (tail xs))  (++ (repr (head xs)) ")")
         (cons? (tail xs)) (++ (repr (head xs)) " " (repr-tail (tail xs)))
         otherwise         (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
-  (if (nil? x)  "()"
-      (cons? x) (switch (head x)
-                  'quote
-                      (let (quoted (head (tail x)))
-                        (if (string? quoted)
-                            (++ "\"" (escape-js-string quoted) "\"")
-                            (++ "'" (repr quoted))))
-                  (++ "(" (repr-tail x)))
-      otherwise (js:toString x)))
+  (if (nil? x)    "()"
+      (cons? x)   (switch (head x)
+                    'quote
+                        (let (quoted (head (tail x)))
+                          (if (and (not (symbol? 'a)) (string? quoted))
+                                        ; TODO for reverse compatibility
+                              (++ "\"" (string-escape-js quoted) "\"")
+                              (++ "'" (repr quoted))))
+                    'quasiquote
+                        (++ "`" (repr (head (tail x))))
+                    'unquote
+                        (++ "," (repr (head (tail x))))
+                    'unquote-splice
+                        (++ ",@" (repr (head (tail x))))
+                    (++ "(" (repr-tail x)))
+      (symbol? x) (if (s:contains-char (symbol-printname x) non-symbol-chars)
+                    (++ "|" (symbol-escape (symbol-printname x)) "|")
+                    (symbol-printname x))
+      (and (symbol? 'a) (string? x)) ; TODO for reverse compatibility
+                  (++ "\"" (string-escape-js x) "\"")
+      otherwise   (js:toString x)))
 
 
 ;;;; Compiler ;;;;
@@ -644,6 +761,13 @@
 (def eof '(eof))
 (defun (eof? x) (= x eof))
 
+(defstruct (SourcePos source line col))
+(defun (SourcePos-show pos)
+  (destruct pos
+    (SourcePos source line col)
+      (++ source ":" line ":" col)
+    (error (++ "Not a SourcePos: " (repr pos)))))
+
 ; Makes a stream with a source label (e.g., "input.jsl") and the
 ; string for the source.
 (defun (stream:make source s)
@@ -654,7 +778,205 @@
     ; Update line and col based on character.
     (defun (advance c)
       (switch c
-        "\n" (do (set! line (+ 1 line))
+        "\n" (do (inc! line)
                  (set! col 0))
-        (do (set! col (+ 1 col)))))))
-    (defu
+        (do (inc! col)))
+      c)
+    (dfun
+     ('eof?)
+       (>= i len)
+     ('peek)
+       (if (< i len)
+         (s:charAt s i)
+         eof)
+     ('read)
+       (if (< i len)
+         (do1 (advance (s:charAt s i))
+              (inc! i))
+         eof)
+     ('read-until_ pred)
+       (letrec (loop (fun ()
+                       (let (c (self 'peek))
+                         (if (or (eof? c) (pred c))
+                           i
+                           (do (self 'read)
+                               (loop))))))
+         (loop))
+     ('read-until pred)
+       (let (start i)
+         (self 'read-until_ pred)
+         (s:slice s start i))
+     ('pos)
+       (SourcePos source line col))))
+
+(defun (stream:error s msg)
+  (error (++ (SourcePos-show (s 'pos)) ": " msg)))
+(defun (stream:error-expecting s expect)
+  (stream:error s (++ "Expecting '" expect "'.")))
+
+; Tries to read a particular character.  Returns true (and reads) or
+; false (if it doesn't).
+(defun (stream:maybe-read s char)
+  (and (= char (s 'peek))
+       (do (s 'read) true)))
+
+(defun (stream:expect-read s char)
+  (or (stream:maybe-read s char)
+      (stream:error-expecting s char)))
+
+(defun (stream:read-until-chars s chars)
+  (s 'read-until (fun (c) (s:contains chars c))))
+(defun (stream:read-until-chars_ s chars)
+  (s 'read-until_ (fun (c) (s:contains chars c))))
+(defun (stream:read-while-chars_ s chars)
+  (s 'read-until_ (fun (c) (not (s:contains chars c)))))
+
+(def reader-table (dict))
+(def non-symbol-chars "")
+(def reader-whitespace-chars " \t\n\r")
+
+(defun (update-non-symbol-chars!)
+  (def chars '())
+  (foreach level1 in (dict:items reader-table)
+    (when (not (= "" (head level1)))
+      (set! chars (cons (head level1) chars)))
+    (foreach level2 in (dict:items (head (tail level1)))
+      (when (not (= "" (head level2)))
+        (set! chars (cons (head level2) chars)))))
+  (set! non-symbol-chars (apply ++ (cons reader-whitespace-chars chars))))
+
+(defun (add-read-macro! prefix1 prefix2 handler)
+  (set! prefix1 (if (null? prefix1) "" prefix1))
+  (set! prefix2 (if (null? prefix2) "" prefix2))
+  (if (not (dict:has? reader-table prefix1))
+    (dict:set! reader-table prefix1 (dict)))
+  (if (dict:has? (dict:get reader-table prefix1))
+    (println "Warning: replacing read macro for " (repr prefix1) " " (repr prefix2)))
+  (dict:set! (dict:get reader-table prefix1) prefix2 handler)
+  (update-non-symbol-chars!))
+
+(defun (make-read-unexpected! char)
+  (add-read-macro! char null
+    (fun (s c1 c2) (stream:error s (++ "Unexpected character '" char "'.")))))
+
+(defun (read s)
+  (read:eat-spaces s)
+  (let (c1 (s 'peek))
+    (if (eof? c1)
+          (stream:error s "Unexpected end of input.")
+        (dict:has? reader-table c1)
+          (let (table (dict:get reader-table c1))
+            (s 'read)
+            (let (c2 (s 'peek))
+              (if (dict:has? table c2)
+                    (do (s 'read)
+                        ((dict:get table c2) s c1 c2))
+                  (dict:has? table "")
+                    ((dict:get table "") s c1 null))))
+        (dict:has? reader-table "")
+          ((dict:get (dict:get reader-table "") "") s null null)
+        otherwise
+          (stream:error s (++ "Unexpected '" c1 "'.")))))
+
+(defun (read:eat-spaces s)
+  (stream:read-while-chars_ s reader-whitespace-chars)
+  (when (= ";" (s 'peek))
+    ; eat the comment, too
+    (stream:read-until-chars_ s "\n")
+    (read:eat-spaces s)))
+
+; Reads the rest of a string after the first double quote.
+(defun (read:string quot s)
+  (let (prefix (stream:read-until-chars s (++ "\\" quot)))
+    (if (s 'eof?)
+      (stream:error-expecting s quot)
+      (switch (s 'read)
+        quot  prefix
+        "\\"  (let (esc (switch (s 'peek)
+                          "\\"  "\\"
+                          quot  quot  ; usually "
+                          "n"   "\n"
+                          "t"   "\t"
+                          "r"   "\r"
+                          (stream:error s
+                            "Unknown escape code.")))
+                (s 'read)
+                (++ prefix esc (read:string quot s)))))))
+
+(add-read-macro! "\"" null
+  (fun (s c1 c2)
+    (read:string c1 s)))
+(add-read-macro! "|" null
+  (fun (s c1 c2)
+    (make-symbol (read:string c1 s))))
+
+(defun (read:token s)
+  (let (t (stream:read-until-chars s non-symbol-chars))
+    (if (= "" t)
+      (stream:error s "Expecting symbol or number.")
+      (let (val (js:toNum t))
+        (if (and (NaN? val) (!= "NaN" t))
+          (make-symbol t)
+          t)))))
+
+(add-read-macro! null null
+  (fun (s c1 c2)
+    (read:token s)))
+
+; Reads the rest of an s-expression after the first open paren.
+(defun (read:sexp-tail open close s)
+  (def startpos (s 'pos))
+  (read:eat-spaces s)
+  (if (s 'eof?)
+        (stream:error s (++ "Expecting '" close "' to match '" open "' near "
+                            (SourcePos-show startpos) "."))
+      (stream:maybe-read s close)
+        nil
+      otherwise
+        (let (head (read s))
+          (read:eat-spaces s)
+          (if (stream:maybe-read s "#")
+            (do1 (cons head (read s))
+                 (read:eat-spaces s)
+                 (stream:read-expect s close))
+            (cons head (read:sexp-tail open close s))))))
+
+(add-read-macro! "(" null
+  (fun (s c1 c2)
+    (read:sexp-tail "(" ")" s)))
+(make-read-unexpected! ")")
+(make-read-unexpected! "#")
+
+; Like python []. TODO list comprehension?
+(add-read-macro! "[" null
+  (fun (s c1 c2)
+    (cons 'list (read:sexp-tail "[" "]" s))))
+(make-read-unexpected! "]")
+
+; Like python {}
+(add-read-macro! "{" null
+  (fun (s c1 c2)
+    (cons 'dict (read:sexp-tail "{" "}" s))))
+(make-read-unexpected! "}")
+
+(add-read-macro! "'" null
+  (fun (s c1 c2)
+    (list 'quote (read s))))
+
+(add-read-macro! "`" null
+  (fun (s c1 c2)
+    (list 'quasiquote (read s))))
+(add-read-macro! "," null
+  (fun (s c1 c2)
+    (list 'unquote (read s))))
+(add-read-macro! "," "@"
+  (fun (s c1 c2)
+    (list 'unquote-splice (read s))))
+
+; The top-level reader.  Returns either the eof object or the next
+; s-expression.
+(defun (read-top s)
+  (read:eat-spaces s)
+  (if (s 'eof?)
+    eof
+    (read s)))
