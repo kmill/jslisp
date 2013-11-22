@@ -1,0 +1,192 @@
+<html>
+<head>
+<script type="text/javascript" src="jquery-1.9.1.js"></script>
+<script type="text/javascript" src="underscore-min.js"></script>
+<script type="text/javascript" src="3_compiler.js"></script>
+<title>jsscheme.html</title>
+
+<script type="text/javascript">
+var output = lglobal['output'] = function (a) {
+	var el = $("#output");
+	el.find("pre").append(a);
+	el.scrollTop(el.prop("scrollHeight"));
+  return null;
+};
+$(function () {
+  var midir_eval_all = lglobal['midir-eval-all'];
+  $('script[type="text/jsscheme"]').each(function () {
+    var code = $(this).text();
+    runJTramp(midir_eval_all(code));
+  });
+  output("Loaded.\n");
+  function Env() {}
+  Env.prototype = lglobal;
+  lglobal = new Env();
+  var run_repl = lglobal['run-repl'];
+  $("#runButton").on("click", function () {
+    var s = $("#input").val();
+    runJTramp(run_repl(s));
+  });
+  $("#repl").on("submit", function (e) {
+    e.preventDefault();
+    var s = $("#replinput").val();
+    $("#replinput").val('');
+    output("\n>" + s + "\n");
+    runJTramp(run_repl(s));
+    return false;
+  });
+  $('#loadFile').on("change", function (e) {
+		var files = e.target.files;
+    for (var i = 0; i < files.length; i++) {
+			var reader = new FileReader();
+			reader.onload = (function (theFile) {
+				return function (e) {
+          runJTramp(midir_eval_all(e.target.result));
+          output("Loaded " + theFile.name + "\n");
+				};
+			})(files[i]);
+			reader.readAsText(files[i]);
+		}
+		$("#loadFile").val('');
+  });
+});
+</script>
+<script type="text/jsscheme">
+; 3_environ.jsl
+; We just need to recompile all of the macros for 3_compiler.jsl
+
+(prim:def macro:set! (prim:fun (name f) (dict:set! midir-macros name f)))
+
+;; Make some macros to tie into the primitives
+(macro:set! 'fun
+  (prim:fun (_ # stuff) (cons 'prim:fun stuff)))
+(macro:set! 'do
+  (fun (_ # stuff) (cons 'prim:do stuff)))
+(macro:set! 'def
+  (fun (_ # stuff) (cons 'prim:def stuff)))
+(macro:set! 'set!
+  (fun (_ # stuff) (cons 'prim:set! stuff)))
+(macro:set! 'ffi
+  (fun (_ # stuff) (cons 'prim:ffi stuff)))
+
+; (if cond1 cons1 cond2 cons2 ... [alt])
+(macro:set! 'if
+  (fun (_ # conds)
+    (prim:if (nil? conds)
+      null
+      (prim:if (nil? (tail conds))
+        (head conds)
+        (list 'prim:if (head conds)
+							(head (tail conds))
+							(cons 'if (tail (tail conds))))))))
+
+; (defmac (macro a b c) ...)
+; or (defmac s (fun ...))
+(macro:set! 'defmac
+  (fun (_ args # body)
+    (if (cons? args)
+      (list 'macro:set! (list 'quote (head args))
+        (list 'fun (cons '_ (tail args))
+          (cons 'do body)))
+      ; reverse compatibility so we can compile 1_compiler.jsl
+      (list 'macro:set! (list 'quote args) (head body)))))
+
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+
+; (defun (f a1 a2 ...) body...)
+(defmac (defun v # body)
+  (list 'def (head v) (list 'fun (tail v) (cons 'do body))))
+
+
+; Let via basic let->lambda
+
+(defmac (let bindings # body)
+  (cons (list 'fun (a:keys bindings) (cons 'do body))
+				(a:values bindings)))
+
+;;; Logical operators
+
+(defmac (and v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar)))))
+(defmac (or v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args))))))
+
+;;; More control flow
+
+(defmac let* (fun (_ bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body)))))
+
+(defmac do1 (fun (_ fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v))))
+
+(defmac foreach (fun (_ v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in foreach.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst))))
+
+(defmac switch (fun (_ v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases)) (head (tail cases)) (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases)))))
+</script>
+<style>
+textarea, output, repl, pre {
+  font-family: "Monaco",monospace;
+  font-size: 11px;
+}
+#output {
+  overflow-y: scroll; max-height: 250px;
+  border-color: #ccc;
+  border-width: 1px;
+  border-style: solid;
+}
+#output pre {
+  white-space: pre-wrap;
+}
+#replinput {
+  width: 100%;
+}
+</style>
+</head>
+<body>
+<input id="runButton" type="submit" value="Run"/>
+<label>Load and execute:
+<input id="loadFile" type="file"/></label>
+<label>Read file:
+<input id="readFile" type="file"/></label>
+<br/>
+<textarea id="input" style="width:40%;min-width:30em; min-height: 8em;">
+</textarea>
+<textarea id="compiled" style="width:40%;min-height:8em;"></textarea>
+<div id="output">
+<pre>
+Loading...
+</pre>
+</div>
+<form id="repl">
+<input id="replinput" type="text" autocomplete="off"></label>
+</form>
+</body>
+</html>

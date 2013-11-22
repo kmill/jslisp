@@ -1,0 +1,982 @@
+;;;;;;;;;;;;;;;;;;;;
+;; 4_compiler.jsl ;;
+;;;;;;;;;;;;;;;;;;;;
+
+; This should be run in 3_compiler.html.  Since 3_compiler has a bunch
+; of library code built-in, we could use all of it for making macros.
+; However, we want to be able to get this to compile itself, so it
+; needs to include all the definitions anyway.
+
+; N.B. In this version, we have to be careful with symbols, because in
+; the previous versions, strings have just been quoted symbols.  This
+; is annoying because we want strings to be symbols that always
+; self-evaluate.
+
+;;;; Base Library ;;;;
+
+
+;;; What primitives are we assuming?
+; - prim:def
+; - prim:set!
+; - macro:set!
+; - prim:fun
+; - prim:do
+; - prim:ffi
+
+
+;;; Bootstrap
+; Even though we have a whole programming environment at our disposal,
+; we need to rebuild it anyway for compiling this compiler from
+; scratch, since the latent environment is assumed to only be a macro
+; environment, and as such is not passed on to compiled code.
+
+(def prim:cons (ffi "(function () {
+  if (window.Cons === undefined) {
+    window.Cons = function Cons(head, tail) {
+      this.head = head; this.tail = tail;
+    }
+  }
+  return function prim_cons (head, tail) {
+    return new Cons(head, tail);
+  };
+})()"))
+
+; We give different names to the primitive versions because we may
+; want to change syntax later.  In fact, we will make some of these
+; more robust later.
+
+(macro:set! 'fun
+  (prim:fun (_ # stuff) (prim:cons 'prim:fun stuff)))
+(macro:set! 'do
+  (fun (_ # stuff) (cons 'prim:do stuff)))
+(macro:set! 'def
+  (fun (_ # stuff) (cons 'prim:def stuff)))
+(macro:set! 'set!
+  (fun (_ # stuff) (cons 'prim:set! stuff)))
+
+; A very primitive defun
+(macro:set! 'defun
+  (fun (_ v # body)
+    (def name ((ffi "(function (o) { return o.head; })") v))
+    (def args ((ffi "(function (o) { return o.tail; })") v))
+    (cons 'def (cons name (cons (cons 'fun (cons args body)) '())))))
+
+; (ffi code [outvar]) represents some code which is pasted into the
+; compiled text.  The optional 'outvar' gives which variable should be
+; considered to be the return value; otherwise the code is interpeted
+; as a plain expression.
+(macro:set! 'ffi
+  (fun (_ # stuff) (cons 'prim:ffi stuff)))
+; Because ffi expects a string constant, we provide js:eval as a
+; function which takes a variable piece of code.
+(def js:eval
+  (fun (code)
+    ((ffi "(function js_eval (code) { return (undefined || eval)(code); })") code)))
+
+;;; Tying into javascript substrate
+
+;; Cons and nil
+
+; prim:cons is defined in Bootstrap
+
+(defun (cons head tail)
+  (prim:cons head tail))
+
+(defun (cons? o)
+  ((ffi "(function consQ (o) { return o instanceof Cons; })") o))
+(defun (head o)
+  ((ffi "(function head (o) { return o.head; })") o))
+(defun (tail o)
+  ((ffi "(function tail (o) { return o.tail; })") o))
+
+(def nil (ffi "(function () {
+  if (window.Nil === undefined) {
+    window.Nil = function Nil() {};
+  }
+  if (window.nil === undefined) {
+    window.nil = new Nil();
+  }
+  return nil;
+})()"))
+
+(defun (nil? o)
+  ((ffi "(function nilQ (o) { return o instanceof Nil; })") o))
+
+;; Other types
+(defun (number? o)
+  ((ffi "(function numberQ (o) { return typeof o === \"number\"; })") o))
+(defun (string? o)
+  ((ffi "(function stringQ (o) { return typeof o === \"string\"; })") o))
+
+(defun (boolean? o)
+  ((ffi "(function booleanQ (o) { return typeof o === \"boolean\"; })") o))
+(def true (ffi "true"))
+(def false (ffi "false"))
+
+; Why a null type? It is because there should be something distinct
+; from nil which represents "no value," whereas nil means "end of
+; list."
+(def null (ffi "null"))
+(defun (null? o)
+  ((ffi "(function nullQ (o) { return o === null; })") o))
+
+
+;;; Symbols
+
+; Again, we should be careful with these until symbols are actually
+; symbols and not unquoted strings.
+
+; Takes a string and produces a symbol.  Symbols guarantee '= testing.
+(def make-symbol (ffi "(function () {
+  if (window.Symbol === undefined) {
+    window.Symbol = function Symbol(s, printname) {
+      this.s = s;
+      this.printname = printname || s;
+      if (s !== null) {
+        Symbol.symbols[s] = this;
+      }
+    };
+    window.Symbol.prototype.toString = function () {
+      return 'Symbol(' + this.s + ', ' + this.printname + ')';
+    };
+    window.Symbol.symbols = {};
+  }
+  var symbs = Symbol.symbols;
+  return function (s, printname) {
+    if (_.has(symbs, s)) {
+      return symbs[s];
+    } else {
+      return new Symbol(s, printname);
+    }
+  };
+})()"))
+(defun (symbol? o)
+  ((ffi "(function symbolQ (o) { return o instanceof Symbol; })") o))
+(defun (symbol-printname o)
+  ((ffi "(function symbol_string (o) { return o.printname; })") o))
+
+;;; Basic functions
+
+(def apply (ffi "(function apply (f, args) {
+  var as = [];
+  while (!(args instanceof Nil)) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+})"))
+
+; Makes a list from some arguments
+(def list (fun args args))
+
+
+;;; Macros
+
+; (defmac (n a b c) ...)
+; should be robustified
+(macro:set! 'defmac
+  (fun (_ args # body)
+    (list 'macro:set! (list 'quote (head args))
+      (list 'fun (cons '_ (tail args))
+        (cons 'do body)))))
+
+; (if p1 c1 p2 c2 ... [else]), where pn can be "otherwise"
+(defmac (if # conds)
+  (prim:if (nil? conds)
+    null
+    (prim:if (nil? (tail conds))
+      (head conds)
+      (list 'prim:if (head conds)
+        (head (tail conds))
+        (cons 'if (tail (tail conds)))))))
+(def otherwise true)
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+
+
+;; Robustification
+
+; While we haven't defined repr yet, it exists in the latent
+; environment.  When this will compile itself, the code shouldn't have
+; syntax errors, so the lack of binding should not be an issue.
+
+(defmac (def s v)
+  (if (or (string? s) (symbol? s)) ; TODO for reverse compatibility
+    (list 'prim:def s v)
+    (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
+
+(defmac (defun flist # body)
+  (if (cons? flist)
+    (list 'def (head flist) (list 'fun (tail flist) (cons 'do body)))
+    (error (++ "Invalid defun arglist: " (repr flist)))))
+
+;;; List processing
+
+(defun (foldl op start lst)
+  (defun (_foldl acc lst)
+    (if (nil? lst)
+      acc
+      (_foldl (op acc (head lst)) (tail lst))))
+  (_foldl start lst))
+
+(defun (foldr op end lst)
+  (if (nil? lst)
+    end
+    (op (head lst) (foldr op end (tail lst)))))
+
+(defun (map op lst)
+  (if (nil? lst)
+    '()
+    (cons (op (head lst)) (map op (tail lst)))))
+(defun (each op lst)
+  (if (nil? lst)
+    null
+    (do (op (head lst))
+        (each op (tail lst)))))
+(defun (reverse lst) (foldl (flip cons) '() lst))
+
+(defun (filter pred lst)
+  (if (nil? lst)        '()
+      (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
+      otherwise         (filter pred (tail lst))))
+
+(defun (append2 lst1 lst2)
+  (foldr cons lst2 lst1))
+
+(defun (append # lsts)
+  (foldr append2 '() lsts))
+
+(defun (map-append f lst)
+  (apply append (map f lst)))
+
+(defun (intercalate sep lst)
+  (if (nil? lst)        '()
+      (nil? (tail lst)) lst
+      otherwise         (cons (head lst)
+                              (cons sep (intercalate sep (tail lst))))))
+
+; Association lists
+
+(defun (a:map f alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (f (head alist) (head (tail alist)))
+                                (a:map f (tail (tail alist))))))
+
+(defun (a:keys alist)
+  (a:map (fun (key value) key) alist))
+(defun (a:values alist)
+  (a:map (fun (key value) value) alist))
+
+
+;;; Let macro
+
+; (let (i1 v1 i2 v2 ...) body...)
+(defmac (let bindings # body)
+  (cons (list 'fun (a:keys bindings) (cons 'do body))
+        (a:values bindings)))
+
+
+;;; Operators
+
+(def js:+ (ffi "(function (a, b) { return a + b; })"))
+(defmac (def-ffi-binop name op)
+  (let (op (if (cons? op) ; quoted form?
+             (head (tail op))
+             op))
+    (list 'def name (list 'ffi (list 'quote (js:+ (js:+ "(function (a, b) { return a " op) " b; })"))))))
+(def-ffi-binop js:- '-)
+(def-ffi-binop js:* '*)
+(def-ffi-binop js:/ '/)
+(def-ffi-binop js:% '%)
+(def-ffi-binop js:< '<)
+(def-ffi-binop js:> '>)
+(def-ffi-binop js:<= '<=)
+(def-ffi-binop js:>= '>=)
+(def-ffi-binop js:=== '===)
+(def js:toString (ffi "(function js_toString (a) { return \"\" + a; })"))
+(def js:toNum (ffi "(function js_toNum (a) { return +a; })"))
+(def NaN? (ffi "(function NaNQ (a) { return isNaN(a); })"))
+
+(def / js:/)
+(def % js:%)
+(def < js:<)
+(def > js:>)
+(def <= js:<=)
+(def >= js:>=)
+(def = js:===)
+
+(def ++ (ffi "(function s_concat () {
+  return Array.prototype.join.call(arguments, '');
+})"))
+
+(defun (+ # args) (foldl js:+ 0 args))
+(defun (* # args) (foldl js:* 1 args))
+
+(defun (- s # args)
+  (if (nil? args)
+    (js:- 0 s)
+    (js:- s (apply + args))))
+
+
+;;; Strings
+
+(def s:length (ffi "(function s_length (s) {
+  return s.length;
+})"))
+(def s:charAt (ffi "(function s_charAt (s, i) {
+  return s.charAt(i);
+})"))
+(def s:charCodeAt (ffi "(function s_charCodeAt (s, i) {
+  return s.charCodeAt(i);
+})"))
+(def s:slice (ffi "(function s_slice (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.slice.apply(s, args);
+})"))
+(def s:indexOf (ffi "(function s_indexOf (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.indexOf.apply(s, args);
+})"))
+(def s:fromCharCode (ffi "String.fromCharCode"))
+; Remember: it's javascript split, so (s:split "ababa" 2) gives (a a)
+(def s:split (ffi "(function s_split (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  var ret = nil;
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
+})"))
+
+(defun (s:join sep ss)
+  (def js:join (ffi "(function s_join (sep) {
+    return function () {
+      return Array.prototype.join.call(arguments, sep);
+    };
+  })"))
+  (apply (js:join sep) ss))
+
+(defun (s:contains s sub)
+  (!= -1 (s:indexOf s sub)))
+(defun (s:contains-char s chars)
+  ((ffi "(function (s, chars) {
+    for (var i = 0; i < chars.length; i++) {
+      if (s.indexOf(chars[i]) != -1) return true;
+    }
+    return false;
+   })") s chars))
+
+; Map a function over each character of a string, concatenate the
+; resulting strings.
+(defun (s:map-append f s)
+  (defun (_map i)
+    (if (< i (s:length s))
+      (cons (f (s:charAt s i)) (_map (+ i 1)))
+      '()))
+  (apply ++ (_map 0)))
+
+;;; Dictionaries
+
+(def js:makeDict (ffi "(function () {
+  if (window.LDict === undefined) {
+    window.LDict = function Dict () {};
+  }
+  return function js_makeDict () { return new LDict(); };
+})()"))
+(defun (dict? o)
+  ((ffi "function dictQ (o) { return o instanceof LDict; }") o))
+(def dict:get (ffi "(function dict_get (o, k, defv) {
+  if (_.has(o, k)) {
+    return o[k];
+  } else if (defv === undefined) {
+    throw new Error(\"Key error: \" + k);
+  } else {
+    return defv;
+  }
+})"))
+(def dict:set! (ffi "(function dict_set (o) {
+  var k, v;
+  for (var i = 1; i < arguments.length; i += 2) {
+    k = arguments[i];
+    v = arguments[i+1];
+    if (v === undefined) {
+      throw new Error(\"Not enough arguments passed to dict:set!\");
+    }
+    o[k] = v;
+  }
+  return null;
+})"))
+(def dict:has? (ffi "(function dict_has (o, k) {
+  return _.has(o, k);
+})"))
+
+(defun (dict # pairs)
+  (let (d (js:makeDict))
+    (apply dict:set! (cons d pairs))
+    d))
+
+(def dict:items (ffi "(function dict_items (d) {
+  var items = nil;
+  _.each(d, function (v, k) {
+    items = new Cons(new Cons(k, new Cons(v, nil)), items);
+  });
+  return items;
+})"))
+
+;;; Good old gensym
+
+(def gensym
+  (let (count 0)
+    (fun ()
+      (set! count (+ 1 count))
+      (if (symbol? 'a)
+          (make-symbol null (++ "#gensym#" count))
+          (++ "#gensym#" count))))) ; TODO for reverse compatibility
+
+(defun (symb # parts)
+  (make-symbol (apply ++ parts)))
+
+
+;;; More robustification
+
+(defmac (defmac args # body)
+  (if (cons? args)
+    (let (_ (gensym))
+      (list 'macro:set! (list 'quote (head args))
+        (list 'fun (cons _ (tail args))
+          (cons 'do body))))
+    ; TODO for quasi reverse compatibility... for test.jsl
+    (list 'macro:set! (list 'quote args) (head body))))
+    ;(error (++ "defmac given wrong argument list: " (repr args)))))
+
+
+;;; Shorthand set!-style macros
+
+(defmac (inc! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to inc!"))
+  (let (delta (if (nil? mdelta)
+                1
+                (head mdelta)))
+    (list 'set! s (list '+ s delta))))
+
+(defmac (dec! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to dec!"))
+  (let (delta (if (nil? mdelta)
+                1
+                (head mdelta)))
+    (list 'set! s (list '- s delta))))
+
+;;; Logical operators
+
+(defmac (and v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar)))))
+(defmac (or v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args))))))
+(defun (not x) (if x false true))
+(defun (!= a b) (not (= a b)))
+
+(defun (all lst)
+  (and (head lst) (all (tail lst))))
+(defun (any lst)
+  (or (head lst) (any (tail lst))))
+
+
+;;; More list processing
+(defun (length lst)
+  (defun (_length lst acc)
+    (if (nil? lst)
+      acc
+      (_length (tail lst) (+ acc 1))))
+  (_length lst 0))
+(defun (nth lst i)
+  (if (< i 0)    (nth lst (+ i (length lst)))
+      (nil? lst) (error "List index out of bounds.")
+      (= i 0)    (head lst)
+      otherwise  (nth (tail lst) (- i 1))))
+
+;;; Functions
+
+; compose
+(defun (. f # args)
+  (if (nil? args)
+    f
+    (let (composed (apply . args))
+      (fun a (f (apply composed a))))))
+(defun (curry f)
+  (fun (x) (fun (y) (f x y))))
+(defun (uncurry f)
+  (fun (x y) ((f x) y)))
+(defun (partial f # args1)
+  (fun args2
+    (apply f (append args1 args2))))
+(defun (flip f)
+  (fun (x y)
+    (f y x)))
+; also known as 'call'
+(defun ($ f # args)
+  (apply f args))
+(defun (|> x # funcs)
+  (if (nil? funcs)
+    x
+    (apply |> (cons ((head funcs) x) (tail funcs)))))
+(defun (id x) x)
+(defun (const x) (fun (_) x))
+
+
+;;; More control flow
+
+; Sequentially defines bindings (so future bindings can use prior bindings)
+(defmac (let* bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body))))
+
+; Defines bindings "at once," so each binding can refer to any of the
+; bindings, even if they are not guaranteed yet to be defined.
+(defmac (letrec bindings # body)
+  (list (list 'fun '()
+          (cons 'do
+            (append (a:map (fun (b v) (list 'def b v)) bindings)
+                    body)))))
+
+(defmac (do1 fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v)))
+
+(defmac (foreach v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in foreach.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst)))
+
+(defmac (switch v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases))
+            (head (tail cases))
+            (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases))))
+
+; "dispatch function"
+; (dfun (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
+; Also binds 'self to the created dfun in the body of the functions.
+(defmac (dfun # cases)
+  (defun (transform-cases v cases)
+    (if (nil? cases)
+          (list (list 'fun '_
+                  (list 'error (list '++ (quote "No such message: ")
+                                         (list 'repr v)))))
+        (nil? (tail cases))
+          (let (_ (gensym))
+            (list (list 'fun _ (head cases))))
+        otherwise
+          (let (msg (head (head cases))
+                args (tail (head cases))
+                conseq (head (tail cases)))
+            (cons msg (cons (list 'fun args conseq)
+                            (transform-cases v (tail (tail cases))))))))
+  (let (v (gensym)
+        args (gensym))
+    (list 'letrec
+      (list 'self (list 'fun (cons v args)
+                    (list 'apply (cons 'switch (cons v (transform-cases v cases))) args)))
+      'self)))
+
+
+;;; Structures
+
+; These somewhat resemble ADTs.
+
+; (defstruct (mystruct a b c))
+(defmac (defstruct form)
+  (let (name (head form)
+        args (tail form))
+    (list 'do
+      (list 'def (++ "js:struct-" name "-constructor")
+        (list 'ffi (++ "(function Struct" (make-js-identifier name) " (comps) { this.components = comps; })")))
+      ;; a constructor
+      (list 'defun form
+        (cons (list (list 'ffi (++ "(function (c) {
+            return function () {
+              return new c(Array.prototype.slice.call(arguments));
+            };
+          })")) (++ "js:struct-" name "-constructor")) args))
+      ;; a predicate
+      (list 'def (++ name "?")
+        (list (list 'ffi "(function (c) {
+           return function (o) { return o instanceof c; };
+         })") (++ "js:struct-" name "-constructor")))
+      ;; a destructor
+      (list 'def (++ name "-destruct")
+        (list 'ffi "(function (o, f) {
+          return f.apply(undefined, o.components);
+        })")))))
+
+; For symmetry, cons and nil should have destructors (they already
+; have predicates).  We don't worry about the fact that nil has no
+; constructor we never would need to use it in our macros.
+
+(defun (cons-destruct o f)
+  (f (head o) (tail o)))
+(defun (nil-destruct o f)
+  (f))
+
+; The destruction macro! Similar to Haskell "case" except doesn't
+; handle sub-patterns.
+; (destruct val (s x y ...) use-x-y (s w z) use-w-z ... [otherwise])
+(defmac (destruct v # bindings)
+  (defun (handle-just-symbol pat)
+    (if (or (string? pat) (symbol? pat)) ; TODO reverse compatibility
+      (cons pat (gensym))
+      pat))
+  (defun (_destruct vv bindings)
+    (if (nil? bindings)
+          null
+        (nil? (tail bindings))
+          (head bindings)
+        otherwise
+          (let (pat (handle-just-symbol (head bindings))
+                con (head (tail bindings))
+                nextBindings (tail (tail bindings)))
+            (let (pred (++ (head pat) '?))
+              (list 'if (list pred vv)
+                (list (++ (head pat) "-destruct")
+                      vv
+                      (list 'fun (tail pat) con))
+                (_destruct vv nextBindings))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_destruct vv bindings))))
+
+;;; Output
+
+(def js:print (ffi "(function () { _.each(arguments, output); return null; })"))
+(defun (print # xs)
+  (foreach x in xs
+    (js:print (repr x))))
+(defun (println # xs)
+  (apply print xs)
+  (print "\n"))
+
+(defun (probe msg x)
+  (println "probe " msg ": " x))
+(def js:console (ffi "(function (x) { console.log(x); return null; })"))
+
+(defun (string-escape-js s)
+  (s:map-append
+    (fun (c)
+      (switch c
+        "\""  "\\\""
+        "\n"  "\\n"
+        "\t"  "\\t"
+        "\r"  "\\r"
+        "\\"  "\\\\"
+        c))
+    s))
+
+(defun (symbol-escape s)
+  (s:map-append
+    (fun (c)
+      (switch c
+        "|"   "\\|"
+        "\n"  "\\n"
+        "\t"  "\\t"
+        "\r"  "\\r"
+        "\\"  "\\\\"
+        c))
+    s))
+
+; Makes an identifier out of a string.  Not guaranteed to be
+; injective, but will probably make something recognizable.
+(defun (make-js-identifier s)
+  (++ "_"
+      (s:map-append
+       (fun (char)
+         (let (c (s:charCodeAt char 0))
+           (if (or (and (<= 48 c) (<= c 57)) ; number
+                   (and (<= 65 c) (<= c 90)) ; A-Z
+                   (and (<= 97 c) (<= c 122))) ; a-z
+             char
+             "_")))
+       s)))
+
+(defun (repr x)
+  (defun (repr-tail xs)
+    (if (nil? (tail xs))  (++ (repr (head xs)) ")")
+        (cons? (tail xs)) (++ (repr (head xs)) " " (repr-tail (tail xs)))
+        otherwise         (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
+  (if (nil? x)    "()"
+      (cons? x)   (switch (head x)
+                    'quote
+                        (let (quoted (head (tail x)))
+                          (if (and (not (symbol? 'a)) (string? quoted))
+                                        ; TODO for reverse compatibility
+                              (++ "\"" (string-escape-js quoted) "\"")
+                              (++ "'" (repr quoted))))
+                    'quasiquote
+                        (++ "`" (repr (head (tail x))))
+                    'unquote
+                        (++ "," (repr (head (tail x))))
+                    'unquote-splice
+                        (++ ",@" (repr (head (tail x))))
+                    (++ "(" (repr-tail x)))
+      (symbol? x) (if (s:contains-char (symbol-printname x) non-symbol-chars)
+                    (++ "|" (symbol-escape (symbol-printname x)) "|")
+                    (symbol-printname x))
+      (and (symbol? 'a) (string? x)) ; TODO for reverse compatibility
+                  (++ "\"" (string-escape-js x) "\"")
+      otherwise   (js:toString x)))
+
+
+;;;; Compiler ;;;;
+
+; Now that there is a base library, we can begin to construct the
+; compiler.
+
+;;; Reader
+
+(def eof '(eof))
+(defun (eof? x) (= x eof))
+
+(defstruct (SourcePos source line col))
+(defun (SourcePos-show pos)
+  (destruct pos
+    (SourcePos source line col)
+      (++ source ":" line ":" col)
+    (error (++ "Not a SourcePos: " (repr pos)))))
+
+; Makes a stream with a source label (e.g., "input.jsl") and the
+; string for the source.
+(defun (stream:make source s)
+  (let (i 0
+        len (s:length s)
+        line 1
+        col 0)
+    ; Update line and col based on character.
+    (defun (advance c)
+      (switch c
+        "\n" (do (inc! line)
+                 (set! col 0))
+        (do (inc! col)))
+      c)
+    (dfun
+     ('eof?)
+       (>= i len)
+     ('peek)
+       (if (< i len)
+         (s:charAt s i)
+         eof)
+     ('read)
+       (if (< i len)
+         (do1 (advance (s:charAt s i))
+              (inc! i))
+         eof)
+     ('read-until_ pred)
+       (letrec (loop (fun ()
+                       (let (c (self 'peek))
+                         (if (or (eof? c) (pred c))
+                           i
+                           (do (self 'read)
+                               (loop))))))
+         (loop))
+     ('read-until pred)
+       (let (start i)
+         (self 'read-until_ pred)
+         (s:slice s start i))
+     ('pos)
+       (SourcePos source line col))))
+
+(defun (stream:error s msg)
+  (error (++ (SourcePos-show (s 'pos)) ": " msg)))
+(defun (stream:error-expecting s expect)
+  (stream:error s (++ "Expecting '" expect "'.")))
+
+; Tries to read a particular character.  Returns true (and reads) or
+; false (if it doesn't).
+(defun (stream:maybe-read s char)
+  (and (= char (s 'peek))
+       (do (s 'read) true)))
+
+(defun (stream:expect-read s char)
+  (or (stream:maybe-read s char)
+      (stream:error-expecting s char)))
+
+(defun (stream:read-until-chars s chars)
+  (s 'read-until (fun (c) (s:contains chars c))))
+(defun (stream:read-until-chars_ s chars)
+  (s 'read-until_ (fun (c) (s:contains chars c))))
+(defun (stream:read-while-chars_ s chars)
+  (s 'read-until_ (fun (c) (not (s:contains chars c)))))
+
+(def reader-table (dict))
+(def non-symbol-chars "")
+(def reader-whitespace-chars " \t\n\r")
+
+(defun (update-non-symbol-chars!)
+  (def chars '())
+  (foreach level1 in (dict:items reader-table)
+    (when (not (= "" (head level1)))
+      (set! chars (cons (head level1) chars)))
+    (foreach level2 in (dict:items (head (tail level1)))
+      (when (not (= "" (head level2)))
+        (set! chars (cons (head level2) chars)))))
+  (set! non-symbol-chars (apply ++ (cons reader-whitespace-chars chars))))
+
+(defun (add-read-macro! prefix1 prefix2 handler)
+  (set! prefix1 (if (null? prefix1) "" prefix1))
+  (set! prefix2 (if (null? prefix2) "" prefix2))
+  (if (not (dict:has? reader-table prefix1))
+    (dict:set! reader-table prefix1 (dict)))
+  (if (dict:has? (dict:get reader-table prefix1))
+    (println "Warning: replacing read macro for " (repr prefix1) " " (repr prefix2)))
+  (dict:set! (dict:get reader-table prefix1) prefix2 handler)
+  (update-non-symbol-chars!))
+
+(defun (make-read-unexpected! char)
+  (add-read-macro! char null
+    (fun (s c1 c2) (stream:error s (++ "Unexpected character '" char "'.")))))
+
+(defun (read s)
+  (read:eat-spaces s)
+  (let (c1 (s 'peek))
+    (if (eof? c1)
+          (stream:error s "Unexpected end of input.")
+        (dict:has? reader-table c1)
+          (let (table (dict:get reader-table c1))
+            (s 'read)
+            (let (c2 (s 'peek))
+              (if (dict:has? table c2)
+                    (do (s 'read)
+                        ((dict:get table c2) s c1 c2))
+                  (dict:has? table "")
+                    ((dict:get table "") s c1 null))))
+        (dict:has? reader-table "")
+          ((dict:get (dict:get reader-table "") "") s null null)
+        otherwise
+          (stream:error s (++ "Unexpected '" c1 "'.")))))
+
+(defun (read:eat-spaces s)
+  (stream:read-while-chars_ s reader-whitespace-chars)
+  (when (= ";" (s 'peek))
+    ; eat the comment, too
+    (stream:read-until-chars_ s "\n")
+    (read:eat-spaces s)))
+
+; Reads the rest of a string after the first double quote.
+(defun (read:string quot s)
+  (let (prefix (stream:read-until-chars s (++ "\\" quot)))
+    (if (s 'eof?)
+      (stream:error-expecting s quot)
+      (switch (s 'read)
+        quot  prefix
+        "\\"  (let (esc (switch (s 'peek)
+                          "\\"  "\\"
+                          quot  quot  ; usually "
+                          "n"   "\n"
+                          "t"   "\t"
+                          "r"   "\r"
+                          (stream:error s
+                            "Unknown escape code.")))
+                (s 'read)
+                (++ prefix esc (read:string quot s)))))))
+
+(add-read-macro! "\"" null
+  (fun (s c1 c2)
+    (read:string c1 s)))
+(add-read-macro! "|" null
+  (fun (s c1 c2)
+    (make-symbol (read:string c1 s))))
+
+(defun (read:token s)
+  (let (t (stream:read-until-chars s non-symbol-chars))
+    (if (= "" t)
+      (stream:error s "Expecting symbol or number.")
+      (let (val (js:toNum t))
+        (if (and (NaN? val) (!= "NaN" t))
+          (make-symbol t)
+          t)))))
+
+(add-read-macro! null null
+  (fun (s c1 c2)
+    (read:token s)))
+
+; Reads the rest of an s-expression after the first open paren.
+(defun (read:sexp-tail open close s)
+  (def startpos (s 'pos))
+  (read:eat-spaces s)
+  (if (s 'eof?)
+        (stream:error s (++ "Expecting '" close "' to match '" open "' near "
+                            (SourcePos-show startpos) "."))
+      (stream:maybe-read s close)
+        nil
+      otherwise
+        (let (head (read s))
+          (read:eat-spaces s)
+          (if (stream:maybe-read s "#")
+            (do1 (cons head (read s))
+                 (read:eat-spaces s)
+                 (stream:read-expect s close))
+            (cons head (read:sexp-tail open close s))))))
+
+(add-read-macro! "(" null
+  (fun (s c1 c2)
+    (read:sexp-tail "(" ")" s)))
+(make-read-unexpected! ")")
+(make-read-unexpected! "#")
+
+; Like python []. TODO list comprehension?
+(add-read-macro! "[" null
+  (fun (s c1 c2)
+    (cons 'list (read:sexp-tail "[" "]" s))))
+(make-read-unexpected! "]")
+
+; Like python {}
+(add-read-macro! "{" null
+  (fun (s c1 c2)
+    (cons 'dict (read:sexp-tail "{" "}" s))))
+(make-read-unexpected! "}")
+
+(add-read-macro! "'" null
+  (fun (s c1 c2)
+    (list 'quote (read s))))
+
+(add-read-macro! "`" null
+  (fun (s c1 c2)
+    (list 'quasiquote (read s))))
+(add-read-macro! "," null
+  (fun (s c1 c2)
+    (list 'unquote (read s))))
+(add-read-macro! "," "@"
+  (fun (s c1 c2)
+    (list 'unquote-splice (read s))))
+
+; The top-level reader.  Returns either the eof object or the next
+; s-expression.
+(defun (read-top s)
+  (read:eat-spaces s)
+  (if (s 'eof?)
+    eof
+    (read s)))

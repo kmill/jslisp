@@ -1,0 +1,377 @@
+;;; Basic functions and macros
+
+(def ffi (fun (code)
+  (js:eval code)))
+
+(def apply (ffi "(function (f, args) {
+  var as = [];
+  while (!(args instanceof Nil)) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+})"))
+
+(def error (ffi "(function (s) { throw new Error(s); })"))
+
+; (list a b c ...) => (a b c ...)
+(def list (fun args args))
+
+; (if cond1 cons1 cond2 cons2 ... [alt])
+(defmac if (fun (_ # conds)
+  (prim:if (nil? conds)
+    null
+    (prim:if (nil? (tail conds))
+      (head conds)
+      (let (c (head conds)
+            v (head (tail conds)))
+        (list 'prim:if c v (cons 'if (tail (tail conds)))))))))
+(def otherwise true)
+
+(defmac when (fun (_ pred # body)
+  (list 'if pred (cons 'do body))))
+
+; (defun (f a1 a2 ...) body...)
+(defmac defun (fun (_ v # body)
+  (list 'def (head v) (list 'fun (tail v) (cons 'do body)))))
+
+;;; Operations on lists
+
+(defun (foldl op start lst)
+  (def _foldl (fun (acc lst)
+    (if (nil? lst)
+      acc
+      (_foldl (op acc (head lst)) (tail lst)))))
+  (_foldl start lst))
+
+(defun (foldr op end lst)
+  (if (nil? lst)
+    end
+    (op (head lst) (foldr op end (tail lst)))))
+
+(defun (map op lst)
+  (if (nil? lst)
+    '()
+    (cons (op (head lst)) (map op (tail lst)))))
+(defun (each op lst)
+  (if (nil? lst)
+    null
+    (do (op (head lst))
+        (each op (tail lst)))))
+(defun (reversed lst) (foldl (flip cons) '() lst))
+
+(defun (filter pred lst)
+  (if (nil? lst)        '()
+      (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
+      otherwise         (filter pred (tail lst))))
+
+; Association lists
+(defun (a:keys alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (head alist)
+                                (a:keys (tail (tail alist))))))
+(defun (a:values alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (head (tail alist))
+                                (a:values (tail (tail alist))))))
+
+
+; Operators
+(def js:+ (ffi "(function (a, b) { return a + b; })"))
+(defun (ffi-make-binop op)
+  (ffi (js:+ (js:+ "(function (a, b) { return a " op) " b; })")))
+(def js:- (ffi-make-binop '-))
+(def js:* (ffi-make-binop '*))
+(def js:/ (ffi-make-binop '/))
+(def js:% (ffi-make-binop '%))
+(def js:< (ffi-make-binop '< ))
+(def js:> (ffi-make-binop '> ))
+(def js:<= (ffi-make-binop '<= ))
+(def js:>= (ffi-make-binop '>= ))
+(def js:=== (ffi-make-binop '===))
+(def js:toString (ffi "(function (a) { return \"\" + a; })"))
+(def js:toNum (ffi "(function (a) { return +a; })"))
+(def NaN? (ffi "(function (a) { return isNaN(a); })"))
+
+(def / js:/)
+(def % js:%)
+(def < js:<)
+(def > js:>)
+(def <= js:<=)
+(def >= js:>=)
+(def = js:===)
+
+(def ++ (ffi "(function () {
+  return Array.prototype.join.call(arguments, '');
+})"))
+
+(defun (+ # args) (foldl js:+ 0 args))
+(defun (* # args) (foldl js:* 1 args))
+
+(defun (- s # args)
+  (if (nil? args)
+    (js:- 0 s)
+    (js:- s (apply + args))))
+
+(defun (append2 lst1 lst2)
+  (foldr cons lst2 lst1))
+
+(defun (append # lsts)
+  (foldr append2 '() lsts))
+
+(defun (map-append f lst)
+  (foldr append2 '() (map f lst)))
+
+(defun (intercalate sep lst)
+  (if (nil? lst)        '()
+      (nil? (tail lst)) lst
+      otherwise         (cons (head lst)
+                              (cons sep (intercalate sep (tail lst))))))
+
+(def gensym (ffi "(function () { return Symbol.create('gensym', true); })"))
+(def gensym? (ffi "(function (s) { return s.gensym; })"))
+(defun (symbol # args)
+  ((ffi "(function (s) { return Symbol.create(s); })") (apply ++ args)))
+(defun (symbol->string s)
+  ((ffi "(function (s) { return s.s; })") s))
+
+;;; Strings
+(def s:length (ffi "(function (s) { return s.length; })"))
+(def s:charAt (ffi "(function (s, i) { return s.charAt(i); })"))
+(def s:charCodeAt (ffi "(function (s, i) { return s.charCodeAt(i); })"))
+(def s:slice (ffi "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.slice.apply(s, args);
+})"))
+(def s:indexOf (ffi "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.indexOf.apply(s, args);
+})"))
+(def s:fromCharCode (ffi "String.fromCharCode"))
+(def s:split (ffi "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  var ret = new Nil();
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
+})"))
+
+(defun (s:join sep ss)
+  (if (nil? ss)        ""
+      (nil? (tail ss)) (head ss)
+      otherwise        (++ (head ss) sep
+                           (s:join sep (tail ss)))))
+
+;;; Dictionaries
+(def js:dictConst (ffi "function Dict () {}; Dict"))
+(def js:makeDict ((ffi "(function (con) {
+  return function () { return new con(); };
+})") js:dictConst))
+(def dict? ((ffi "(function (con) {
+  return function (a) { return a instanceof con; };
+})") js:dictConst))
+(def dict:get (ffi "(function (o, k, def) {
+  if (_.has(o, k)) {
+    return o[k];
+  } else if (def === undefined) {
+    throw new Error(\"Key error: \" + k);
+  } else {
+    return def;
+  }
+})"))
+(def dict:set! (ffi "(function (o, k, v) {
+  if (v === undefined) {
+    throw new Error(\"Not enough arguments passed to dict:set!\");
+  }
+  o[k] = v;
+  return null;
+})"))
+(def dict:has? (ffi "(function (o, k) {
+  return _.has(o, k);
+})"))
+(defun (dict # pairs)
+  (defun (add-pairs d pairs)
+    (if (not (nil? pairs))
+      (do (dict:set! d (head pairs) (head (tail pairs)))
+          (add-pairs d (tail (tail pairs))))))
+  (let (d (js:makeDict))
+    (add-pairs d pairs)
+    d))
+
+;;; Logical operators
+
+(defmac and (fun (_ v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar))))))
+(defmac or (fun (_ v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args)))))))
+(defun (not x) (if x false true))
+(defun (!= a b) (not (= a b)))
+
+(defun (all lst)
+  (if (nil? lst)
+    true
+    (and (head lst) (all (tail lst)))))
+(defun (any lst)
+  (if (nil? lst)
+    false
+    (or (head lst) (any (tail lst)))))
+
+;;; More lists
+(defun (length lst)
+  (defun (_length lst acc)
+    (if (nil? lst)
+      acc
+      (_length (tail lst) (+ acc 1))))
+  (_length lst 0))
+(defun (nth lst i)
+  (if (< i 0)    (nth lst (+ i (length lst)))
+      (nil? lst) (error "List index out of bounds.")
+      (= i 0)    (head lst)
+      otherwise  (nth (tail lst) (- i 1))))
+
+(defun (zip # lsts)
+  (if (or (nil? lsts) (any (map nil? lsts)))
+    '()
+    (cons (map head lsts) (apply zip (map tail lsts)))))
+
+(defun (init lst)
+  ; Take the elements but the last one
+  (if (nil? lst)
+        (error "Empty list")
+      (and (cons? lst) (nil? (tail lst)))
+        '()
+      otherwise
+        (cons (head lst) (init (tail lst)))))
+(defun (last lst)
+  (if (nil? lst)
+        (error "Empty list")
+      (and (cons? lst) (nil? (tail lst)))
+        (head lst)
+      otherwise
+        (last (tail lst))))
+
+(defun (last-improper lst)
+  (if (cons? lst)
+        (last-improper (tail lst))
+      otherwise
+        lst))
+(defun (init-improper lst)
+  (if (cons? lst)
+        (cons (head lst) (init-improper (tail lst)))
+      otherwise
+        '()))
+
+;;; Functions
+
+; compose
+(defun (. f # args)
+  (if (nil? args)
+    f
+    (let (composed (apply . args))
+      (fun a (f (apply composed a))))))
+(defun (curry f)
+  (fun (x) (fun (y) (f x y))))
+(defun (uncurry f)
+  (fun (x y) ((f x) y)))
+(defun (partial f # args1)
+  (fun args2
+    (apply f (append args1 args2))))
+(defun (flip f)
+  (fun (x y)
+    (f y x)))
+(defun ($ f x)
+  (f x))
+(defun (|> x # funcs)
+  (if (nil? funcs)
+    x
+    (apply |> (cons ((head funcs) x) (tail funcs)))))
+(defun (id x) x)
+(defun (const x) (fun (_) x))
+
+;;; More control flow
+
+(defmac let* (fun (_ bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body)))))
+
+(defmac do1 (fun (_ fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v))))
+
+(defmac foreach (fun (_ v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in foreach.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst))))
+
+(defmac switch (fun (_ v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases))
+                (head (tail cases))
+                (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases)))))
+
+;;; Output
+
+(def js:print (ffi "(function () { _.each(arguments, output); return null; })"))
+(defun (print # xs)
+  (foreach x in xs
+    (if (string? x)
+        (js:print x)
+        (js:print (repr x)))))
+
+(defun (js-escape-string s)
+  (defun (escape-char i)
+    (if (< i (s:length s))
+      (cons (switch (s:charAt s i)
+              "\""  "\\\""
+              "\n"  "\\n"
+              "\t"  "\\t"
+              "\r"  "\\r"
+              "\\"  "\\\\"
+              (s:charAt s i))
+            (escape-char (+ i 1)))
+      (list "\"")))
+  (apply ++ (cons "\"" (escape-char 0))))
+
+(defun (repr x)
+  (defun (repr-tail xs)
+    (if (nil? (tail xs))   (++ (repr (head xs)) ")")
+        (cons? (tail xs))  (++ (repr (head xs)) " " (repr-tail (tail xs)))
+        otherwise          (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
+  (if (nil? x)  "()"
+      (cons? x) (switch (head x)
+                  'quote (++ "'" (repr (head (tail x))))
+                  (++ "(" (repr-tail x)))
+      (string? x) (js-escape-string x)
+      otherwise   (js:toString x)))
+(set! repl-format repr)
+
+; for debugging
+(defun (scope x)
+  (print "scope: " (repr x) "\n")
+  x)
