@@ -79,7 +79,7 @@
 
 (defun (read:eat-spaces s)
   (stream:read-while-chars_ s reader-whitespace-chars)
-  (while (= ";" (s 'peek))
+  (while (= ";" (s 'peek)) ; and eat comments, too
     (stream:read-until-chars_ s "\n")
     (stream:read-while-chars_ s reader-whitespace-chars)))
 
@@ -146,11 +146,16 @@
     (read:sexp-tail "(" ")" stream)))
 (set-reader-macro! ")"
   (fun (stream chars)
+    ; todo: make it show the error at the right column.
     (stream:error stream "Unexpected ')'.")))
 
 (set-reader-macro! "["
   (fun (stream chars)
-    (cons 'list (read:sexp-tail "[" "]" stream))))
+    (defun (consify lst)
+      (if (nil? lst)  ''()
+          (cons? lst) (list 'cons (head lst) (consify (tail lst)))
+          otherwise   lst))
+    (consify (read:sexp-tail "[" "]" stream))))
 (set-reader-macro! "]"
   (fun (stream chars)
     (stream:error stream "Unexpected ']'.")))
@@ -202,6 +207,15 @@
           (if (and (NaN? val) (!= "NaN" t))
             (symbol t)
             val))))))
+
+(set-reader-macro! "@"
+  (fun (stream chars)
+    (let (t (read:token stream))
+      (switch t
+        "t" true
+        "f" false
+        "null" null
+        (stream:error stream (++ "Unexpected literal " t))))))
 
 (set-reader-macro! "'"
   (fun (stream chars)
@@ -280,8 +294,13 @@
 
 (defun (inner-add-macro! name f)
   (global-env 'set! name f)
-  (dict:set! f "macro" true)
+  (prop-set! f "macro" true)
   null)
+
+(defun (inner-add-symbol-macro! name f)
+  (global-env 'set! name f)
+  (prop-set! f "macro" true)
+  (prop-set! f "symbol-macro" true))
 
 ;(defmac (defmac-inner bindings # body)
 ;  (list 'inner-add-macro! (head bindings)
@@ -297,6 +316,8 @@
 
 (defun (macro? x)
   (and (function? x) (= (js:prop x "macro") true)))
+(defun (symbol-macro? x)
+  (and (macro? x) (= (js:prop x "symbol-macro") true)))
 
 ;(defstruct (SymbolMacro f))
 
@@ -326,9 +347,15 @@
     (or (number? s) (boolean? s) (null? s) (string? s)))
 
   (if (self-evaluating? s)  s
-      (symbol? s)           s
+      (symbol? s)           (macro-expand-symbol s env)
       (cons? s)             (macro-expand-form s env)
       (error (++ "Unknown expression to macro expand " (repr s)))))
+
+(defun (macro-expand-symbol s env)
+  (if (and (env 'has? s)
+           (symbol-macro? (env 'lookup s)))
+      (macro-expand ((env 'lookup s) s) env)
+      s))
 
 (defun (macro-expand-form s env)
   (switch (head s)
@@ -636,8 +663,9 @@
                       (midir-lit-to-js (tail l))
                       ")")
       (null? l)   "null"
+      (boolean? l) (if l "true" "false")
       (symbol? l) (++ "Symbol.create(" (js-escape-string (symbol->string l))
-                      (if (gensym? l) ", true" "")
+                      (if (gensym? l) (error "Can't compile non-interned symbol") "") ; todo: figure out
                       ")")
       (number? l) (js:toString l)
       (string? l) (js-escape-string l)
@@ -648,7 +676,8 @@
     (if (< i (s:length s))
         (cons (if (or (and (<= "A" (s:charAt s i)) (<= (s:charAt s i) "Z"))
                       (and (<= "a" (s:charAt s i)) (<= (s:charAt s i) "z"))
-                      (and (<= "0" (s:charAt s i)) (<= (s:charAt s i) "9")))
+                      (and (<= "0" (s:charAt s i)) (<= (s:charAt s i) "9"))
+                      (= "$" (s:charAt s i)))
                 (s:charAt s i)
                 "_")
           (-ci (+ i 1)))
@@ -705,7 +734,7 @@
                 "return globals;"
                 "\n})();\n"))
   (when (global-env 'has? "main")
-    (set! code (++ code "if (!module.parent) module.exports.main(module.exports.list.apply(undefined, process.argv.slice(2)));\n")))
+    (set! code (++ code "if (process && !module.parent) module.exports.main(module.exports.list.apply(undefined, process.argv.slice(2)));\n")))
   (write-file output-file code))
 
 (defun (write-file filename content)

@@ -10,7 +10,11 @@
   globals['false'] = false;
   globals['null'] = null;
 
-  var _ = require('underscore');
+//  var _ = require('underscore');
+
+  globals['js:hasOwnProperty'] = function (o, k) {
+    return Object.prototype.hasOwnProperty.call(o, k);
+  };
 
   (function () {
     // in anonymous function so 'this' points to global context
@@ -36,10 +40,12 @@
       Symbol.symbols = {};
       Symbol.nextGensym = 1;
       Symbol.create = function create(s, gensym) {
+        // TODO figure out how to compile interned symbols.
         if (!gensym) {
-          if (_.has(this.symbols, s)) {
+          if (globals['js:hasOwnProperty'](this.symbols, s)) {
             return this.symbols[s];
           } else {
+            this.nextGensym++;
             return this.symbols[s] = new Symbol(s);
           }
         } else {
@@ -58,6 +64,11 @@
 (def add-macro!
      (fun (name f)
        (js:binop "=" (js:prop f "macro") true)
+       (js:binop "=" (js:prop (js:js "globals") name) f)))
+(def add-symbol-macro!
+     (fun (name f)
+       (js:binop "=" (js:prop f "macro") true)
+       (js:binop "=" (js:prop f "symbol-macro") true)
        (js:binop "=" (js:prop (js:js "globals") name) f)))
 
 (defmac (defmac v # body)
@@ -536,6 +547,40 @@
                     (list 'apply (cons 'switch (cons v (transform-cases v cases))) args)))
       'self)))
 
+(defmac (dfun2 # cases)
+  (defun (transform-cases cases default)
+    (if (nil? cases)
+          '()
+        (nil? (tail cases))
+          (let (_ (gensym))
+            (list (list (list 'quote default)
+                        (list 'fun _ (head cases)))))
+        otherwise
+          (let (msg (head (head cases))
+                args (tail (head cases))
+                conseq (head (tail cases)))
+            (cons (list msg (list 'fun args conseq))
+                  (transform-cases (tail (tail cases)) default)))))
+  (let* (v (gensym)
+         msg (gensym)
+         args (gensym)
+         d (gensym)
+         default (gensym))
+(scope    (list 'letrec (list d (list 'dict)
+                        msg null
+                        'self (list 'fun (cons v args)
+                                (list 'set! msg v)
+                                (list 'if (list 'dict:has? d v)
+                                  (list 'apply (list 'dict:get d v) args)
+                                  (list (list 'dict:get d (list 'quote default))))))
+      (list 'dict:set! d (list 'quote default)
+        (list 'fun '_
+          (list 'error (list '++ "No such message: " (list 'repr msg)))))
+      (cons 'do (for item in (transform-cases cases default)
+                  (cons 'dict:set! (cons d item))))
+      'self))))
+
+
 ;;; Arrays
 (defun (a:push! a v)
   ((js:js "function (a, v) { return a.push(v); }") a v))
@@ -556,19 +601,19 @@
 (defun (s:charCodeAt s i)
   ((js:js "(function (s, i) { return s.charCodeAt(i); })") s i))
 (def s:slice (js:js "(function (s) {
-  var args = _.toArray(arguments);
+  var args = Array.prototype.slice.call(arguments);
   args.shift();
   return s.slice.apply(s, args);
 })"))
 (def s:indexOf (js:js "(function (s) {
-  var args = _.toArray(arguments);
+  var args = Array.prototype.slice.call(arguments);
   args.shift();
   return s.indexOf.apply(s, args);
 })"))
 (def s:fromCharCode (js:js "String.fromCharCode"))
 ; Remember: it's javascript split, so (s:split "ababa" 2) gives (a a)
 (def s:split (js:js "(function (s) {
-  var args = _.toArray(arguments);
+  var args = Array.prototype.slice.call(arguments);
   args.shift();
   var ret = new Nil();
   var split = s.split.apply(s, args);
@@ -606,7 +651,7 @@
 (defun (dict? d)
   (js:binop "instanceof" d (js:js "globals.Dict")))
 (def dict:get (js:js "(function (o, k, def) {
-  if (_.has(o, k)) {
+  if (globals['js:hasOwnProperty'](o, k)) {
     return o[k];
   } else if (def === undefined) {
     throw new Error('Key error: ' + k);
@@ -622,7 +667,7 @@
   return null;
 })"))
 (def dict:has? (js:js "(function (o, k) {
-  return _.has(o, k);
+  return globals['js:hasOwnProperty'](o, k);
 })"))
 (defun (dict # pairs)
   (let (d (js:makeDict))
@@ -631,9 +676,10 @@
 (defun (dict:items d)
   ((js:js "function (d) {
      var items = new Nil();
-     _.each(d, function (v, k) {
-       items = new Cons(new Cons(k, new Cons(v, new Nil())), items);
-     });
+     for (var k in d) {
+       if (globals['js:hasOwnProperty'](d, k))
+         items = new Cons(new Cons(k, new Cons(d[k], new Nil())), items);
+     }
      return items;
    }") d))
 
@@ -658,6 +704,8 @@
 (defun (probe msg x)
   (println "probe " msg ":" x)
   x)
+(defun (scope x)
+  (probe "scope" x))
 
 (defun (js-escape-string s)
   (++ "\"" (s:map-append
@@ -699,9 +747,9 @@
         (list 'js:js "function Struct(comps) { this.components = comps; }"))
       (list (list 'js:js "function (c, name) {
               c.prototype.toString = function toString() {
-                return '(' + name + _.map(this.components, (function (c) {
+                return '(' + name + this.components.map(function (c) {
                                        return ' '+globals.repr(c);
-                                    })).join('') + ')';
+                                    }).join('') + ')';
               };
             }") (symbol "js:struct-" name "-constructor") (symbol->string name))
       ;; a constructor
