@@ -1,0 +1,758 @@
+;;; 3_base.jsl
+;;; Based on 2_compiler.jsl's capabilities.
+
+;; N.B. We get the full power of the previous compiler's macro
+;; facilities when defining the base!
+
+(js:code "
+  globals['globals'] = globals;
+  globals['true'] = true;
+  globals['false'] = false;
+  globals['null'] = null;
+
+  var _ = require('underscore');
+
+  (function () {
+    // in anonymous function so 'this' points to global context
+
+    if (this.Cons === undefined) {
+      function Cons(a, b) {
+        this.head = a;
+        this.tail = b;
+      }
+      function Nil() { }
+      this.Cons = Cons;
+      this.Nil = Nil;
+    }
+
+    if (this.Symbol === undefined) {
+      function Symbol(s, gensym) {
+        this.s = s;
+        this.gensym = gensym || false;
+      }
+      Symbol.prototype.toString = function toString() {
+        return this.s;
+      };
+      Symbol.symbols = {};
+      Symbol.nextGensym = 1;
+      Symbol.create = function create(s, gensym) {
+        if (!gensym) {
+          if (_.has(this.symbols, s)) {
+            return this.symbols[s];
+          } else {
+            return this.symbols[s] = new Symbol(s);
+          }
+        } else {
+          var id = this.nextGensym++;
+          return new Symbol('#' + s + '_' + id, true);
+        }
+      };
+      this.Symbol = Symbol;
+    }
+  })();
+")
+
+
+;;; Macros
+
+(def add-macro!
+     (fun (name f)
+       (js:binop "=" (js:prop f "macro") true)
+       (js:binop "=" (js:prop (js:js "globals") name) f)))
+
+(defmac (defmac v # body)
+  (when (not (cons? v))
+    (error (++ "Invalid defmac arglist: " (repr v))))
+  (let (s (gensym 'expr))
+    (list 'add-macro! (list 'quote (head v))
+      (list 'fun (list s)
+        (list 'apply (cons 'fun (cons (tail v) body)) (list 'tail s))))))
+
+(defmac (do # body)
+  (list 'js:seq body))
+
+(defmac (def # pairs)
+  (cons 'do (a:map (fun (s v)
+                        (if (symbol? s)
+                            (list 'js:def s v)
+                            (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
+                   pairs)))
+
+(defmac (set! # pairs)
+  (cons 'do (a:map (fun (s v)
+                        (if (symbol? s)
+                            (list 'js:binop "=" s v)
+                            (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
+                   pairs)))
+
+(defmac (defun v # body)
+  (when (not (cons? v))
+    (error (++ "Invalid defun arglist: " (repr v))))
+  (list 'def (head v) (list 'named-fun (head v) (tail v) (cons 'do body))))
+
+
+;;; Functions
+
+(defmac (named-fun name al # body)
+  (defun (fun-check-num-args min-expected has-varargs)
+    (++ (if (< 0 min-expected)
+            (++ "if (arguments.length < " min-expected ") {\n"
+                "  throw new Error(\"Expecting at least " min-expected " arguments.\");\n"
+                "}\n")
+            "")
+        (if has-varargs
+            ""
+            (++ "if (arguments.length > " min-expected ") {\n"
+                "  throw new Error(\"Expecting at most " min-expected " arguments.\");\n"
+                "}\n"))))
+  (defun (fun-handle-vararg offset)
+    (++ "(function (args) {\n"
+        "  var vargs = new Nil();\n"
+        "  for (var i = args.length - 1; i >= " offset "; i--) {\n"
+        "    vargs = new Cons(args[i], vargs);\n"
+        "  }\n"
+        "  return vargs;\n"
+        "})(arguments)"))
+
+  (let (args (init-improper al)
+        varg (last-improper al))
+    (let (argcode (list 'js:code (fun-check-num-args (length args) (not (nil? varg))))
+          varargcode (list 'js:js (fun-handle-vararg (length args))))
+      (list 'js:function name args
+            (list 'js:seq
+                  (append
+                    (list argcode)
+                    (if (nil? varg)
+                        '()
+                        (list (list 'js:def varg varargcode)))
+                    body))))))
+
+(defmac (fun al # body)
+  (cons 'named-fun (cons null (cons al body))))
+
+
+;;; Basic functions and datatypes
+
+(defun (error msg)
+  ((js:js "function (msg) { throw new Error(msg); }") msg))
+
+(def apply (js:js "(function (f, args) {
+  var c = Cons;
+  var as = [];
+  while (args instanceof c) {
+    as.push(args.head);
+    args = args.tail;
+  }
+  return f.apply(undefined, as);
+})"))
+
+(defun (list # args)
+  args)
+
+(defun (cons a b)
+  ((js:js "function (a, b) { return new Cons(a, b); }") a b))
+(def nil (js:js "new Nil()"))
+
+(defun (cons? x)
+  (js:binop "instanceof" x (js:js "Cons")))
+(defun (nil? x)
+  (js:binop "instanceof" x (js:js "Nil")))
+
+(defun (null? x)
+  (js:binop "===" x (js:js "null")))
+(defun (string? x)
+  (js:binop "===" (js:unop "typeof" x) "string"))
+(defun (boolean? x)
+  (js:binop "===" (js:unop "typeof" x) "boolean"))
+(defun (number? x)
+  (js:binop "===" (js:unop "typeof" x) "number"))
+(defun (function? x)
+  (js:binop "===" (js:unop "typeof" x) "function"))
+
+(defun (head lst)
+  (if (cons? lst)
+    (js:prop lst "head")
+    (error "Cannot take head")))
+(defun (tail lst)
+  (if (cons? lst)
+    (js:prop lst "tail")
+    (error "Cannot take tail")))
+(defun (set-head! lst v)
+  (if (cons? lst)
+    (js:binop "=" (js:prop lst "head") v)
+    (error "Cannot set head")))
+(defun (set-tail! lst v)
+  (if (cons? lst)
+    (js:binop "=" (js:prop lst "tail") v)
+    (error "Cannot set tail")))
+(def first head)
+(defun (second lst)
+  (head (tail lst)))
+(defun (third lst)
+  (head (tail (tail lst))))
+
+(defun (not x)
+  (js:unop "!" x))
+
+(defmac (if # conds)
+  (if (nil? conds)        null
+      (nil? (tail conds)) (head conds) ; 'default' case
+      otherwise           (list 'js:if (head conds)
+                            (head (tail conds))
+                            (cons 'if (tail (tail conds))))))
+(def otherwise true)
+
+(defmac (when pred # body)
+  (list 'if pred (cons 'do body)))
+(defmac (unless pred # body)
+  (list 'if (list 'not pred) (cons 'do body)))
+
+(defmac (while pred # body)
+  (list 'js:while pred (cons 'do body)))
+
+
+;;; Operations on lists
+
+(defun (foldl op start lst)
+  (while (not (nil? lst))
+    (set! start (op start (head lst)))
+    (set! lst (tail lst)))
+  start)
+
+(defun (foldr op end lst)
+  (defun (_foldr lst)
+    (if (nil? lst)
+      end
+      (op (head lst) (_foldr (tail lst)))))
+  (_foldr lst))
+
+(defun (map op lst)
+  (if (nil? lst)
+    '()
+    (cons (op (head lst)) (map op (tail lst)))))
+
+(defun (each op lst)
+  (while (not (nil? lst))
+    (op (head lst))
+    (set! lst (tail lst))))
+
+(defun (reversed lst)
+  (foldl (fun (a b) (cons b a)) '() lst))
+
+(defun (filter pred lst)
+  (if (nil? lst)        '()
+      (pred (head lst)) (cons (head lst) (filter pred (tail lst)))
+      otherwise         (filter pred (tail lst))))
+
+; Association lists
+
+(defun (a:map f alist)
+  (if (nil? alist)        '()
+      (nil? (tail alist)) (error "Improper alist")
+      otherwise           (cons (f (head alist) (head (tail alist)))
+                                (a:map f (tail (tail alist))))))
+
+(defun (a:keys alist)
+  (a:map (fun (key value) key) alist))
+(defun (a:values alist)
+  (a:map (fun (key value) value) alist))
+
+; Operators
+(defun (js:+ a b)   (js:binop "+" a b))
+(defun (js:- a b)   (js:binop "-" a b))
+(defun (js:* a b)   (js:binop "*" a b))
+(defun (js:/ a b)   (js:binop "/" a b))
+(defun (js:% a b)   (js:binop "%" a b))
+(defun (js:< a b)   (js:binop "<" a b))
+(defun (js:> a b)   (js:binop ">" a b))
+(defun (js:<= a b)  (js:binop "<=" a b))
+(defun (js:>= a b)  (js:binop ">=" a b))
+(defun (js:=== a b) (js:binop "===" a b))
+(defun (js:!== a b) (js:binop "!==" a b))
+(defun (js:u+ a)    (js:unop "+" a))
+(defun (js:u- a)    (js:unop "-" a))
+(defun (js:toString x)
+  (js:+ "" x))
+(defun (js:toNum x)
+  (js:u+ x))
+(defun (NaN? x)
+  ((js:js "isNaN") x))
+
+(def / js:/)
+(def % js:%)
+(def < js:<)
+(def > js:>)
+(def <= js:<=)
+(def >= js:>=)
+(def = js:===)
+(def != js:!==)
+
+(def ++ (js:js "(function () {
+  return Array.prototype.join.call(arguments, '');
+})"))
+
+(defun (+ # args) (foldl js:+ 0 args))
+(defun (* # args) (foldl js:* 1 args))
+
+(defun (- s # args)
+  (if (nil? args)
+    (js:u- s)
+    (js:- s (apply + args))))
+
+(defun (prop x p)
+  (js:prop x p))
+(defun (set-prop! x p v)
+  (js:binop "=" (js:prop x p) v))
+
+(defun (append2 lst1 lst2)
+  (foldr cons lst2 lst1))
+
+(defun (append # lsts)
+  (foldr append2 '() lsts))
+
+(defun (map-append f lst)
+  (foldr append2 '() (map f lst)))
+
+(defun (intercalate sep lst)
+  (if (nil? lst)        '()
+      (nil? (tail lst)) lst
+      otherwise         (cons (head lst)
+                              (cons sep (intercalate sep (tail lst))))))
+
+(defun (length lst)
+  (def i 0)
+  (while (cons? lst)
+    (set! i (+ i 1))
+    (set! lst (tail lst)))
+  i)
+(defun (nth lst i)
+  (while (> i 0)
+    (unless (cons? lst)
+      (error "List index out of bounds."))
+    (set! i (- i 1))
+    (set! lst (tail lst)))
+  (head lst))
+
+; Let
+(defmac (let bindings # body)
+  (cons (cons 'fun (cons (a:keys bindings) body))
+        (a:values bindings)))
+
+;;; Symbols
+(defun (gensym # key)
+  (let (k (if (= 0 (length key))
+              "gensym"
+              (apply ++ key)))
+    ((js:js "(function (k) { return Symbol.create(k, true); })") k)))
+
+(defun (gensym? s)
+  (js:prop s "gensym"))
+
+(defun (symbol? x)
+  (js:binop "instanceof" x (js:js "Symbol")))
+(defun (symbol # args)
+  ((js:js "(function (s) { return Symbol.create(s); })") (apply ++ args)))
+(defun (symbol->string s)
+  (when (not (symbol? s))
+    (error "Not a symbol"))
+  (js:prop s "s"))
+
+;;; Logical operators
+(defmac (and v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar (cons 'and args) vvar)))))
+(defmac (or v # args)
+  (if (nil? args)
+    v
+    (let (vvar (gensym))
+      (list 'let (list vvar v)
+        (list 'if vvar vvar (cons 'or args))))))
+
+(defun (all lst)
+  (if (nil? lst)
+    true
+    (and (head lst) (all (tail lst)))))
+(defun (any lst)
+  (if (nil? lst)
+    false
+    (or (head lst) (any (tail lst)))))
+
+;;; More lists
+(defun (zip # lsts)
+  (if (or (nil? lsts) (any (map nil? lsts)))
+    '()
+    (cons (map head lsts) (apply zip (map tail lsts)))))
+
+(defun (init lst)
+  ; Take the elements but the last one
+  (if (nil? lst)
+        (error "Empty list")
+      (and (cons? lst) (nil? (tail lst)))
+        '()
+      otherwise
+        (cons (head lst) (init (tail lst)))))
+(defun (last lst)
+  (if (nil? lst)
+        (error "Empty list")
+      (and (cons? lst) (nil? (tail lst)))
+        (head lst)
+      otherwise
+        (last (tail lst))))
+
+(defun (last-improper lst)
+  (if (cons? lst)  (last-improper (tail lst))
+      otherwise    lst))
+(defun (init-improper lst)
+  (if (cons? lst)  (cons (head lst) (init-improper (tail lst)))
+      otherwise    '()))
+
+;;; Functions
+
+; compose
+(defun (. f # args)
+  (if (nil? args)
+    f
+    (let (composed (apply . args))
+      (fun a (f (apply composed a))))))
+(defun (curry f)
+  (fun (x) (fun (y) (f x y))))
+(defun (uncurry f)
+  (fun (x y) ((f x) y)))
+(defun (partial f # args1)
+  (fun args2
+    (apply f (append args1 args2))))
+(defun (flip f)
+  (fun (x y)
+    (f y x)))
+; also known as 'call'
+(defun ($ f # args)
+  (apply f args))
+(defun (chain x # funcs)
+  (if (nil? funcs)
+    x
+    (apply chain (cons ((head funcs) x) (tail funcs)))))
+(defun (id x) x)
+(defun (const x) (fun (_) x))
+
+;;; More control flow
+
+; Sequentially define bindings (so future bindings can use prior bindings)
+(defmac (let* bindings # body)
+  (if (nil? bindings)
+    (cons 'do body)
+    (list 'let (list (head bindings) (head (tail bindings)))
+      (append (list 'let* (tail (tail bindings)))
+              body))))
+
+; Defines bindings "at once," so each binding can refer to any of the
+; bindings, even if they are not guaranteed to be defined yet.
+(defmac (letrec bindings # body)
+  (cons 'let
+        (cons (apply append (a:map (fun (k v) (list k null)) bindings))
+          (append (a:map (fun (k v)
+                           (list 'set! k v))
+                         bindings)
+                  body))))
+
+; Other flavors of do
+(defmac (do1 fst # body)
+  (let (v (gensym))
+    (list 'let (list v fst)
+      (cons 'do body)
+      v)))
+(defmac (do2 fst # body)
+  (list 'do fst (cons 'do1 body)))
+
+
+;;; More set!
+
+(defmac (pset! # pairs)
+  (let (temps (a:map (fun (k v) (gensym k)) pairs))
+    (list 'let (apply append (zip temps (a:values pairs)))
+          (cons 'set! (apply append (zip (a:keys pairs) temps)))
+          null)))
+
+(defmac (inc! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to inc!"))
+  (let (delta (if (nil? mdelta) 1 (head mdelta)))
+    (list 'set! s (list '+ s delta))))
+
+(defmac (dec! s # mdelta)
+  (if (< 1 (length mdelta))
+    (error "Incorrect number of arguments to dec!"))
+  (let (delta (if (nil? mdelta) 1 (head mdelta)))
+    (list 'set! s (list '- s delta))))
+
+
+; Syntactic sugar for 'map'
+(defmac (for v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in for.")
+    (list 'map (list 'fun (list v) (cons 'do body)) lst)))
+
+; Syntactic sugar for 'each'
+(defmac (for_ v in lst # body)
+  (if (not (= in 'in))
+    (error "Missing keyword 'in' in for_.")
+    (list 'each (list 'fun (list v) (cons 'do body)) lst)))
+
+(defmac (switch v # cases)
+  (defun (_switch vv cases)
+    (if (nil? cases)        null
+        (nil? (tail cases)) (head cases)
+        otherwise
+          (list 'if (list '= vv (head cases))
+                (head (tail cases))
+                (_switch vv (tail (tail cases))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+      (_switch vv cases))))
+
+; "dispatch function"
+; (dfun (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
+; Also binds 'self to the created dfun in the body of the functions.
+(defmac (dfun # cases)
+  (defun (transform-cases v cases)
+    (if (nil? cases)
+          (list (list 'fun '_
+                  (list 'error (list '++ "No such message: " (list 'repr v)))))
+        (nil? (tail cases))
+          (let (_ (gensym))
+            (list (list 'fun _ (head cases))))
+        otherwise
+          (let (msg (head (head cases))
+                args (tail (head cases))
+                conseq (head (tail cases)))
+            (cons msg (cons (list 'fun args conseq)
+                            (transform-cases v (tail (tail cases))))))))
+  (let (v (gensym)
+        args (gensym))
+    (list 'letrec
+      (list 'self (list 'fun (cons v args)
+                    (list 'apply (cons 'switch (cons v (transform-cases v cases))) args)))
+      'self)))
+
+;;; Arrays
+(defun (a:push! a v)
+  ((js:js "function (a, v) { return a.push(v); }") a v))
+(defun (make-array # inits)
+  (let (a (js:js "[]"))
+    (for init in inits
+      (for x in init
+        (a:push! a x)))
+    a))
+(defun (a:join a sep)
+  ((js:js "function (a, sep) { return a.join(sep); }") a sep))
+
+;;; Strings
+(defun (s:length s)
+  (js:prop s "length"))
+(defun (s:charAt s i)
+  ((js:js "(function (s, i) { return s.charAt(i); })") s i))
+(defun (s:charCodeAt s i)
+  ((js:js "(function (s, i) { return s.charCodeAt(i); })") s i))
+(def s:slice (js:js "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.slice.apply(s, args);
+})"))
+(def s:indexOf (js:js "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  return s.indexOf.apply(s, args);
+})"))
+(def s:fromCharCode (js:js "String.fromCharCode"))
+; Remember: it's javascript split, so (s:split "ababa" 2) gives (a a)
+(def s:split (js:js "(function (s) {
+  var args = _.toArray(arguments);
+  args.shift();
+  var ret = new Nil();
+  var split = s.split.apply(s, args);
+  for (var i = split.length - 1; i >= 0; i--) {
+    ret = new Cons(split[i], ret);
+  }
+  return ret;
+})"))
+
+(defun (s:contains s sub)
+  (!= -1 (s:indexOf s sub)))
+
+(defun (s:join sep ss)
+  (if (nil? ss)        ""
+      (nil? (tail ss)) (head ss)
+      otherwise        (++ (head ss) sep
+                           (s:join sep (tail ss)))))
+
+; Map a function over each character of a string, concatenate the
+; resulting strings.
+(defun (s:map-append f s)
+  (let (parts (make-array)
+        i 0)
+    (while (< i (s:length s))
+      (a:push! parts (f (s:charAt s i)))
+      (set! i (+ i 1)))
+    (a:join parts "")))
+
+;;; Dictionaries
+(def Dict (js:js "(function () {
+  function Dict () {}; return Dict;
+})()"))
+(defun (js:makeDict)
+  (js:js "new globals.Dict()"))
+(defun (dict? d)
+  (js:binop "instanceof" d (js:js "globals.Dict")))
+(def dict:get (js:js "(function (o, k, def) {
+  if (_.has(o, k)) {
+    return o[k];
+  } else if (def === undefined) {
+    throw new Error('Key error: ' + k);
+  } else {
+    return def;
+  }
+})"))
+(def dict:set! (js:js "(function (o, k, v) {
+  if (v === undefined) {
+    throw new Error(\"Not enough arguments passed to dict:set!\");
+  }
+  o[k] = v;
+  return null;
+})"))
+(def dict:has? (js:js "(function (o, k) {
+  return _.has(o, k);
+})"))
+(defun (dict # pairs)
+  (let (d (js:makeDict))
+    (a:map (fun (k v) (dict:set! d k v)) pairs)
+    d))
+(defun (dict:items d)
+  ((js:js "function (d) {
+     var items = new Nil();
+     _.each(d, function (v, k) {
+       items = new Cons(new Cons(k, new Cons(v, new Nil())), items);
+     });
+     return items;
+   }") d))
+
+
+;;; Output
+
+(def js:print (js:js "function (o) {
+  process.stdout.write(''+o);
+  return null;
+}"))
+
+(defun (print # xs)
+  (for x in xs
+    (if (string? x)
+        (js:print x)
+        (js:print (repr x)))))
+(defun (println # xs)
+  (apply print xs)
+  (print "\n"))
+
+; for debugging
+(defun (probe msg x)
+  (println "probe " msg ":" x)
+  x)
+
+(defun (js-escape-string s)
+  (++ "\"" (s:map-append
+            (fun (c)
+              (switch c
+                "\""  "\\\""
+                "\n"  "\\n"
+                "\t"  "\\t"
+                "\r"  "\\r"
+                "\\"  "\\\\"
+                c))
+            s)
+      "\""))
+
+(defun (repr x)
+  (defun (repr-tail xs)
+    (if (nil? (tail xs))   (++ (repr (head xs)) ")")
+        (cons? (tail xs))  (++ (repr (head xs)) " " (repr-tail (tail xs)))
+        otherwise          (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
+  (if (nil? x)  "()"
+      (cons? x)   (switch (head x)
+                    'quote          (++ "'" (repr (head (tail x))))
+                    'quasiquote     (++ "`" (repr (head (tail x))))
+                    'unquote        (++ "," (repr (head (tail x))))
+                    'unquote-splice (++ ",@" (repr (head (tail x))))
+                    (++ "(" (repr-tail x)))
+      (symbol? x) (symbol->string x)
+      (string? x) (js-escape-string x)
+      otherwise   (js:toString x)))
+
+
+;;; Pseudo-ADTs
+
+(defmac (defstruct form)
+  (let (name (head form)
+        args (tail form))
+    (list 'do
+      (list 'def (symbol "js:struct-" name "-constructor")
+        (list 'js:js "function Struct(comps) { this.components = comps; }"))
+      (list (list 'js:js "function (c, name) {
+              c.prototype.toString = function toString() {
+                return '(' + name + _.map(this.components, (function (c) {
+                                       return ' '+globals.repr(c);
+                                    })).join('') + ')';
+              };
+            }") (symbol "js:struct-" name "-constructor") (symbol->string name))
+      ;; a constructor
+      (list 'defun form
+        (cons (list (list 'js:js "function (c) {
+            return function () {
+              return new c(Array.prototype.slice.call(arguments));
+            };
+          }") (symbol "js:struct-" name "-constructor"))
+          args))
+      ;; a predicate
+      (list 'defun (list (symbol name "?") 'o)
+            (list 'js:binop "instanceof" 'o (symbol "js:struct-" name "-constructor")))
+      ;; a destructor
+      (list 'defun (list (symbol name "-destruct") 'o 'f)
+            (list 'if (list (symbol name "?") 'o)
+              (list (list 'js:js "function (o, f) { return f.apply(undefined, o.components); }")
+                    'o 'f)
+              (list 'error (++ "Cannot destruct. Not " name ".")))))))
+
+; For symmetry, cons and nil should have destructors (they already
+; have predicates).
+
+(defun (cons-destruct o f)
+  (f (head o) (tail o)))
+(defun (nil-destruct o f)
+  (f))
+
+; The destruction macro! Similar to Haskell "case" except doesn't yet
+; handle sub-patterns.
+
+(defmac (destruct v # bindings)
+  (defun (handle-just-symbol pat)
+    (if (symbol? pat)
+        (cons pat (gensym))
+        pat))
+  (defun (_destruct vv bindings)
+    (if (nil? bindings)
+          null
+        (nil? (tail bindings))
+          (head bindings)
+        otherwise
+          (let (pat (handle-just-symbol (head bindings))
+                con (head (tail bindings))
+                nextBindings (tail (tail bindings)))
+            (let (pred (symbol (head pat) '?))
+              (list 'if (list pred vv)
+                (list (symbol (head pat) "-destruct")
+                      vv
+                      (list 'fun (tail pat) con))
+                (_destruct vv nextBindings))))))
+  (let (vv (gensym))
+    (list 'let (list vv v)
+          (_destruct vv bindings))))
