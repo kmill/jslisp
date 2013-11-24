@@ -64,20 +64,25 @@
 (def add-macro!
      (fun (name f)
        (js:binop "=" (js:prop f "macro") true)
+       (js:binop "=" (js:prop f "macro-type") "form")
        (js:binop "=" (js:prop (js:js "globals") name) f)))
 (def add-symbol-macro!
      (fun (name f)
        (js:binop "=" (js:prop f "macro") true)
-       (js:binop "=" (js:prop f "symbol-macro") true)
+       (js:binop "=" (js:prop f "macro-type") "symbol")
        (js:binop "=" (js:prop (js:js "globals") name) f)))
 
-(defmac (defmac v # body)
-  (when (not (cons? v))
-    (error (++ "Invalid defmac arglist: " (repr v))))
-  (let (s (gensym 'expr))
-    (list 'add-macro! (list 'quote (head v))
-      (list 'fun (list s)
-        (list 'apply (cons 'fun (cons (tail v) body)) (list 'tail s))))))
+; not a defmac itself because of changed api for macros (now passes env)
+(add-macro! 'defmac
+  (fun (s # env)
+    (let (v (head (tail s))
+          body (tail (tail s)))
+      (when (not (cons? v))
+        (error (++ "Invalid defmac arglist: " (repr v))))
+      (let (s (gensym 'expr))
+        (list 'add-macro! (list 'quote (head v))
+          (list 'fun (cons s (gensym 'env)) ; todo: make not varargs
+            (list 'apply (cons 'fun (cons (tail v) body)) (list 'tail s))))))))
 
 (defmac (do # body)
   (list 'js:seq body))
@@ -212,6 +217,7 @@
                             (head (tail conds))
                             (cons 'if (tail (tail conds))))))
 (def otherwise true)
+;(add-symbol-macro! 'otherwise (fun (s env) @true))
 
 (defmac (when pred # body)
   (list 'if pred (cons 'do body)))
@@ -367,6 +373,8 @@
   (when (not (symbol? s))
     (error "Not a symbol"))
   (js:prop s "s"))
+(defun (keyword? x)
+  (and (symbol? x) (= ":" (s:charAt (symbol->string x) 0))))
 
 ;;; Logical operators
 (defmac (and v # args)
@@ -727,10 +735,10 @@
         otherwise          (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
   (if (nil? x)  "()"
       (cons? x)   (switch (head x)
-                    'quote          (++ "'" (repr (head (tail x))))
-                    'quasiquote     (++ "`" (repr (head (tail x))))
-                    'unquote        (++ "," (repr (head (tail x))))
-                    'unquote-splice (++ ",@" (repr (head (tail x))))
+                    'quote            (++ "'" (repr (head (tail x))))
+                    'quasiquote       (++ "`" (repr (head (tail x))))
+                    'unquote          (++ "," (repr (head (tail x))))
+                    'unquote-splicing (++ ",&" (repr (head (tail x))))
                     (++ "(" (repr-tail x)))
       (symbol? x) (symbol->string x)
       (string? x) (js-escape-string x)

@@ -163,7 +163,7 @@
 (set-reader-macro! "{"
   (fun (stream chars)
     (cons 'dict (read:sexp-tail "{" "}" stream))))
-(set-reader-macro! "{"
+(set-reader-macro! "}"
   (fun (stream chars)
     (stream:error stream "Unexpected '}'.")))
 
@@ -212,8 +212,8 @@
   (fun (stream chars)
     (let (t (read:token stream))
       (switch t
-        "t" true
-        "f" false
+        "true" true
+        "false" false
         "null" null
         (stream:error stream (++ "Unexpected literal " t))))))
 
@@ -226,9 +226,9 @@
 (set-reader-macro! ","
   (fun (stream chars)
     (list 'unquote (read stream))))
-(set-reader-macro! ",@"
+(set-reader-macro! ",&"
   (fun (stream chars)
-    (list 'unquote-splice (read stream))))
+    (list 'unquote-splicing (read stream))))
 
 (defun (read s)
   (read:eat-spaces s)
@@ -283,70 +283,71 @@
       ('eval_ code)
         (parent 'eval_ code)
       ('lookup k)
-        (if (bindings 'has? k)
-          (bindings 'lookup k)
+        (if (dict:has? bindings k)
+          (dict:get bindings k)
           (parent 'lookup k))
       ('has? k)
-        (or (bindings 'has? k) (parent 'has? k))
+        (or (dict:has? bindings k) (parent 'has? k))
       ('set! k v)
         (dict:set! bindings k v))))
 
+(defun (macro? x)
+  (and (function? x) (= (js:prop x "macro") true)))
+(defun (macro-type x)
+  (js:prop x "macro-type"))
+(defun (form-macro? x)
+  (and (macro? x)
+       (or (not (macro-type x)) (= "form" (macro-type x)))))
+(defun (symbol-macro? x)
+  (and (macro? x) (= "symbol" (macro-type x))))
+
+; TODO remove. stopgap to deal with change in calling convention for macros
+(defun (call-macro f s env)
+  (if (prop f "macro-type")
+      (f s env)
+      (f s)))
 
 (defun (inner-add-macro! name f)
   (global-env 'set! name f)
-  (prop-set! f "macro" true)
+  (set-prop! f "macro" true)
+  (set-prop! f "macro-type" "form")
   null)
 
 (defun (inner-add-symbol-macro! name f)
   (global-env 'set! name f)
-  (prop-set! f "macro" true)
-  (prop-set! f "symbol-macro" true))
+  (set-prop! f "macro" true)
+  (set-prop! f "macro-type" "symbol")
+  null)
 
-;(defmac (defmac-inner bindings # body)
-;  (list 'inner-add-macro! (head bindings)
-;        (list (list 'curry 'apply) (cons 'fun (cons (tail bindings) body)))))
+(defmac (defmac-inner v # body)
+  (list 'inner-add-macro! (list 'quote (head v))
+        (cons 'fun (cons (tail v) body))))
 
-;(defmac-inner (js:js code)
-;  '(
+; Marks that the macro expansion is complete. This is for low-level
+; macros to signal that they haven't expanded into something
+; expandable.
+(defstruct (NoExpand expr))
 
-;(inner-add-macro! 'js:js (fun
+(defun (self-evaluating? s)
+  (or (number? s) (boolean? s) (null? s) (string? s) (keyword? s)))
 
-;(inner-add-macro! 'add-macro! inner-add-macro!)
-;(inner-add-macro! 
+; For testing macro expansion
+(defun (macro-expand-1 s)
+  (let (exp (macro-expand-step s global-env))
+    (destruct exp
+      (NoExpand expr)  expr
+      exp)))
 
-(defun (macro? x)
-  (and (function? x) (= (js:prop x "macro") true)))
-(defun (symbol-macro? x)
-  (and (macro? x) (= (js:prop x "symbol-macro") true)))
-
-;(defstruct (SymbolMacro f))
-
-;(defstruct (NoExpand expr))
-
-;; (defun (macro-expand-step s env)
-;;   (if (cons? s)
-;;         (if (and (env 'has? (head s)) (macro? (env 'lookup (head s))))
-;;             ((env 'lookup (head s)) s)
-;;             s)
-;;       (and (symbol? s) (env 'has? s))
-;;         (destruct (env 'lookup s)
-;;           (SymbolMacro f) (f env)
-;;           (NoExpand s))
-;;       otherwise
-;;         (NoExpand s)))
-
-;;   (if (and (symbol? s) (env 'has? s))
-;;         (destruct (env 'lookup s)
-;;           (SymbolMacro f)  (f env)
-;;           s)
-;;       (and (cons? s) (env 'has? (head s)))
-;;         (if (env 'has? s) (SymbolMacro? (env 'lookup s)))
-
+; The real deal
 (defun (macro-expand s env)
-  (defun (self-evaluating? s)
-    (or (number? s) (boolean? s) (null? s) (string? s)))
+  (let (exp (macro-expand-step s env))
+    (destruct exp
+      (NoExpand expr)  expr
+      ; otherwise
+      (macro-expand exp env))))
 
-  (if (self-evaluating? s)  s
+(defun (macro-expand-step s env)
+  (if (self-evaluating? s)  (NoExpand s)
       (symbol? s)           (macro-expand-symbol s env)
       (cons? s)             (macro-expand-form s env)
       (error (++ "Unknown expression to macro expand " (repr s)))))
@@ -354,44 +355,136 @@
 (defun (macro-expand-symbol s env)
   (if (and (env 'has? s)
            (symbol-macro? (env 'lookup s)))
-      (macro-expand ((env 'lookup s) s) env)
-      s))
+        ((env 'lookup s) s env)
+      otherwise
+        (NoExpand s)))
 
 (defun (macro-expand-form s env)
-  (switch (head s)
-    'quote       s
-    'js:def      (list 'js:def (nth s 1) (macro-expand (nth s 2) env))
-    'js:if       (list 'js:if
-                       (macro-expand (nth s 1) env)
-                       (macro-expand (nth s 2) env)
-                       (macro-expand (nth s 3) env))
-    'js:while    (list 'js:while
-                       (macro-expand (nth s 1) env)
-                       (macro-expand (nth s 2) env))
-    'js:return   (list 'js:return (macro-expand (nth s 1) env))
-    'js:break    s
-    'js:continue s
-    'js:seq      (list 'js:seq (map (fun (e) (macro-expand e env)) (nth s 1)))
-    'js:js       s
-    'js:binop    (list 'js:binop (nth s 1)
-                       (macro-expand (nth s 2) env)
-                       (macro-expand (nth s 3) env))
-    'js:unop     (list 'js:unop (nth s 1) (macro-expand (nth s 2) env))
-    'js:prop     (list 'js:prop
-                       (macro-expand (nth s 1) env)
-                       (macro-expand (nth s 2) env))
-    'js:function (if (cons? (nth s 1))
-                   (list 'js:function null (nth s 1) (macro-expand (nth s 2) env))
-                   (list 'js:function (nth s 1) (nth s 2) (macro-expand (nth s 3) env)))
+  (if (and (env 'has? (head s))
+           (form-macro? (env 'lookup (head s))))
+        (call-macro (env 'lookup (head s)) s env)
+      otherwise
+        (NoExpand (map (fun (e) (macro-expand e env)) s))))
 
-    'macrolet  (error "Don't know macrolet yet.")
-    
-    (if (and (env 'has? (head s))
-             (macro? (env 'lookup (head s))))
-        (let (expand-1 ((env 'lookup (head s)) s))
-          (macro-expand expand-1 env))
-        (map (fun (e) (macro-expand e env)) s))))
+;;; Low-level forms
 
+;; Metaprogramming
+(inner-add-macro! 'quote
+  (fun (s env)
+    (NoExpand s)))
+(inner-add-macro! 'quasiquote
+  (fun (s env)
+    (quasiquote-expand (nth s 1) 0)))
+(inner-add-macro! 'unquote
+  (fun (s env)
+    (eval-in-env (nth s 1) env)))
+
+; stolen from http://3e8.org/pub/scheme/doc/Quasiquotation%20in%20Lisp%20(Bawden).pdf
+; TODO make output better code
+(defun (quasiquote-expand s depth)
+  (if (cons? s)
+        (switch (head s)
+          'quasiquote
+            (list 'cons ''quasiquote
+                  (quasiquote-expand (tail s) (+ depth 1)))
+          'unquote
+            (if (> depth 0)
+                  (list 'cons ''unquote
+                        (quasiquote-expand (tail s) (- depth 1)))
+                (and (not (nil? (tail s)))
+                     (nil? (tail (tail s))))
+                  (nth s 1)
+                otherwise
+                  (error (++ "Illegal quasiquotation " (repr s))))
+          'unquote-splicing
+            (if (> depth 0)
+                  (list 'cons ''unquote-splicing
+                        (quasiquote-expand (tail s) (- depth 1)))
+                otherwise
+                  (error (++ "Illegal quasiquotation " (repr s))))
+          ; otherwise
+            (list 'append (quasiquote-expand-list (head s) depth)
+                          (quasiquote-expand (tail s) depth)))
+      otherwise
+        (list 'quote s)))
+
+(defun (quasiquote-expand-list s depth)
+  (if (cons? s)
+        (switch (head s)
+          'quasiquote
+            (list 'list (list 'cons ''quasiquote
+                              (quasiquote-expand (tail s) (+ depth 1))))
+          'unquote
+            (if (> depth 0)
+                  (list 'list (list 'cons ''unquote
+                                    (quasiquote-expand (tail s) (- depth 1))))
+                otherwise
+                  (cons 'list (tail s)))
+          'unquote-splicing
+            (if (> depth 0)
+                  (list 'list (list 'cons ''unquote-splicing
+                                    (quasiquote-expand (tail s) (- depth 1))))
+                otherwise
+                  (cons 'append (tail s)))
+          ; otherwise
+            (list 'list (list 'append
+                              (quasiquote-expand-list (head s) depth)
+                              (quasiquote-expand (tail s) depth))))
+      otherwise
+        (list 'quote (list s))))
+
+;; Javascript froms
+(inner-add-macro! 'js:def
+  (fun (s env)
+    (NoExpand (list 'js:def (nth s 1) (macro-expand (nth s 2) env)))))
+(inner-add-macro! 'js:if
+  (fun (s env)
+    (NoExpand (list 'js:if
+                    (macro-expand (nth s 1) env)
+                    (macro-expand (nth s 2) env)
+                    (macro-expand (nth s 3) env)))))
+(inner-add-macro! 'js:while
+  (fun (s env)
+    (NoExpand (list 'js:while
+                    (macro-expand (nth s 1) env)
+                    (macro-expand (nth s 2) env)))))
+(inner-add-macro! 'js:return
+  (fun (s env)
+    (NoExpand (list 'js:return (macro-expand (nth s 1) env)))))
+(inner-add-macro! 'js:break
+  (fun (s env) (NoExpand s)))
+(inner-add-macro! 'js:continue
+  (fun (s env) (NoExpand s)))
+(inner-add-macro! 'js:seq
+  (fun (s env)
+    (NoExpand (list 'js:seq (map (fun (e) (macro-expand e env)) (nth s 1))))))
+(inner-add-macro! 'js:js
+  (fun (s env) (NoExpand s)))
+(inner-add-macro! 'js:code
+  (fun (s env) (NoExpand s)))
+(inner-add-macro! 'js:binop
+  (fun (s env)
+    (NoExpand (list 'js:binop (nth s 1)
+                    (macro-expand (nth s 2) env)
+                    (macro-expand (nth s 3) env)))))
+(inner-add-macro! 'js:unop
+  (fun (s env)
+    (NoExpand (list 'js:unop (nth s 1) (macro-expand (nth s 2) env)))))
+(inner-add-macro! 'js:prop
+  (fun (s env)
+    (NoExpand (list 'js:prop
+                    (macro-expand (nth s 1) env)
+                    (macro-expand (nth s 2) env)))))
+(inner-add-macro! 'js:function
+  (fun (s env)
+    (if (cons? (nth s 1))
+          (list 'js:function null (nth s 1) (nth s 2))
+        otherwise
+          (let (env2 (make-subenv env))
+            (for_ k in (nth s 2)
+              (env2 'set! k null))
+            (NoExpand (list 'js:function (nth s 1) (nth s 2)
+                            (macro-expand (nth s 3) env2)))))))
 
 ;;; Compiling to midir
 
@@ -451,7 +544,7 @@
 (defun (midir-set v expr)
   (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:lit null)))
 
-(defun (make-env parent # bindings)
+(defun (make-js-env parent # bindings)
   (let (d (apply dict bindings))
     (fun (msg # args)
       (apply
@@ -484,9 +577,6 @@
       (compile-to-midir exp env igen)))
 
 (defun (compile-to-midir exp env igen)
-  (defun (self-evaluating? s)
-    (or (number? s) (boolean? s) (null? s) (string? s)))
-
   (if (self-evaluating? exp)  (MidirExpr (midir:lit exp))
       (symbol? exp)           (if (env 'has? exp)
                                   (MidirExpr (midir:lookup (env 'lookup exp)))
@@ -578,8 +668,8 @@
                         args (map (fun (a) (igen 'get a)) (nth exp 2))
                         argse (if (null? name) (nth exp 2) (cons name (nth exp 2)))
                         body (nth exp 3)
-                        env2 (apply make-env (cons env (map-append (fun (v) (list v (igen 'get v)))
-                                                                   argse))))
+                        env2 (apply make-js-env (cons env (map-append (fun (v) (list v (igen 'get v)))
+                                                                      argse))))
                    
                    (MidirExpr
                      (midir:function (if (null? name) null (igen 'get name)) args
@@ -601,7 +691,6 @@
 
 
 ;;; Generating js
-
 
 (defun (midir-expr-to-js m)
   (destruct m
@@ -705,9 +794,12 @@
 
 ;;; Compilation
 
-(defun (eval-in-global-env s env)
+(defun (eval s)
+  (eval-in-env s global-env))
+
+(defun (eval-in-env s env)
   (let* (s2 (macro-expand s env)
-         midir (midir-close (compile-to-midir-toplevel s2 (make-env null) (make-js-ident-gen)))
+         midir (midir-close (compile-to-midir-toplevel s2 (make-js-env null) (make-js-ident-gen)))
          js (midir-statement-to-js midir))
     (print js)
     (env 'eval js)))
@@ -715,7 +807,7 @@
 (defun (compile-stream s)
   (let (res null)
     (while (read:has-another? s)
-      (set! res (eval-in-global-env (read s) global-env)))
+      (set! res (eval-in-env (read s) global-env)))
     res))
 
 (defun (compile-file fn)
