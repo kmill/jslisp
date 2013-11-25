@@ -316,12 +316,6 @@
 (defun (symbol-macro? x)
   (and (macro? x) (= "symbol" (macro-type x))))
 
-; TODO remove. stopgap to deal with change in calling convention for macros
-(defun (call-macro f s env)
-  (if (prop f "macro-type")
-      (f s env)
-      (f s)))
-
 (defun (inner-add-macro! name f)
   (global-env :set! name f)
   (set! (prop f "macro") @true)
@@ -374,7 +368,7 @@
 (defun (macro-expand-form s env)
   (if (and (env :has? (head s))
            (form-macro? (env :lookup (head s))))
-        (call-macro (env :lookup (head s)) s env)
+        ((env :lookup (head s)) s env)
       otherwise
         (NoExpand (map (fun (e) (macro-expand e env)) s))))
 
