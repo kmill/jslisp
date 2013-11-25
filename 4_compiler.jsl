@@ -49,6 +49,9 @@
         (let (start i)
           (self 'read-until_ pred)
           (s:slice s start i))
+      ('back-up) ; doesn't try hard to back up. used for errors
+        (do (dec! i)
+            (dec! col))
       ('pos)
         (SourcePos source line col))))
 
@@ -146,10 +149,11 @@
     (read:sexp-tail "(" ")" stream)))
 (set-reader-macro! ")"
   (fun (stream chars)
-    ; todo: make it show the error at the right column.
+    (stream 'back-up)
     (stream:error stream "Unexpected ')'.")))
 (set-reader-macro! "#"
   (fun (stream chars)
+    (stream 'back-up)
     (stream:error stream "Unexpected '#'.")))
 
 (set-reader-macro! "["
@@ -161,6 +165,7 @@
     (consify (read:sexp-tail "[" "]" stream))))
 (set-reader-macro! "]"
   (fun (stream chars)
+    (stream 'back-up)
     (stream:error stream "Unexpected ']'.")))
 
 (set-reader-macro! "{"
@@ -168,6 +173,7 @@
     (cons 'dict (read:sexp-tail "{" "}" stream))))
 (set-reader-macro! "}"
   (fun (stream chars)
+    (stream 'back-up)
     (stream:error stream "Unexpected '}'.")))
 
 (defun (read:string quot s)
@@ -213,12 +219,13 @@
 
 (set-reader-macro! "@"
   (fun (stream chars)
-    (let (t (read:token stream))
-      (switch t
-        "true" @true
-        "false" @false
-        "null" @null
-        (stream:error stream (++ "Unexpected literal " t))))))
+    (switch (read:token stream) :as t
+      "true" @true
+      "false" @false
+      "null" @null
+      otherwise
+        (do (stream 'back-up)
+            (stream:error stream (++ "Unexpected literal " t))))))
 
 (set-reader-macro! "'"
   (fun (stream chars)
@@ -335,18 +342,15 @@
 
 ; For testing macro expansion
 (defun (macro-expand-1 s)
-  (let (exp (macro-expand-step s global-env))
-    (destruct exp
-      (NoExpand expr)  expr
-      exp)))
+  (destruct (macro-expand-step s global-env) :as exp
+    (NoExpand expr)  expr
+    otherwise        exp))
 
 ; The real deal
 (defun (macro-expand s env)
-  (let (exp (macro-expand-step s env))
-    (destruct exp
-      (NoExpand expr)  expr
-      ; otherwise
-      (macro-expand exp env))))
+  (destruct (macro-expand-step s env) :as exp
+    (NoExpand expr)  expr
+    otherwise        (macro-expand exp env)))
 
 (defun (macro-expand-step s env)
   (if (self-evaluating? s)  (NoExpand s)
@@ -434,7 +438,7 @@
                               (quasiquote-expand (tail s) (- depth 1)))
                 otherwise
                   `',s)
-          ; otherwise
+          otherwise
             (if (and (cons? (tail s)) (= 'unquote (head (tail s))))
               (quasiquote-expand-list (head s) depth (nth (tail s) 1))
               (quasi-append (quasiquote-expand-list (head s) depth ''())
@@ -467,7 +471,7 @@
                   (if (and (cons? end) (= 'quote (head end)) (nil? (nth end 1)))
                     (apply quasi-append (tail s))
                     `(as-improper ,(apply quasi-append (tail s)) ,end)))
-          ; otherwise
+          otherwise
             (quasi-cons (quasi-append (quasiquote-expand-list (head s) depth ''())
                                       (quasiquote-expand (tail s) depth))
                         end))
@@ -556,6 +560,7 @@
 (defstruct (midir:lookup s))
 (defstruct (midir:funcall f args))
 (defstruct (midir:function mname args body))
+(defstruct (midir:nop))
 
 ; statements
 (defstruct (midir:code code))
@@ -594,9 +599,16 @@
 (defun (midir-close m)
   (destruct m
     (MidirExpr expr)
-      (midir:expr expr)
+      (destruct expr
+        (midir:nop)
+          (midir:seq '())
+        (midir:expr expr))
     (MidirStatement stat expr)
-      (midir:seq (list stat (midir:expr expr)))))
+      (destruct expr
+        (midir:nop)
+          stat
+        otherwise
+          (midir:seq (list stat (midir:expr expr))))))
 (defun (midir-unlist ms)
   (defun (-unlist m)
     (destruct m
@@ -609,7 +621,7 @@
       (list '() '())
       (list (apply append (head ul)) (head (tail ul))))))
 (defun (midir-set v expr)
-  (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:lit @null)))
+  (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:nop)))
 
 (defun (make-js-env parent # bindings)
   (let (d (apply dict bindings))
@@ -638,7 +650,7 @@
                   env igen)
         'js:seq (foldl (fun (acc next)
                          (midir-join acc (compile-to-midir-toplevel next env igen)))
-                       (MidirExpr (midir:lit @null))
+                       (MidirExpr (midir:nop))
                        (nth exp 1))
         (compile-to-midir exp env igen))
       (compile-to-midir exp env igen)))
@@ -661,7 +673,7 @@
                   (env 'set! (nth exp 1) var)
                   (let (expr (comp (nth exp 2)))
                     (midir-splice expr
-                      (fun (e) (MidirStatement (midir:def var e) (midir:lit @null))))))
+                      (fun (e) (MidirStatement (midir:def var e) (midir:nop))))))
     'js:if      (let (cexpr (comp (nth exp 1))
                       bcons (comp (nth exp 2))
                       balt  (comp (nth exp 3))
@@ -671,7 +683,7 @@
                       (MidirStatement
                         (midir:seq
                           (list
-                            (midir:def outvar (midir:lit @null))
+                            (midir:def outvar (midir:nop))
                             (midir:if ce
                                       (midir-close (midir-splice bcons
                                                      (fun (be) (midir-set outvar be))))
@@ -696,19 +708,19 @@
                                                        (MidirExpr
                                                          (midir:binop "=" (midir:lookup outvar)
                                                                       ce))))))))))
-                        (midir:lit @null)))))
+                        (midir:nop)))))
     'js:return  (let (expr (comp (head (tail exp))))
                   (midir-splice expr
                     (fun (e)
-                      (MidirStatement (midir:return e) (midir:lit @null)))))
-    'js:break  (MidirStatement (midir:break) (midir:lit @null))
-    'js:break  (MidirStatement (midir:continue) (midir:lit @null))
+                      (MidirStatement (midir:return e) (midir:nop)))))
+    'js:break  (MidirStatement (midir:break) (midir:nop))
+    'js:break  (MidirStatement (midir:continue) (midir:nop))
     'js:seq    (foldl (fun (acc next)
                         (midir-join acc (comp next)))
-                      (MidirExpr (midir:lit @null))
+                      (MidirExpr (midir:nop))
                       (nth exp 1))
     'js:js     (MidirExpr (midir:js (head (tail exp))))
-    'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:lit @null))
+    'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:nop))
     'js:binop  (let (expl (comp (head (tail (tail exp))))
                      expr (comp (head (tail (tail (tail exp))))))
                  (midir-splice expl
@@ -730,7 +742,7 @@
     'js:throw    (let (expr (nth exp 1))
                    (midir-splice (comp expr)
                      (fun (el)
-                       (MidirStatement (midir:throw el) (midir:lit @null)))))
+                       (MidirStatement (midir:throw el) (midir:nop)))))
     'js:try      (let (texp (nth exp 1)
                        cv   (igen 'get (nth exp 2))
                        cexp (nth exp 3)
@@ -740,7 +752,7 @@
                      (MidirStatement
                        (midir:seq
                          (list
-                           (midir:def outvar (midir:lit @null))
+                           (midir:def outvar (midir:nop))
                            (midir:try
                              (midir-close (midir-splice (comp texp)
                                             (fun (te) (midir-set outvar te))))
@@ -765,7 +777,7 @@
                          (midir-splice
                            (compile-to-midir body env2 igen)
                            (fun (e) (MidirStatement (midir:return e)
-                                                    (midir:lit @null))))))))
+                                                    (midir:nop))))))))
     
     (midir-splice (comp (head exp))
       (fun (f)
@@ -776,7 +788,7 @@
               (list (midir:seq (head ul))
                     (midir:def outvar (midir:funcall f (head (tail ul))))))
             (midir:lookup outvar)))))))
-
+                
 
 ;;; Generating js
 
@@ -802,6 +814,8 @@
           "(" (s:join ", " args) ") {\n"
           (midir-statement-to-js body)
           "})")
+    (midir:nop)
+      "(null)"
     (error (++ "Unknown expr: " (repr m)))))
 
 (defun (midir-statement-to-js m)
