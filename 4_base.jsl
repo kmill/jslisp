@@ -111,6 +111,21 @@
                             (error (++ "Cannot 'def' a non-symbol: " (repr s)))))
                    pairs)))
 
+
+(defmac (set! # pairs)
+  `(do ,#(a:map (fun (place val) `(single-set! ,place ,val)) pairs)))
+
+(add-macro! 'single-set!
+  (fun (s env)
+    (let (place (nth s 1)
+          val (nth s 2))
+      (if (symbol? place)
+            (if (and (env 'has? place) (symbol-macro? (env 'lookup place)))
+                `(single-set! ,(macro-expand place env) ,val)
+                `(setq! ,place ,val))
+          (and (cons? place) (symbol? (head place)))
+            `(,(symbol "set-" (head place) "!") ,#(tail place) ,val)))))
+
 (defmac (defun v # body)
   (when (not (cons? v))
     (error (++ "Invalid defun arglist: " (repr v))))
@@ -361,6 +376,14 @@
     (setq! lst (tail lst)))
   (head lst))
 
+(defun (set-nth! lst i v)
+  (while (> i 0)
+    (unless (cons? lst)
+      (error "List index out of bounds."))
+    (dec! i)
+    (set! lst (tail lst)))
+  (set! (head lst) v))
+
 ; Let
 (defmac (let bindings # body)
   `((fun ,(a:keys bindings) ,#body)
@@ -499,20 +522,6 @@
 
 
 ;;; More set!
-
-(defmac (set! # pairs)
-  `(do ,#(a:map (fun (place val) `(single-set! ,place ,val)) pairs)))
-
-(add-macro! 'single-set!
-  (fun (s env)
-    (let (place (nth s 1)
-          val (nth s 2))
-      (if (symbol? place)
-            (if (and (env 'has? place) (symbol-macro? (env 'lookup place)))
-                `(single-set! ,(macro-expand place env) ,val)
-                `(setq! ,place ,val))
-          (and (cons? place) (symbol? (head place)))
-            `(,(symbol "set-" (head place) "!") ,#(tail place) ,val)))))
 
 ; Parallel set
 (defmac (pset! # pairs)
