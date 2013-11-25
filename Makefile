@@ -20,6 +20,17 @@
 	diff 3_compiler.2.js 3_compiler.js
 
 
+4_compiler.1.js: 3_compiler.js 4_base.jsl 4_compiler.jsl
+	node 3_compiler.js 4_base.jsl 4_compiler.jsl -o 4_compiler.1.js
+
+4_compiler.2.js: 4_compiler.1.js 4_base.jsl 4_compiler.jsl
+	node 4_compiler.1.js 4_base.jsl 4_compiler.jsl -o 4_compiler.2.js
+
+4_compiler.js: 4_compiler.2.js 4_base.jsl 4_compiler.jsl
+	node 4_compiler.2.js 4_base.jsl 4_compiler.jsl -o 4_compiler.js
+	diff 4_compiler.2.js 4_compiler.js
+
+
 clean:
 	rm 2_compiler.1.js || true
 	rm 2_compiler.2.js || true
@@ -28,3 +39,7 @@ clean:
 	rm 3_compiler.1.js || true
 	rm 3_compiler.2.js || true
 	rm 3_compiler.js || true
+
+	rm 4_compiler.1.js || true
+	rm 4_compiler.2.js || true
+	rm 4_compiler.js || true

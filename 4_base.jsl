@@ -432,6 +432,10 @@
   (if (cons? lst)  (cons (head lst) (init-improper (tail lst)))
       otherwise    '()))
 
+(defun (as-improper lst end)
+  (if (cons? lst)  (cons (head lst) (as-improper (tail lst) end))
+      otherwise    end))
+
 ;;; Functions
 
 ; compose
@@ -756,7 +760,7 @@
                       'quote            (++ "'" (repr (head (tail x))))
                       'quasiquote       (++ "`" (repr (head (tail x))))
                       'unquote          (++ "," (repr (head (tail x))))
-                      'unquote-splicing (++ ",&" (repr (head (tail x))))
+                      'unquote-splicing (++ ",#" (repr (head (tail x))))
                       (++ "(" (repr-tail x)))
                     (++ "(" (repr-tail x)))
       (symbol? x) (symbol->string x)
@@ -825,5 +829,5 @@
                (,(symbol "destruct-" (head pat)) ,vv (fun ,(tail pat) ,con))
                ,(_destruct vv nextBindings)))))
   (let (vv (gensym))
-    (list 'let (list vv v)
-          (_destruct vv bindings))))
+    `(let (,vv ,v)
+       ,(_destruct vv bindings))))

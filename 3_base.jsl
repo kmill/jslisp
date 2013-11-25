@@ -739,7 +739,7 @@
                           'quote            (++ "'" (repr (head (tail x))))
                           'quasiquote       (++ "`" (repr (head (tail x))))
                           'unquote          (++ "," (repr (head (tail x))))
-                          'unquote-splicing (++ ",&" (repr (head (tail x))))
+                          'unquote-splicing (++ ",#" (repr (head (tail x))))
                           (++ "(" (repr-tail x)))
                       otherwise
                         (++ "(" (repr-tail x)))

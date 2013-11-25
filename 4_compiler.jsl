@@ -417,11 +417,11 @@
   (if (cons? s)
         (switch (head s)
           'quasiquote
-            (quasi-cons 'quasiquote
+            (quasi-cons ''quasiquote
                         (quasiquote-expand (tail s) (+ depth 1)))
           'unquote
             (if (> depth 0)
-                  (quasi-cons 'unquote
+                  (quasi-cons ''unquote
                               (quasiquote-expand (tail s) (- depth 1)))
                 (and (not (nil? (tail s)))
                      (nil? (tail (tail s))))
@@ -430,39 +430,49 @@
                   `',s)
           'unquote-splicing
             (if (> depth 0)
-                  (quasi-cons 'unquote-splicing
+                  (quasi-cons ''unquote-splicing
                               (quasiquote-expand (tail s) (- depth 1)))
                 otherwise
                   `',s)
           ; otherwise
-            (quasi-append (quasiquote-expand-list (head s) depth)
-                          (quasiquote-expand (tail s) depth)))
+            (if (and (cons? (tail s)) (= 'unquote (head (tail s))))
+              (quasiquote-expand-list (head s) depth (nth (tail s) 1))
+              (quasi-append (quasiquote-expand-list (head s) depth ''())
+                            (quasiquote-expand (tail s) depth))))
       otherwise
         `',s))
 
-(defun (quasiquote-expand-list s depth)
+(defun (quasiquote-expand-list s depth end)
   (if (cons? s)
         (switch (head s)
           'quasiquote
-            (quasi-list (quasi-cons 'quasiquote
-                                    (quasiquote-expand (tail s) (+ depth 1))))
+            (quasi-cons (quasi-cons ''quasiquote
+                                    (quasiquote-expand (tail s) (+ depth 1)))
+                        end)
           'unquote
             (if (> depth 0)
-                  (quasi-list (quasi-cons 'unquote
-                                          (quasiquote-expand (tail s) (- depth 1))))
+                  (quasi-cons (quasi-cons ''unquote
+                                          (quasiquote-expand (tail s) (- depth 1)))
+                              end)
                 otherwise
-                  (apply quasi-list (tail s)))
+                  ;(apply quasi-list (tail s))
+                  (quasi-cons (nth s 1) end))
           'unquote-splicing
             (if (> depth 0)
-                  (quasi-list (quasi-cons 'unquote-splicing
-                                          (quasiquote-expand (tail s) (- depth 1))))
+                  (quasi-cons (quasi-cons ''unquote-splicing
+                                          (quasiquote-expand (tail s) (- depth 1)))
+                              end)
                 otherwise
-                  (apply quasi-append (tail s)))
+                  ;(apply quasi-append (tail s)))
+                  (if (and (cons? end) (= 'quote (head end)) (nil? (nth end 1)))
+                    (apply quasi-append (tail s))
+                    `(as-improper ,(apply quasi-append (tail s)) ,end)))
           ; otherwise
-            (quasi-list (quasi-append (quasiquote-expand-list (head s) depth)
-                                      (quasiquote-expand (tail s) depth))))
+            (quasi-cons (quasi-append (quasiquote-expand-list (head s) depth ''())
+                                      (quasiquote-expand (tail s) depth))
+                        end))
       otherwise
-        `(list ',s)))
+        `(cons ',s ,end)))
 
 
 ;; Javascript forms
@@ -573,6 +583,14 @@
           (MidirStatement statement1 expr2)
         (MidirStatement statement2 expr2)
           (MidirStatement (midir:seq (list statement1 statement2)) expr2))))
+(defun (midir-join m1 m2)
+  (destruct m2
+    (MidirExpr expr2)
+      (MidirStatement (midir-close m1) expr2)
+    (MidirStatement statement2 expr2)
+      (MidirStatement (midir:seq (list (midir-close m1)
+                                       statement2))
+                      expr2)))
 (defun (midir-close m)
   (destruct m
     (MidirExpr expr)
@@ -615,13 +633,13 @@
   (if (cons? exp)
       (switch (head exp)
         'js:def (compile-to-midir
-                  (list 'js:seq (list (list 'js:binop "=" (nth exp 1) (nth exp 2))
-                                      @null))
+                  `(js:seq ((js:binop "=" ,(nth exp 1) ,(nth exp 2))
+                            @null))
                   env igen)
-        'js:seq (MidirStatement (midir:seq (map (fun (e)
-                                                  (midir-close (compile-to-midir-toplevel e env igen)))
-                                           (nth exp 1)))
-                                (midir:lit @null))
+        'js:seq (foldl (fun (acc next)
+                         (midir-join acc (compile-to-midir-toplevel next env igen)))
+                       (MidirExpr (midir:lit @null))
+                       (nth exp 1))
         (compile-to-midir exp env igen))
       (compile-to-midir exp env igen)))
 
@@ -685,14 +703,10 @@
                       (MidirStatement (midir:return e) (midir:lit @null)))))
     'js:break  (MidirStatement (midir:break) (midir:lit @null))
     'js:break  (MidirStatement (midir:continue) (midir:lit @null))
-    'js:seq    (if (nil? (tail exp))
-                   (MidirExpr (midir:lit @null))
-                   (let (exprs (map (. midir-close comp) (init (nth exp 1)))
-                         exprsl (comp (last (nth exp 1))))
-                     (midir-splice
-                       (MidirStatement (midir:seq exprs) (midir:lit @null))
-                       (const exprsl))))
-
+    'js:seq    (foldl (fun (acc next)
+                        (midir-join acc (comp next)))
+                      (MidirExpr (midir:lit @null))
+                      (nth exp 1))
     'js:js     (MidirExpr (midir:js (head (tail exp))))
     'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:lit @null))
     'js:binop  (let (expl (comp (head (tail (tail exp))))
