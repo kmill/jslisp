@@ -28,53 +28,53 @@
                  (set! col 0))
         (do (inc! col)))
       c)
-    (dfun
-      ('eof?)
+    (dfun :as self
+      (:eof?)
         (>= i len)
-      ('peek)
+      (:peek)
         (if (< i len)
           (s:charAt s i)
           eof)
-      ('read)
+      (:read)
         (if (< i len)
           (do1 (advance (s:charAt s i))
                (inc! i))
           eof)
-      ('read-until_ pred)
+      (:read-until_ pred)
         ; doesn't return anything
-        (while (let (c (self 'peek))
+        (while (let (c (self :peek))
                  (not (or (eof? c) (pred c))))
-          (self 'read))
-      ('read-until pred)
+          (self :read))
+      (:read-until pred)
         (let (start i)
-          (self 'read-until_ pred)
+          (self :read-until_ pred)
           (s:slice s start i))
-      ('back-up) ; doesn't try hard to back up. used for errors
+      (:back-up) ; doesn't try hard to back up. used for errors
         (do (dec! i)
             (dec! col))
-      ('pos)
+      (:pos)
         (SourcePos source line col))))
 
 (defun (stream:error s msg)
-  (error (++ (SourcePos-show (s 'pos)) ": " msg)))
+  (error (++ (SourcePos-show (s :pos)) ": " msg)))
 (defun (stream:error-expecting s expect)
   (stream:error s (++ "Expecting '" expect "'.")))
 
 ; Tries to read a particular character. Returns true (and reads) or
 ; false (if it doesn't)
 (defun (stream:maybe-read s char)
-  (and (= char (s 'peek))
-       (do (s 'read) @true)))
+  (and (= char (s :peek))
+       (do (s :read) @true)))
 (defun (stream:expect-read s char)
   (or (stream:maybe-read s char)
       (stream:error-expecting s char)))
 
 (defun (stream:read-until-chars s chars)
-  (s 'read-until (fun (c) (s:contains chars c))))
+  (s :read-until (fun (c) (s:contains chars c))))
 (defun (stream:read-until-chars_ s chars)
-  (s 'read-until_ (fun (c) (s:contains chars c))))
+  (s :read-until_ (fun (c) (s:contains chars c))))
 (defun (stream:read-while-chars_ s chars)
-  (s 'read-until_ (fun (c) (not (s:contains chars c)))))
+  (s :read-until_ (fun (c) (not (s:contains chars c)))))
 
 ;;; Reader
 
@@ -82,7 +82,7 @@
 
 (defun (read:eat-spaces s)
   (stream:read-while-chars_ s reader-whitespace-chars)
-  (while (= ";" (s 'peek)) ; and eat comments, too
+  (while (= ";" (s :peek)) ; and eat comments, too
     (stream:read-until-chars_ s "\n")
     (stream:read-while-chars_ s reader-whitespace-chars)))
 
@@ -93,44 +93,44 @@
   (let (table (dict)
         defaultHandler (fun (stream chars)
                          (stream:error stream "Unexpected.")))
-    (dfun
-      ('read stream)
-        (self '_read stream "")
-      ('_read stream readChars)
-        (let* (c (stream 'peek)
+    (dfun :as self
+      (:read stream)
+        (self :_read stream "")
+      (:_read stream readChars)
+        (let* (c (stream :peek)
                st (dict:get table c @null))
           (if (null? st)
             (defaultHandler stream readChars)
-            (st '_read stream (++ readChars (stream 'read)))))
-      ('set-default-handler! dh)
+            (st :_read stream (++ readChars (stream :read)))))
+      (:set-default-handler! dh)
         (set! defaultHandler dh)
-      ('add-handler! f chars)
+      (:add-handler! f chars)
         (if (= 0 (s:length chars))
-              (self 'set-default-handler! f)
+              (self :set-default-handler! f)
             otherwise
               (let (st (dict:get table (s:charAt chars 0) @null))
                 (when (null? st)
                   (set! st (make-reader-table))
                   (dict:set! table (s:charAt chars 0) st))
-                (st 'add-handler! f (s:slice chars 1))))
-      ('get-bound-chars)
+                (st :add-handler! f (s:slice chars 1))))
+      (:get-bound-chars)
         (s:join "" (for entry in (dict:items table)
-                     (++ (first entry) ((second entry) 'get-bound-chars)))))))
+                     (++ (first entry) ((second entry) :get-bound-chars)))))))
 
 (def global-reader-table (make-reader-table))
 
 ; Adds handler to the table and updates the non-symbol-characters
 (defun (set-reader-macro! chars handler)
-  (global-reader-table 'add-handler! handler chars)
-  (set! reader-non-symbol-chars (++ (global-reader-table 'get-bound-chars) reader-whitespace-chars))
+  (global-reader-table :add-handler! handler chars)
+  (set! reader-non-symbol-chars (++ (global-reader-table :get-bound-chars) reader-whitespace-chars))
   @null)
 
 
 
 (defun (read:sexp-tail open close s)
-  (def startpos (s 'pos))
+  (def startpos (s :pos))
   (read:eat-spaces s)
-  (if (s 'eof?)
+  (if (s :eof?)
         (stream:error s (++ "Expecting '" close "' to match '" open "' near "
                             (SourcePos-show startpos) "."))
       (stream:maybe-read s close)
@@ -149,11 +149,11 @@
     (read:sexp-tail "(" ")" stream)))
 (set-reader-macro! ")"
   (fun (stream chars)
-    (stream 'back-up)
+    (stream :back-up)
     (stream:error stream "Unexpected ')'.")))
 (set-reader-macro! "#"
   (fun (stream chars)
-    (stream 'back-up)
+    (stream :back-up)
     (stream:error stream "Unexpected '#'.")))
 
 (set-reader-macro! "["
@@ -165,7 +165,7 @@
     (consify (read:sexp-tail "[" "]" stream))))
 (set-reader-macro! "]"
   (fun (stream chars)
-    (stream 'back-up)
+    (stream :back-up)
     (stream:error stream "Unexpected ']'.")))
 
 (set-reader-macro! "{"
@@ -173,7 +173,7 @@
     (cons 'dict (read:sexp-tail "{" "}" stream))))
 (set-reader-macro! "}"
   (fun (stream chars)
-    (stream 'back-up)
+    (stream :back-up)
     (stream:error stream "Unexpected '}'.")))
 
 (defun (read:string quot s)
@@ -181,20 +181,20 @@
     (stream:read-until-chars s (++ "\\" quot)))
   (let (r (make-array))
     (a:push! r (_read-next))
-    (while (not (= quot (s 'peek)))
-      (when (s 'eof?) (stream:error-expecting s quot))
-      (s 'read) ; eat backslash
-      (let (esc (switch (s 'peek)
+    (while (not (= quot (s :peek)))
+      (when (s :eof?) (stream:error-expecting s quot))
+      (s :read) ; eat backslash
+      (let (esc (switch (s :peek)
                   "\\"  "\\"
                   quot  quot
                   "n"   "\n"
                   "t"   "\t"
                   "r"   "\r"
                   (stream:error s "Unknown escape code.")))
-        (s 'read) ; delayed so error is in right spot
+        (s :read) ; delayed so error is in right spot
         (a:push! r esc)
         (a:push! r (_read-next))))
-    (s 'read)
+    (s :read)
     (a:join r "")))
 
 (set-reader-macro! "\""
@@ -224,7 +224,7 @@
       "false" @false
       "null" @null
       otherwise
-        (do (stream 'back-up)
+        (do (stream :back-up)
             (stream:error stream (++ "Unexpected literal " t))))))
 
 (set-reader-macro! "'"
@@ -242,63 +242,69 @@
 
 (defun (read s)
   (read:eat-spaces s)
-  (if (s 'eof?)
+  (if (s :eof?)
         (stream:error s "Unexpected end of input.")
       otherwise
-        (global-reader-table 'read s)))
+        (global-reader-table :read s)))
 
 (defun (read:has-another? s)
   (read:eat-spaces s)
-  (not (s 'eof?)))
+  (not (s :eof?)))
 
 
 ; Makes a global environment in which javascript code can be
 ; evaluated.
 (defun (make-global-env parent)
-  (let (globals2 ((js:js "function (d) {
-                      function Subenv() {}
-                      Subenv.prototype = d;
-                      return new Subenv();
-                    }") parent))
-    (let (closure ((js:js "function (globals) {
-                       return function () {
-                         return eval(arguments[0]);
-                       };
-                    }") globals2)
+  (let* (globals2 ((js:js "function (d) {
+                       function Subenv() {}
+                       Subenv.prototype = d;
+                       return new Subenv();
+                     }") parent)
+         closure ((js:js "function (globals) {
+                        return function () {
+                        return eval(arguments[0]);
+                      };
+                   }") globals2)
           all-code '())
-      (dfun
-        ('eval_ code)
-          (closure code)
-        ('eval code)
-          (do (set! all-code (cons code all-code))
-              (self 'eval_ code))
-        ('code)
-          (s:join "\n\n" (reversed all-code))
-        ('lookup k)
-          (let (v (js:prop (closure "globals") k))
-            (if (= (js:js "undefined") v)
-                (error (++ "No such global " k))
-                v))
-        ('has? k)
-          (!= (js:js "undefined") (js:prop (closure "globals") k))
-        ('set! k v)
-          (dict:set! (closure "globals") k v)))))
+    (dfun :as self
+      (:eval_ code)
+        (closure code)
+      (:eval code)
+        (do (set! all-code (cons code all-code))
+            (self :eval_ code))
+      (:code)
+        (s:join "\n\n" (reversed all-code))
+      (:lookup k)
+        (let (v (js:prop (closure "globals") k))
+          (if (= (js:js "undefined") v)
+              (error (++ "No such global " k))
+              v))
+      (:has? k)
+        (!= (js:js "undefined") (js:prop (closure "globals") k))
+      ; TODO remove these two
+      ('has? k) (self :has? k)
+      ('lookup k) (self :lookup k)
+      (:set! k v)
+        (dict:set! (closure "globals") k v))))
 
 (def global-env (make-global-env globals))
 
 ; Defines a lexical subenvironment
 (defun (make-subenv parent)
   (let (bindings (dict))
-    (dfun
-      ('eval_ code)
-        (parent 'eval_ code)
-      ('lookup k)
+    (dfun :as self
+      (:eval_ code)
+        (parent :eval_ code)
+      (:lookup k)
         (if (dict:has? bindings k)
           (dict:get bindings k)
-          (parent 'lookup k))
-      ('has? k)
-        (or (dict:has? bindings k) (parent 'has? k))
-      ('set! k v)
+          (parent :lookup k))
+      (:has? k)
+        (or (dict:has? bindings k) (parent :has? k))
+      ; TODO remove these two
+      ('has? k) (self :has? k)
+      ('lookup k) (self :lookup k)
+      (:set! k v)
         (dict:set! bindings k v))))
 
 (defun (macro? x)
@@ -317,13 +323,13 @@
       (f s)))
 
 (defun (inner-add-macro! name f)
-  (global-env 'set! name f)
+  (global-env :set! name f)
   (set! (prop f "macro") @true)
   (set! (prop f "macro-type") "form")
   @null)
 
 (defun (inner-add-symbol-macro! name f)
-  (global-env 'set! name f)
+  (global-env :set! name f)
   (set! (prop f "macro") @true)
   (set! (prop f "macro-type") "symbol")
   @null)
@@ -359,16 +365,16 @@
       (error (++ "Unknown expression to macro expand " (repr s)))))
 
 (defun (macro-expand-symbol s env)
-  (if (and (env 'has? s)
-           (symbol-macro? (env 'lookup s)))
-        ((env 'lookup s) s env)
+  (if (and (env :has? s)
+           (symbol-macro? (env :lookup s)))
+        ((env :lookup s) s env)
       otherwise
         (NoExpand s)))
 
 (defun (macro-expand-form s env)
-  (if (and (env 'has? (head s))
-           (form-macro? (env 'lookup (head s))))
-        (call-macro (env 'lookup (head s)) s env)
+  (if (and (env :has? (head s))
+           (form-macro? (env :lookup (head s))))
+        (call-macro (env :lookup (head s)) s env)
       otherwise
         (NoExpand (map (fun (e) (macro-expand e env)) s))))
 
@@ -527,7 +533,7 @@
                     (macro-expand (nth s 1) env)
                     (nth s 2)
                     (let (env2 (make-subenv env))
-                      (env2 'set! (nth s 2) @null)
+                      (env2 :set! (nth s 2) @null)
                       (macro-expand (nth s 3) env2))
                     (if (null? (nth s 4))
                         @null
@@ -543,7 +549,7 @@
         otherwise
           (let (env2 (make-subenv env))
             (for_ k in (nth s 2)
-              (env2 'set! k @null))
+              (env2 :set! k @null))
             (NoExpand (list 'js:function (nth s 1) (nth s 2)
                             (macro-expand (nth s 3) env2)))))))
 
@@ -625,20 +631,17 @@
 
 (defun (make-js-env parent # bindings)
   (let (d (apply dict bindings))
-    (fun (msg # args)
-      (apply
-       (switch msg
-         'lookup (fun (k)
-                   (if (dict:has? d k)  (dict:get d k)
-                       (null? parent)   (error (++ "Environment key error: " (repr k)))
-                       otherwise        (parent 'lookup k)))
-         'has? (fun (k)
-                 (if (dict:has? d k) @true
-                     (null? parent)   @false
-                     (parent 'has? k)))
-         'set! (fun (k v) (dict:set! d k v))
-         (error (++ "No such message: " msg)))
-       args))))
+    (dfun
+      (:lookup k)
+        (if (dict:has? d k)  (dict:get d k)
+            (null? parent)   (error (++ "Environment key error: " (repr k)))
+            otherwise        (parent :lookup k))
+      (:has? k)
+        (if (dict:has? d k) @true
+            (null? parent)   @false
+            (parent :has? k))
+      (:set! k v)
+        (dict:set! d k v))))
 
 
 (defun (compile-to-midir-toplevel exp env igen)
@@ -657,8 +660,8 @@
 
 (defun (compile-to-midir exp env igen)
   (if (self-evaluating? exp)  (MidirExpr (midir:lit exp))
-      (symbol? exp)           (if (env 'has? exp)
-                                  (MidirExpr (midir:lookup (env 'lookup exp)))
+      (symbol? exp)           (if (env :has? exp)
+                                  (MidirExpr (midir:lookup (env :lookup exp)))
                                   (MidirExpr (midir:prop (midir:lookup "globals")
                                                          (midir:lit (symbol->string exp)))))
       (cons? exp)
@@ -669,15 +672,15 @@
   (defun (comp e) (compile-to-midir e env igen))
   (switch (head exp)
     'quote      (MidirExpr (midir:lit (nth exp 1)))
-    'js:def     (let (var  (igen 'get (nth exp 1)))
-                  (env 'set! (nth exp 1) var)
+    'js:def     (let (var  (igen :get (nth exp 1)))
+                  (env :set! (nth exp 1) var)
                   (let (expr (comp (nth exp 2)))
                     (midir-splice expr
                       (fun (e) (MidirStatement (midir:def var e) (midir:nop))))))
     'js:if      (let (cexpr (comp (nth exp 1))
                       bcons (comp (nth exp 2))
                       balt  (comp (nth exp 3))
-                      outvar (igen 'new "if"))
+                      outvar (igen :new "if"))
                   (midir-splice cexpr
                     (fun (ce)
                       (MidirStatement
@@ -693,7 +696,7 @@
     'js:while   (let (cexpr (comp (head (tail exp)))
                       cexpr-inside (comp (head (tail exp)))
                       body  (comp (head (tail (tail exp))))
-                      outvar (igen 'new "while"))
+                      outvar (igen :new "while"))
                   (midir-splice cexpr
                     (fun (ce)
                       (MidirStatement
@@ -744,10 +747,10 @@
                      (fun (el)
                        (MidirStatement (midir:throw el) (midir:nop)))))
     'js:try      (let (texp (nth exp 1)
-                       cv   (igen 'get (nth exp 2))
+                       cv   (igen :get (nth exp 2))
                        cexp (nth exp 3)
                        fexp (nth exp 4)
-                       outvar (igen 'new "try"))
+                       outvar (igen :new "try"))
                    (let (env2 (make-js-env env (nth exp 2) cv))
                      (MidirStatement
                        (midir:seq
@@ -765,14 +768,14 @@
                                  (midir-close (comp fexp))))))
                        (midir:lookup outvar))))
     'js:function (let* (name (nth exp 1)
-                        args (map (fun (a) (igen 'get a)) (nth exp 2))
+                        args (map (fun (a) (igen :get a)) (nth exp 2))
                         argse (if (null? name) (nth exp 2) (cons name (nth exp 2)))
                         body (nth exp 3)
-                        env2 (apply make-js-env (cons env (map-append (fun (v) (list v (igen 'get v)))
+                        env2 (apply make-js-env (cons env (map-append (fun (v) (list v (igen :get v)))
                                                                       argse))))
                    
                    (MidirExpr
-                     (midir:function (if (null? name) @null (igen 'get name)) args
+                     (midir:function (if (null? name) @null (igen :get name)) args
                        (midir-close
                          (midir-splice
                            (compile-to-midir body env2 igen)
@@ -782,7 +785,7 @@
     (midir-splice (comp (head exp))
       (fun (f)
         (let (ul (midir-unlist (map comp (tail exp)))
-              outvar (igen 'new "funcall"))
+              outvar (igen :new "funcall"))
           (MidirStatement
             (midir:seq
               (list (midir:seq (head ul))
@@ -890,20 +893,17 @@
 (defun (make-js-ident-gen)
   (let (ids (dict)
         nextnum 0)
-    (fun (msg # args)
-      (apply
-        (switch msg
-          'get (fun (symb)
-                 (if (dict:has? ids symb)
-                     (dict:get ids symb)
-                     (let (id (++ (clean-js-identifier (symbol->string symb)) "_" nextnum))
-                       (set! nextnum (+ 1 nextnum))
-                       (dict:set! ids symb id)
-                       id)))
-          'new (fun (prefix)
-                 (do1 (++ prefix "_" nextnum)
-                      (set! nextnum (+ 1 nextnum)))))
-        args))))
+    (dfun
+      (:get symb)
+        (if (dict:has? ids symb)
+          (dict:get ids symb)
+          (let (id (++ (clean-js-identifier (symbol->string symb)) "_" nextnum))
+            (set! nextnum (+ 1 nextnum))
+            (dict:set! ids symb id)
+            id))
+      (:new prefix)
+        (do1 (++ prefix "_" nextnum)
+             (set! nextnum (+ 1 nextnum))))))
 
 
 ;;; Compilation
@@ -916,7 +916,7 @@
          midir (midir-close (compile-to-midir-toplevel s2 (make-js-env @null) (make-js-ident-gen)))
          js (midir-statement-to-js midir))
     (print js)
-    (env 'eval js)))
+    (env :eval js)))
 
 (defun (compile-stream s)
   (let (res @null)
@@ -927,7 +927,7 @@
 (defun (compile-file fn)
   (let (s (stream:make fn (load-file fn)))
     (compile-stream s)))
-(global-env 'set! 'compile-file compile-file)
+(global-env :set! 'compile-file compile-file)
 
 (defun (compile-string str)
   (let (s (stream:make "<input>" str))
@@ -936,10 +936,10 @@
 
 (defun (write-code output-file global-env)
   (def code (++ "module.exports = (function () {\nvar globals={};\n\n"
-                (global-env 'code)
+                (global-env :code)
                 "return globals;"
                 "\n})();\n"))
-  (when (global-env 'has? "main")
+  (when (global-env :has? "main")
     (set! code (++ code "if (process && !module.parent) module.exports.main(module.exports.list.apply(undefined, process.argv.slice(2)));\n")))
   (write-file output-file code))
 
