@@ -14,40 +14,42 @@
   (function () {
     // in anonymous function so 'this' points to global context
 
-    if (this.Cons === undefined) {
-      function Cons(a, b) {
-        this.head = a;
-        this.tail = b;
+    function Cons(a, b) {
+      this.head = a;
+      this.tail = b;
+    }
+    function Nil() { }
+
+    function Symbol(s, gensym) {
+      this.s = s;
+      this.gensym = gensym || false;
+    }
+    Symbol.prototype.toString = function toString() {
+      return this.s;
+    };
+    Symbol.symbols = {};
+    Symbol.nextGensym = 1;
+    Symbol.create = function create(s, gensym) {
+      // TODO figure out how to compile interned symbols.
+      if (!gensym) {
+        if (globals['js:hasOwnProperty'](this.symbols, s)) {
+          return this.symbols[s];
+        } else {
+          this.nextGensym++;
+          return this.symbols[s] = new Symbol(s);
+        }
+      } else {
+        var id = this.nextGensym++;
+        return new Symbol('#' + s + '_' + id, true);
       }
-      function Nil() { }
+    };
+
+    if (this.Cons === undefined) {
       this.Cons = Cons;
       this.Nil = Nil;
     }
 
     if (this.Symbol === undefined) {
-      function Symbol(s, gensym) {
-        this.s = s;
-        this.gensym = gensym || false;
-      }
-      Symbol.prototype.toString = function toString() {
-        return this.s;
-      };
-      Symbol.symbols = {};
-      Symbol.nextGensym = 1;
-      Symbol.create = function create(s, gensym) {
-        // TODO figure out how to compile interned symbols.
-        if (!gensym) {
-          if (globals['js:hasOwnProperty'](this.symbols, s)) {
-            return this.symbols[s];
-          } else {
-            this.nextGensym++;
-            return this.symbols[s] = new Symbol(s);
-          }
-        } else {
-          var id = this.nextGensym++;
-          return new Symbol('#' + s + '_' + id, true);
-        }
-      };
       this.Symbol = Symbol;
     }
   })();
