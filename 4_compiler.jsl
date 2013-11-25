@@ -905,11 +905,17 @@
 (defun (eval s)
   (eval-in-env s global-env))
 
+(def eval-print-macro-expand @false)
+(def eval-print-midir @false)
+(def eval-print-js @false)
+
 (defun (eval-in-env s env)
   (let* (s2 (macro-expand s env)
          midir (midir-close (compile-to-midir-toplevel s2 (make-js-env @null) (make-js-ident-gen)))
          js (midir-statement-to-js midir))
-    (print js)
+    (when eval-print-macro-expand (println s2))
+    (when eval-print-midir (println midir))
+    (when eval-print-js (println js))
     (env :eval js)))
 
 (defun (compile-stream s)
@@ -949,49 +955,51 @@
 
 (defun (run-repl)
   (let* (readline (js:js "require('readline')")
-         rl ((js:prop readline "createInterface")
-             (dict 'input (js:js "process.stdin")
-                   'output (js:js "process.stdout")))
+         rl ((js:method readline "createInterface")
+              {'input  (js:js "process.stdin")
+               'output (js:js "process.stdout")})
          shouldQuit @false)
-    ((js:prop rl "setPrompt") "> ")
-    ((js:prop rl "prompt"))
-    (def handleLine (js:js "function handleLine(line) {
-      try {
-        var r = globals['repl-run-code'](line);
-        if (r !== null) {
-          globals['println'](r);
-        }
-      } catch (x) {
-        console.log(x.stack);
-      }
-    }"))
 
-    ((js:prop rl "on") "line"
+    ; these use js:prop because this gets the 'this' pointer to work out...
+    ; TODO should fix!
+    ((js:method rl "setPrompt") "> ")
+    ((js:method rl "prompt"))
+
+    (defun (handleLine line)
+      (try (let (r (repl-run-code line))
+             (unless (null? r)
+               (println r)))
+        :catch x
+          ((js:js "console.log") (prop x "stack"))))
+
+    ((js:method rl "on") "line"
      (fun (line)
        (set! shouldQuit @false)
        (handleLine line)
-       ((js:prop rl "prompt"))))
-    ((js:prop rl "on") "close"
+       ((js:method rl "prompt"))))
+    ((js:method rl "on") "close"
      (fun () (println "Goodbye!")))
-    ((js:prop rl "on") "SIGINT"
+    ((js:method rl "on") "SIGINT"
      (fun ()
        (if shouldQuit
          (do (println "Goodbye!")
              (js:code "process.exit(0);"))
          (do (set! shouldQuit @true)
              (println "Press C-c again to quit.")
-             ((js:prop rl "prompt"))))))))
+             ((js:method rl "prompt"))))))))
 
 (defun (main args)
   (def input-files '())
   (def output-file @null)
-  (def run-repl? (nil? args))
+  (def run-repl? @false)
   (defun (option-parser args)
     (when (not (nil? args))
       (switch (head args)
         "-o"  (do (set! args (tail args))
                   (set! output-file (head args)))
         "-r"  (set! run-repl? @true)
+        "-pj" (set! eval-print-js @true)
+        "-pm" (set! eval-print-macro-expand @true)
         (do (set! input-files (cons (head args) input-files))))
       (option-parser (tail args))))
   (option-parser args)
@@ -999,7 +1007,9 @@
     (print "Compiling " fn "\n")
     (compile-file fn))
   (unless (null? output-file)
+    (when (nil? input-files)
+      (error "Does not make sense to output file without input."))
     (write-code output-file global-env)
     (print "Output code to " output-file "\n"))
-  (when run-repl?
+  (when (or (nil? input-files) run-repl?)
     (run-repl)))
