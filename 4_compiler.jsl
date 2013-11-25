@@ -160,7 +160,7 @@
   (fun (stream chars)
     (defun (consify lst)
       (if (nil? lst)  ''()
-          (cons? lst) (list 'cons (head lst) (consify (tail lst)))
+          (cons? lst) `(cons ,(head lst) ,(consify (tail lst)))
           otherwise   lst))
     (consify (read:sexp-tail "[" "]" stream))))
 (set-reader-macro! "]"
@@ -587,14 +587,13 @@
         (MidirExpr expr2)
           (MidirStatement statement1 expr2)
         (MidirStatement statement2 expr2)
-          (MidirStatement (midir:seq (list statement1 statement2)) expr2))))
+          (MidirStatement (midir:seq [statement1 statement2]) expr2))))
 (defun (midir-join m1 m2)
   (destruct m2
     (MidirExpr expr2)
       (MidirStatement (midir-close m1) expr2)
     (MidirStatement statement2 expr2)
-      (MidirStatement (midir:seq (list (midir-close m1)
-                                       statement2))
+      (MidirStatement (midir:seq [(midir-close m1) statement2])
                       expr2)))
 (defun (midir-close m)
   (destruct m
@@ -608,18 +607,18 @@
         (midir:nop)
           stat
         otherwise
-          (midir:seq (list stat (midir:expr expr))))))
+          (midir:seq [stat (midir:expr expr)]))))
 (defun (midir-unlist ms)
   (defun (-unlist m)
     (destruct m
       (MidirExpr expr)
-        (list '() expr)
+        [[] expr]
       (MidirStatement stat expr)
-        (list (list stat) expr)))
+        [[stat] expr]))
   (let (ul (apply zip (map -unlist ms)))
     (if (nil? ul)
-      (list '() '())
-      (list (apply append (head ul)) (head (tail ul))))))
+      [[] []]
+      [(apply append (head ul)) (head (tail ul))])))
 (defun (midir-set v expr)
   (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:nop)))
 
@@ -679,13 +678,12 @@
                     (fun (ce)
                       (MidirStatement
                         (midir:seq
-                          (list
-                            (midir:def outvar (midir:nop))
-                            (midir:if ce
-                                      (midir-close (midir-splice bcons
-                                                     (fun (be) (midir-set outvar be))))
-                                      (midir-close (midir-splice balt
-                                                     (fun (ae) (midir-set outvar ae)))))))
+                          [(midir:def outvar (midir:nop))
+                           (midir:if ce
+                             (midir-close (midir-splice bcons
+                                            (fun (be) (midir-set outvar be))))
+                             (midir-close (midir-splice balt
+                                            (fun (ae) (midir-set outvar ae)))))])
                         (midir:lookup outvar)))))
     'js:while   (let (cexpr (comp (head (tail exp)))
                       cexpr-inside (comp (head (tail exp)))
@@ -765,7 +763,7 @@
                         args (map (fun (a) (igen :get a)) (nth exp 2))
                         argse (if (null? name) (nth exp 2) (cons name (nth exp 2)))
                         body (nth exp 3)
-                        env2 (apply make-js-env (cons env (map-append (fun (v) (list v (igen :get v)))
+                        env2 (apply make-js-env (cons env (map-append (fun (v) [v (igen :get v)])
                                                                       argse))))
                    
                    (MidirExpr
@@ -782,8 +780,8 @@
               outvar (igen :new "funcall"))
           (MidirStatement
             (midir:seq
-              (list (midir:seq (head ul))
-                    (midir:def outvar (midir:funcall f (head (tail ul))))))
+              [(midir:seq (head ul))
+               (midir:def outvar (midir:funcall f (head (tail ul))))])
             (midir:lookup outvar)))))))
                 
 
@@ -945,11 +943,11 @@
 
 (defun (write-file filename content)
   (let (fs (js:js "require('fs')"))
-    ((js:prop fs "writeFileSync") filename content (dict 'encoding "utf8"))
+    ((js:method fs "writeFileSync") filename content {'encoding "utf8"})
     @null))
 (defun (load-file filename)
   (let (fs (js:js "require('fs')"))
-    ((js:prop fs "readFileSync") filename (dict 'encoding "utf8"))))
+    ((js:method fs "readFileSync") filename {'encoding "utf8"})))
 
 (def repl-run-code compile-string)
 
@@ -960,8 +958,6 @@
                'output (js:js "process.stdout")})
          shouldQuit @false)
 
-    ; these use js:prop because this gets the 'this' pointer to work out...
-    ; TODO should fix!
     ((js:method rl "setPrompt") "> ")
     ((js:method rl "prompt"))
 
