@@ -61,7 +61,7 @@
 ; false (if it doesn't)
 (defun (stream:maybe-read s char)
   (and (= char (s 'peek))
-       (do (s 'read) true)))
+       (do (s 'read) @true)))
 (defun (stream:expect-read s char)
   (or (stream:maybe-read s char)
       (stream:error-expecting s char)))
@@ -95,7 +95,7 @@
         (self '_read stream "")
       ('_read stream readChars)
         (let* (c (stream 'peek)
-               st (dict:get table c null))
+               st (dict:get table c @null))
           (if (null? st)
             (defaultHandler stream readChars)
             (st '_read stream (++ readChars (stream 'read)))))
@@ -105,7 +105,7 @@
         (if (= 0 (s:length chars))
               (self 'set-default-handler! f)
             otherwise
-              (let (st (dict:get table (s:charAt chars 0) null))
+              (let (st (dict:get table (s:charAt chars 0) @null))
                 (when (null? st)
                   (set! st (make-reader-table))
                   (dict:set! table (s:charAt chars 0) st))
@@ -120,7 +120,7 @@
 (defun (set-reader-macro! chars handler)
   (global-reader-table 'add-handler! handler chars)
   (set! reader-non-symbol-chars (++ (global-reader-table 'get-bound-chars) reader-whitespace-chars))
-  null)
+  @null)
 
 
 
@@ -215,9 +215,9 @@
   (fun (stream chars)
     (let (t (read:token stream))
       (switch t
-        "true" true
-        "false" false
-        "null" null
+        "true" @true
+        "false" @false
+        "null" @null
         (stream:error stream (++ "Unexpected literal " t))))))
 
 (set-reader-macro! "'"
@@ -295,12 +295,11 @@
         (dict:set! bindings k v))))
 
 (defun (macro? x)
-  (and (function? x) (= (js:prop x "macro") true)))
+  (and (function? x) (= (js:prop x "macro") @true)))
 (defun (macro-type x)
   (js:prop x "macro-type"))
 (defun (form-macro? x)
-  (and (macro? x)
-       (or (not (macro-type x)) (= "form" (macro-type x)))))
+  (and (macro? x) (= "form" (macro-type x))))
 (defun (symbol-macro? x)
   (and (macro? x) (= "symbol" (macro-type x))))
 
@@ -312,19 +311,19 @@
 
 (defun (inner-add-macro! name f)
   (global-env 'set! name f)
-  (set-prop! f "macro" true)
-  (set-prop! f "macro-type" "form")
-  null)
+  (set! (prop f "macro") @true)
+  (set! (prop f "macro-type") "form")
+  @null)
 
 (defun (inner-add-symbol-macro! name f)
   (global-env 'set! name f)
-  (set-prop! f "macro" true)
-  (set-prop! f "macro-type" "symbol")
-  null)
+  (set! (prop f "macro") @true)
+  (set! (prop f "macro-type") "symbol")
+  @null)
 
 (defmac (defmac-inner v # body)
-  (list 'inner-add-macro! (list 'quote (head v))
-        (cons 'fun (cons (tail v) body))))
+  `(inner-add-macro! ',(head v)
+     (fun ,(tail v) ,#body)))
 
 ; Marks that the macro expansion is complete. This is for low-level
 ; macros to signal that they haven't expanded into something
@@ -382,63 +381,91 @@
   (fun (s env)
     (eval-in-env (nth s 1) env)))
 
-; stolen from http://3e8.org/pub/scheme/doc/Quasiquotation%20in%20Lisp%20(Bawden).pdf
-; TODO make output better code
+; initially stolen from http://3e8.org/pub/scheme/doc/Quasiquotation%20in%20Lisp%20(Bawden).pdf
+
+(defun (quasi-append # things)
+  (defun (is-empty? s)
+    (or (and (cons? s) (= 'quote (head s)) (nil? (head (tail s))))
+        (and (cons? s) (= 'list (head s)) (nil? (tail s)))))
+  (if (nil? things)
+        ''()
+      (= 1 (length things))
+        (head things)
+      (is-empty? (head things))
+        (apply quasi-append (tail things))
+      (is-empty? (nth things 1))
+        (apply quasi-append (cons (head things) (tail (tail things))))
+      (and (cons? (head things)) (= 'cons (head (head things))))
+        (quasi-cons (nth (head things) 1)
+                    (apply quasi-append (cons (nth (head things) 2) (tail things))))
+      (and (cons? (head things)) (= 'list (head (head things))))
+        (quasi-cons (nth (head things) 1)
+                    (apply quasi-append (cons `(list ,#(tail (tail (head things))))
+                                              (tail things))))
+      otherwise
+        `(append2 ,(head things) ,(apply quasi-append (tail things)))))
+    
+
+(defun (quasi-cons x xs)
+  (if (and (cons? xs) (= 'list (head xs)))
+    `(list ,x ,#(tail xs))
+    `(cons ,x ,xs)))
+(defun (quasi-list # things)
+  `(list ,#things))
+
 (defun (quasiquote-expand s depth)
   (if (cons? s)
         (switch (head s)
           'quasiquote
-            (list 'cons ''quasiquote
-                  (quasiquote-expand (tail s) (+ depth 1)))
+            (quasi-cons 'quasiquote
+                        (quasiquote-expand (tail s) (+ depth 1)))
           'unquote
             (if (> depth 0)
-                  (list 'cons ''unquote
-                        (quasiquote-expand (tail s) (- depth 1)))
+                  (quasi-cons 'unquote
+                              (quasiquote-expand (tail s) (- depth 1)))
                 (and (not (nil? (tail s)))
                      (nil? (tail (tail s))))
                   (nth s 1)
                 otherwise
-                  (list 'quote s))
-                  ;(error (++ "Illegal quasiquotation " (repr s))))
+                  `',s)
           'unquote-splicing
             (if (> depth 0)
-                  (list 'cons ''unquote-splicing
-                        (quasiquote-expand (tail s) (- depth 1)))
+                  (quasi-cons 'unquote-splicing
+                              (quasiquote-expand (tail s) (- depth 1)))
                 otherwise
-                  (list 'quote s))
-                  ;(error (++ "Illegal quasiquotation " (repr s))))
+                  `',s)
           ; otherwise
-            (list 'append (quasiquote-expand-list (head s) depth)
+            (quasi-append (quasiquote-expand-list (head s) depth)
                           (quasiquote-expand (tail s) depth)))
       otherwise
-        (list 'quote s)))
+        `',s))
 
 (defun (quasiquote-expand-list s depth)
   (if (cons? s)
         (switch (head s)
           'quasiquote
-            (list 'list (list 'cons ''quasiquote
-                              (quasiquote-expand (tail s) (+ depth 1))))
+            (quasi-list (quasi-cons 'quasiquote
+                                    (quasiquote-expand (tail s) (+ depth 1))))
           'unquote
             (if (> depth 0)
-                  (list 'list (list 'cons ''unquote
-                                    (quasiquote-expand (tail s) (- depth 1))))
+                  (quasi-list (quasi-cons 'unquote
+                                          (quasiquote-expand (tail s) (- depth 1))))
                 otherwise
-                  (cons 'list (tail s)))
+                  (apply quasi-list (tail s)))
           'unquote-splicing
             (if (> depth 0)
-                  (list 'list (list 'cons ''unquote-splicing
-                                    (quasiquote-expand (tail s) (- depth 1))))
+                  (quasi-list (quasi-cons 'unquote-splicing
+                                          (quasiquote-expand (tail s) (- depth 1))))
                 otherwise
-                  (cons 'append (tail s)))
+                  (apply quasi-append (tail s)))
           ; otherwise
-            (list 'list (list 'append
-                              (quasiquote-expand-list (head s) depth)
-                              (quasiquote-expand (tail s) depth))))
+            (quasi-list (quasi-append (quasiquote-expand-list (head s) depth)
+                                      (quasiquote-expand (tail s) depth))))
       otherwise
-        (list 'quote (list s))))
+        `(list ',s)))
 
-;; Javascript froms
+
+;; Javascript forms
 (inner-add-macro! 'js:def
   (fun (s env)
     (NoExpand (list 'js:def (nth s 1) (macro-expand (nth s 2) env)))))
@@ -486,10 +513,10 @@
                     (macro-expand (nth s 1) env)
                     (nth s 2)
                     (let (env2 (make-subenv env))
-                      (env2 'set! (nth s 2) null)
+                      (env2 'set! (nth s 2) @null)
                       (macro-expand (nth s 3) env2))
                     (if (null? (nth s 4))
-                        null
+                        @null
                         (macro-expand (nth s 4) env))))))
 (inner-add-macro! 'js:throw
   (fun (s env)
@@ -498,11 +525,11 @@
 (inner-add-macro! 'js:function
   (fun (s env)
     (if (cons? (nth s 1))
-          (list 'js:function null (nth s 1) (nth s 2))
+          (list 'js:function @null (nth s 1) (nth s 2))
         otherwise
           (let (env2 (make-subenv env))
             (for_ k in (nth s 2)
-              (env2 'set! k null))
+              (env2 'set! k @null))
             (NoExpand (list 'js:function (nth s 1) (nth s 2)
                             (macro-expand (nth s 3) env2)))))))
 
@@ -564,7 +591,7 @@
       (list '() '())
       (list (apply append (head ul)) (head (tail ul))))))
 (defun (midir-set v expr)
-  (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:lit null)))
+  (MidirStatement (midir:expr (midir:binop "=" (midir:lookup v) expr)) (midir:lit @null)))
 
 (defun (make-js-env parent # bindings)
   (let (d (apply dict bindings))
@@ -576,8 +603,8 @@
                        (null? parent)   (error (++ "Environment key error: " (repr k)))
                        otherwise        (parent 'lookup k)))
          'has? (fun (k)
-                 (if (dict:has? d k) true
-                     (null? parent)   false
+                 (if (dict:has? d k) @true
+                     (null? parent)   @false
                      (parent 'has? k)))
          'set! (fun (k v) (dict:set! d k v))
          (error (++ "No such message: " msg)))
@@ -589,12 +616,12 @@
       (switch (head exp)
         'js:def (compile-to-midir
                   (list 'js:seq (list (list 'js:binop "=" (nth exp 1) (nth exp 2))
-                                      null))
+                                      @null))
                   env igen)
         'js:seq (MidirStatement (midir:seq (map (fun (e)
                                                   (midir-close (compile-to-midir-toplevel e env igen)))
                                            (nth exp 1)))
-                                (midir:lit null))
+                                (midir:lit @null))
         (compile-to-midir exp env igen))
       (compile-to-midir exp env igen)))
 
@@ -616,7 +643,7 @@
                   (env 'set! (nth exp 1) var)
                   (let (expr (comp (nth exp 2)))
                     (midir-splice expr
-                      (fun (e) (MidirStatement (midir:def var e) (midir:lit null))))))
+                      (fun (e) (MidirStatement (midir:def var e) (midir:lit @null))))))
     'js:if      (let (cexpr (comp (nth exp 1))
                       bcons (comp (nth exp 2))
                       balt  (comp (nth exp 3))
@@ -626,7 +653,7 @@
                       (MidirStatement
                         (midir:seq
                           (list
-                            (midir:def outvar (midir:lit null))
+                            (midir:def outvar (midir:lit @null))
                             (midir:if ce
                                       (midir-close (midir-splice bcons
                                                      (fun (be) (midir-set outvar be))))
@@ -651,23 +678,23 @@
                                                        (MidirExpr
                                                          (midir:binop "=" (midir:lookup outvar)
                                                                       ce))))))))))
-                        (midir:lit null)))))
+                        (midir:lit @null)))))
     'js:return  (let (expr (comp (head (tail exp))))
                   (midir-splice expr
                     (fun (e)
-                      (MidirStatement (midir:return e) (midir:lit null)))))
-    'js:break  (MidirStatement (midir:break) (midir:lit null))
-    'js:break  (MidirStatement (midir:continue) (midir:lit null))
+                      (MidirStatement (midir:return e) (midir:lit @null)))))
+    'js:break  (MidirStatement (midir:break) (midir:lit @null))
+    'js:break  (MidirStatement (midir:continue) (midir:lit @null))
     'js:seq    (if (nil? (tail exp))
-                   (MidirExpr (midir:lit null))
+                   (MidirExpr (midir:lit @null))
                    (let (exprs (map (. midir-close comp) (init (nth exp 1)))
                          exprsl (comp (last (nth exp 1))))
                      (midir-splice
-                       (MidirStatement (midir:seq exprs) (midir:lit null))
+                       (MidirStatement (midir:seq exprs) (midir:lit @null))
                        (const exprsl))))
 
     'js:js     (MidirExpr (midir:js (head (tail exp))))
-    'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:lit null))
+    'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:lit @null))
     'js:binop  (let (expl (comp (head (tail (tail exp))))
                      expr (comp (head (tail (tail (tail exp))))))
                  (midir-splice expl
@@ -689,7 +716,7 @@
     'js:throw    (let (expr (nth exp 1))
                    (midir-splice (comp expr)
                      (fun (el)
-                       (MidirStatement (midir:throw el) (midir:lit null)))))
+                       (MidirStatement (midir:throw el) (midir:lit @null)))))
     'js:try      (let (texp (nth exp 1)
                        cv   (igen 'get (nth exp 2))
                        cexp (nth exp 3)
@@ -699,7 +726,7 @@
                      (MidirStatement
                        (midir:seq
                          (list
-                           (midir:def outvar (midir:lit null))
+                           (midir:def outvar (midir:lit @null))
                            (midir:try
                              (midir-close (midir-splice (comp texp)
                                             (fun (te) (midir-set outvar te))))
@@ -708,7 +735,7 @@
                                             (compile-to-midir cexp env2 igen)
                                             (fun (ce) (midir-set outvar ce))))
                              (if (null? fexp)
-                                 null
+                                 @null
                                  (midir-close (comp fexp))))))
                        (midir:lookup outvar))))
     'js:function (let* (name (nth exp 1)
@@ -719,12 +746,12 @@
                                                                       argse))))
                    
                    (MidirExpr
-                     (midir:function (if (null? name) null (igen 'get name)) args
+                     (midir:function (if (null? name) @null (igen 'get name)) args
                        (midir-close
                          (midir-splice
                            (compile-to-midir body env2 igen)
                            (fun (e) (MidirStatement (midir:return e)
-                                                    (midir:lit null))))))))
+                                                    (midir:lit @null))))))))
     
     (midir-splice (comp (head exp))
       (fun (f)
@@ -858,13 +885,13 @@
 
 (defun (eval-in-env s env)
   (let* (s2 (macro-expand s env)
-         midir (midir-close (compile-to-midir-toplevel s2 (make-js-env null) (make-js-ident-gen)))
+         midir (midir-close (compile-to-midir-toplevel s2 (make-js-env @null) (make-js-ident-gen)))
          js (midir-statement-to-js midir))
     (print js)
     (env 'eval js)))
 
 (defun (compile-stream s)
-  (let (res null)
+  (let (res @null)
     (while (read:has-another? s)
       (set! res (eval-in-env (read s) global-env)))
     res))
@@ -891,7 +918,7 @@
 (defun (write-file filename content)
   (let (fs (js:js "require('fs')"))
     ((js:prop fs "writeFileSync") filename content (dict 'encoding "utf8"))
-    null))
+    @null))
 (defun (load-file filename)
   (let (fs (js:js "require('fs')"))
     ((js:prop fs "readFileSync") filename (dict 'encoding "utf8"))))
@@ -903,7 +930,7 @@
          rl ((js:prop readline "createInterface")
              (dict 'input (js:js "process.stdin")
                    'output (js:js "process.stdout")))
-         shouldQuit false)
+         shouldQuit @false)
     ((js:prop rl "setPrompt") "> ")
     ((js:prop rl "prompt"))
     (def handleLine (js:js "function handleLine(line) {
@@ -919,7 +946,7 @@
 
     ((js:prop rl "on") "line"
      (fun (line)
-       (set! shouldQuit false)
+       (set! shouldQuit @false)
        (handleLine line)
        ((js:prop rl "prompt"))))
     ((js:prop rl "on") "close"
@@ -929,20 +956,20 @@
        (if shouldQuit
          (do (println "Goodbye!")
              (js:code "process.exit(0);"))
-         (do (set! shouldQuit true)
+         (do (set! shouldQuit @true)
              (println "Press C-c again to quit.")
              ((js:prop rl "prompt"))))))))
 
 (defun (main args)
   (def input-files '())
-  (def output-file null)
+  (def output-file @null)
   (def run-repl? (nil? args))
   (defun (option-parser args)
     (when (not (nil? args))
       (switch (head args)
         "-o"  (do (set! args (tail args))
                   (set! output-file (head args)))
-        "-r"  (set! run-repl? true)
+        "-r"  (set! run-repl? @true)
         (do (set! input-files (cons (head args) input-files))))
       (option-parser (tail args))))
   (option-parser args)
