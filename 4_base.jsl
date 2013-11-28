@@ -342,6 +342,9 @@
 (defun (set-prop! x p v)
   (js:binop "=" (js:prop x p) v))
 
+(defun (js:call x m # args)
+  ((js:prop (js:prop x m) "apply") x (make-array args)))
+
 (defun (js:method x m)
   (let (f (prop x m))
     (fun args
@@ -527,7 +530,7 @@
 (defmac (pset! # pairs)
   (let (temps (a:map (fun (k v) (gensym k)) pairs))
     `(let ,(apply append (zip temps (a:values pairs)))
-       (set! ,#(apply append (zip (a:keys pairs))) temps)
+       (set! ,#(apply append (zip (a:keys pairs) temps)))
        @null)))
 
 (defmac (inc! s # mdelta)
@@ -744,7 +747,7 @@
 }"))
 
 (defun (print # xs)
-  (for x in xs
+  (for_ x in xs
     (if (string? x)
         (js:print x)
         (js:print (repr x)))))
@@ -777,18 +780,20 @@
     (if (nil? (tail xs))   (++ (repr (head xs)) ")")
         (cons? (tail xs))  (++ (repr (head xs)) " " (repr-tail (tail xs)))
         otherwise          (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
-  (if (nil? x)    "()"
-      (cons? x)   (if (cons? (tail x))
-                    (switch (head x)
-                      'quote            (++ "'" (repr (head (tail x))))
-                      'quasiquote       (++ "`" (repr (head (tail x))))
-                      'unquote          (++ "," (repr (head (tail x))))
-                      'unquote-splicing (++ ",#" (repr (head (tail x))))
-                      (++ "(" (repr-tail x)))
-                    (++ "(" (repr-tail x)))
-      (symbol? x) (symbol->string x)
-      (string? x) (js-escape-string x)
-      otherwise   (js:toString x)))
+  (if (nil? x)     "()"
+      (cons? x)    (if (cons? (tail x))
+                     (switch (head x)
+                       'quote            (++ "'" (repr (head (tail x))))
+                       'quasiquote       (++ "`" (repr (head (tail x))))
+                       'unquote          (++ "," (repr (head (tail x))))
+                       'unquote-splicing (++ ",#" (repr (head (tail x))))
+                       (++ "(" (repr-tail x)))
+                     (++ "(" (repr-tail x)))
+      (symbol? x)  (symbol->string x)
+      (string? x)  (js-escape-string x)
+      (null? x)    "@null"
+      (boolean? x) (++ "@" (if x "true" "false"))
+      otherwise    (js:toString x)))
 
 
 ;;; Pseudo-ADTs
@@ -869,3 +874,89 @@
          has-finally (and (cons? rest2) (= :finally (head rest2)))
          finally (if has-finally (head (tail rest2)) @null))
   `(js:try ,totry ,catchvar ,catch ,finally)))
+
+; macrolet
+
+(add-macro! 'macrolet
+  (fun (s env)
+    (let (bindings (nth s 1)
+          body (tail (tail s))
+          subenv (env :make-subenv))
+      (a:map (fun (k v)
+               (let (f (eval-in-env v env))
+                 (set! (macro-type f) "form")
+                 (subenv :set! k f)))
+             bindings)
+      (macro-expand `(do ,#body) subenv))))
+
+(add-macro! 'symbol-macrolet
+  (fun (s env)
+    (let (bindings (nth s 1)
+          body (tail (tail s))
+          subenv (env :make-subenv))
+      (a:map (fun (k v)
+               (let (f (eval-in-env v env))
+                 (set! (macro-type f) "symbol")
+                 (subenv :set! k f)))
+             bindings)
+      (macro-expand `(do ,#body) subenv))))
+
+(defmac (with-places bindings # body)
+  `(symbol-macrolet ,(apply append (a:map (fun (k v) `(,k (fun (,(gensym) ,(gensym)) ',v))) bindings))
+     ,#body))
+
+
+; arglist
+
+(defun (compile-arglist alist)
+  (defun (arglist-command? s)
+    (and (symbol? s) (= "&" (s:charAt (symbol->string s) 0))))
+  (let (code '()
+        args '()
+        opt-args '()
+        rest-arg @null
+        mode 'normal)
+    ; TODO fix bug where defuns don't count as simultaneous local
+    ; variables inside scope (it's not how javascript does it, at
+    ; least, nor scheme)
+    (defun (normal-args alist)
+      (if (symbol? alist)
+            (set! rest-arg alist)
+          (nil? alist)
+            'done
+          (arglist-command? (head alist))
+            (switch (head alist)
+              '&optional (optional-args (tail alist))
+              '&rest     (rest-args (tail alist))
+              otherwise
+                (error (++ "Invalid alist specifier " (head alist))))
+          otherwise
+            (do (push! args (head alist))
+                (normal-args (tail alist)))))
+    (defun (optional-args alist)
+      (if (symbol? alist)
+            (set! rest-arg alist)
+          (nil? alist)
+            'done
+          (arglist-command? (head alist))
+            (switch (head alist)
+              '&rest (rest-args (tail alist))
+              otherwise
+                (error (++ "Invalid alist specifier " (head alist))))
+          otherwise
+            (do (push! opt-args (head alist))
+                (optional-args (tail alist)))))
+    (defun (rest-args alist)
+      (if (symbol? alist)
+            (set! rest-arg alist)
+          (nil? alist)
+            'done
+          (arglist-command? (head alist))
+            (switch (head alist)
+              otherwise
+                (error (++ "Invalid alist specifier " (head alist))))
+          otherwise
+            (do (set! rest-arg (head alist))
+                (rest-args (tail alist)))))
+    (normal-args alist)
+    [args opt-args rest-arg]))

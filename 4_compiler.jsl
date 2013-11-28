@@ -4,6 +4,13 @@
 ;; This should be compiled with
 ;; node 2_compiler.js 3_base.jsl 3_compiler.jsl -o 3_compiler.js
 
+(def compiler-version ,(++ "4_compiler "
+                           "built on "
+                           (let (d (js:js "new Date()"))
+                             (++ (+ 1 (js:call d "getMonth")) "/"
+                                 (js:call d "getDate") "/"
+                                 (js:call d "getFullYear")))))
+
 ;;; Streams
 
 (def eof '(eof))
@@ -265,8 +272,10 @@
                         return eval(arguments[0]);
                       };
                    }") globals2)
-          all-code '())
+         all-code '())
     (dfun :as self
+      (:make-subenv)
+        (make-subenv self)
       (:eval_ code)
         (closure code)
       (:eval code)
@@ -275,12 +284,12 @@
       (:code)
         (s:join "\n\n" (reversed all-code))
       (:lookup k)
-        (let (v (js:prop (closure "globals") k))
+        (let (v (prop (closure "globals") k))
           (if (= (js:js "undefined") v)
               (error (++ "No such global " k))
               v))
       (:has? k)
-        (!= (js:js "undefined") (js:prop (closure "globals") k))
+        (!= (js:js "undefined") (prop (closure "globals") k))
       ; TODO remove these two
       ('has? k) (self :has? k)
       ('lookup k) (self :lookup k)
@@ -291,21 +300,40 @@
 
 ; Defines a lexical subenvironment
 (defun (make-subenv parent)
-  (let (bindings (dict))
+  (let* (globals2 ((js:js "function (d) {
+                       function Subenv() {}
+                       Subenv.prototype = d;
+                       return new Subenv();
+                     }") (parent :eval_ "globals"))
+         closure ((js:js "function (globals) {
+                        return function () {
+                        return eval(arguments[0]);
+                      };
+                   }") globals2)
+         bindings (dict))
     (dfun :as self
+      (:make-subenv)
+        (make-subenv self)
+      (:eval code)
+        (self :eval_ code)
       (:eval_ code)
-        (parent :eval_ code)
+        (closure code)
       (:lookup k)
-        (if (dict:has? bindings k)
-          (dict:get bindings k)
-          (parent :lookup k))
+         (let (v (prop (closure "globals") k))
+           (if (= (js:js "undefined") v)
+               (error (++ "No such local or global " k))
+               v))
+;        (if (dict:has? bindings k)
+;          (dict:get bindings k)
+;          (parent :lookup k))
       (:has? k)
-        (or (dict:has? bindings k) (parent :has? k))
+        (!= (js:js "undefined") (prop (closure "globals") k))
+;        (or (dict:has? bindings k) (parent :has? k))
       ; TODO remove these two
       ('has? k) (self :has? k)
       ('lookup k) (self :lookup k)
       (:set! k v)
-        (dict:set! bindings k v))))
+        (dict:set! (closure "globals") k v))))
 
 (defun (macro? x)
   (and (function? x) (= (js:prop x "macro") @true)))
@@ -526,7 +554,7 @@
     (NoExpand (list 'js:try
                     (macro-expand (nth s 1) env)
                     (nth s 2)
-                    (let (env2 (make-subenv env))
+                    (let (env2 (env :make-subenv))
                       (env2 :set! (nth s 2) @null)
                       (macro-expand (nth s 3) env2))
                     (if (null? (nth s 4))
@@ -541,7 +569,7 @@
     (if (cons? (nth s 1))
           (list 'js:function @null (nth s 1) (nth s 2))
         otherwise
-          (let (env2 (make-subenv env))
+          (let (env2 (env :make-subenv))
             (for_ k in (nth s 2)
               (env2 :set! k @null))
             (NoExpand (list 'js:function (nth s 1) (nth s 2)
@@ -685,9 +713,9 @@
                              (midir-close (midir-splice balt
                                             (fun (ae) (midir-set outvar ae)))))])
                         (midir:lookup outvar)))))
-    'js:while   (let (cexpr (comp (head (tail exp)))
-                      cexpr-inside (comp (head (tail exp)))
-                      body  (comp (head (tail (tail exp))))
+    'js:while   (let (cexpr (comp (nth exp 1))
+                      cexpr-inside (comp (nth exp 1))
+                      body  (comp (nth exp 2))
                       outvar (igen :new "while"))
                   (midir-splice cexpr
                     (fun (ce)
@@ -704,31 +732,31 @@
                                                          (midir:binop "=" (midir:lookup outvar)
                                                                       ce))))))))))
                         (midir:nop)))))
-    'js:return  (let (expr (comp (head (tail exp))))
+    'js:return  (let (expr (comp (nth exp 1)))
                   (midir-splice expr
                     (fun (e)
                       (MidirStatement (midir:return e) (midir:nop)))))
     'js:break  (MidirStatement (midir:break) (midir:nop))
-    'js:break  (MidirStatement (midir:continue) (midir:nop))
+    'js:continue  (MidirStatement (midir:continue) (midir:nop))
     'js:seq    (foldl (fun (acc next)
                         (midir-join acc (comp next)))
                       (MidirExpr (midir:nop))
                       (nth exp 1))
     'js:js     (MidirExpr (midir:js (head (tail exp))))
-    'js:code   (MidirStatement (midir:code (head (tail exp))) (midir:nop))
-    'js:binop  (let (expl (comp (head (tail (tail exp))))
-                     expr (comp (head (tail (tail (tail exp))))))
+    'js:code   (MidirStatement (midir:code (nth exp 1)) (midir:nop))
+    'js:binop  (let (expl (comp (nth exp 2))
+                     expr (comp (nth exp 3)))
                  (midir-splice expl
                    (fun (el)
                      (midir-splice expr
                        (fun (er)
-                         (MidirExpr (midir:binop (head (tail exp)) el er)))))))
-    'js:unop   (let (expr (comp (head (tail (tail exp)))))
+                         (MidirExpr (midir:binop (nth exp 1) el er)))))))
+    'js:unop   (let (expr (comp (nth exp 2)))
                  (midir-splice expr
                    (fun (e)
                      (MidirExpr (midir:unop (head (tail exp)) e)))))
-    'js:prop   (let (expr  (comp (head (tail exp)))
-                     iexpr (comp (head (tail (tail exp)))))
+    'js:prop   (let (expr  (comp (nth exp 1))
+                     iexpr (comp (nth exp 2)))
                  (midir-splice expr
                    (fun (e)
                      (midir-splice iexpr
@@ -903,9 +931,9 @@
 (defun (eval s)
   (eval-in-env s global-env))
 
-(def eval-print-macro-expand @false)
-(def eval-print-midir @false)
-(def eval-print-js @false)
+(def eval-print-macro-expand @false
+     eval-print-midir @false
+     eval-print-js @false)
 
 (defun (eval-in-env s env)
   (let* (s2 (macro-expand s env)
@@ -949,7 +977,48 @@
   (let (fs (js:js "require('fs')"))
     ((js:method fs "readFileSync") filename {'encoding "utf8"})))
 
+(def load load-file)
+
 (def repl-run-code compile-string)
+
+(def $ null
+     $$ null
+     $$$ null)
+
+
+(defun (make-stdin-collector)
+  (defun (do-eval code)
+    (try (let (r (repl-run-code code))
+           (pset! $$$ $$
+                  $$ $
+                  $ r)
+           (unless (null? r)
+             (println r)))
+       :catch x
+         (do (println x)
+             (println (prop x "stack"))))
+    (print "> "))
+
+  (let (stdin (js:js "process.stdin")
+        utterances '()
+        inner @false)
+    (println "jslisp. version: " compiler-version)
+    (println)
+    (print "> ")
+    (js:call stdin 'resume)
+    (js:call stdin 'setEncoding "utf8")
+    (js:call stdin 'on "data"
+      (fun (line)
+        (if (= line "@INFERIOR-JSLISP-SEPARATOR\n")
+            (let (code (apply ++ (reversed utterances)))
+              (set! utterances '())
+              (set! inner @false)
+              (do-eval code))
+            inner
+              (do (push! utterances line))
+            (= line "@INFERIOR-JSLISP-SEPARATOR-START\n")
+              (set! inner @true)
+            (do-eval line))))))
 
 (defun (run-repl)
   (let* (readline (js:js "require('readline')")
@@ -963,6 +1032,9 @@
 
     (defun (handleLine line)
       (try (let (r (repl-run-code line))
+             (pset! $$$ $$
+                    $$ $
+                    $ r)
              (unless (null? r)
                (println r)))
         :catch x
@@ -988,11 +1060,14 @@
   (def input-files '())
   (def output-file @null)
   (def run-repl? @false)
+  (def use-readline? @true)
   (defun (option-parser args)
     (when (not (nil? args))
       (switch (head args)
         "-o"  (do (set! args (tail args))
                   (set! output-file (head args)))
+        "-no-rl"
+              (set! use-readline? @false)
         "-r"  (set! run-repl? @true)
         "-pj" (set! eval-print-js @true)
         "-pm" (set! eval-print-macro-expand @true)
@@ -1008,4 +1083,6 @@
     (write-code output-file global-env)
     (print "Output code to " output-file "\n"))
   (when (or (nil? input-files) run-repl?)
-    (run-repl)))
+    (if use-readline?
+        (run-repl)
+        (make-stdin-collector))))

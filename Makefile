@@ -30,6 +30,8 @@
 	node 4_compiler.2.js 4_base.jsl 4_compiler.jsl -o 4_compiler.js
 	diff 4_compiler.2.js 4_compiler.js
 
+compiler.js: 4_compiler.js
+	cp 4_compiler.js compiler.js
 
 clean:
 	rm 2_compiler.1.js || true
@@ -43,3 +45,5 @@ clean:
 	rm 4_compiler.1.js || true
 	rm 4_compiler.2.js || true
 	rm 4_compiler.js || true
+
+	rm compiler.js || true
