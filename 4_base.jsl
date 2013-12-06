@@ -206,6 +206,10 @@
   (js:binop "===" (js:unop "typeof" x) "number"))
 (defun (function? x)
   (js:binop "===" (js:unop "typeof" x) "function"))
+(defun (undefined? x)
+  (js:binop "===" x (js:js "void 0")))
+(defun (from-undefined x default)
+  (js:if (undefined? x) default x))
 
 (defun (head lst)
   (if (cons? lst)
@@ -342,8 +346,10 @@
 (defun (set-prop! x p v)
   (js:binop "=" (js:prop x p) v))
 
-(defun (js:call x m # args)
+(defun (js:apply x m args)
   ((js:prop (js:prop x m) "apply") x (make-array args)))
+(defun (js:call x m # args)
+  (js:apply x m args))
 
 (defun (js:method x m)
   (let (f (prop x m))
@@ -547,6 +553,8 @@
 
 (defmac (push! s v)
   `(set! ,s (cons ,v ,s)))
+(defmac (pop! s)
+  `(set! ,s (tail ,s)))
 
 ; Syntactic sugar for 'map'
 (defmac (for v in lst # body)
@@ -647,6 +655,19 @@
     a))
 (defun (a:join a sep)
   ((js:js "function (a, sep) { return a.join(sep); }") a sep))
+
+(def a:slice (js:js "(function (a) {
+  var args = Array.prototype.slice.call(arguments);
+  args.shift();
+  return Array.prototype.slice.apply(a, args);
+})"))
+(def a:to-list (js:js "(function (a) {
+  var l = new Nil();
+  for (var i = a.length - 1; i >= 0; i--) {
+    l = new Cons(a[i], l);
+  }
+  return l;
+})"))
 
 ;;; Strings
 (defun (s:length s)
@@ -780,20 +801,21 @@
     (if (nil? (tail xs))   (++ (repr (head xs)) ")")
         (cons? (tail xs))  (++ (repr (head xs)) " " (repr-tail (tail xs)))
         otherwise          (++ (repr (head xs)) " # " (repr (tail xs)) ")")))
-  (if (nil? x)     "()"
-      (cons? x)    (if (cons? (tail x))
-                     (switch (head x)
-                       'quote            (++ "'" (repr (head (tail x))))
-                       'quasiquote       (++ "`" (repr (head (tail x))))
-                       'unquote          (++ "," (repr (head (tail x))))
-                       'unquote-splicing (++ ",#" (repr (head (tail x))))
+  (if (nil? x)       "()"
+      (cons? x)      (if (cons? (tail x))
+                       (switch (head x)
+                         'quote            (++ "'" (repr (head (tail x))))
+                         'quasiquote       (++ "`" (repr (head (tail x))))
+                         'unquote          (++ "," (repr (head (tail x))))
+                         'unquote-splicing (++ ",#" (repr (head (tail x))))
+                         (++ "(" (repr-tail x)))
                        (++ "(" (repr-tail x)))
-                     (++ "(" (repr-tail x)))
-      (symbol? x)  (symbol->string x)
-      (string? x)  (js-escape-string x)
-      (null? x)    "@null"
-      (boolean? x) (++ "@" (if x "true" "false"))
-      otherwise    (js:toString x)))
+      (symbol? x)    (symbol->string x)
+      (string? x)    (js-escape-string x)
+      (null? x)      "@null"
+      (undefined? x) "@undefined"
+      (boolean? x)   (++ "@" (if x "true" "false"))
+      otherwise      (js:toString x)))
 
 
 ;;; Pseudo-ADTs
@@ -908,55 +930,77 @@
 
 ; arglist
 
+;(defun (test-func a b &optional (c @null) &keyword (d 22))
+
+;(test-func 1 2 :d 23)
+
 (defun (compile-arglist alist)
   (defun (arglist-command? s)
     (and (symbol? s) (= "&" (s:charAt (symbol->string s) 0))))
+  (defun (make-proper alist)
+    (let (last (last-improper alist))
+      (if (nil? last)
+        alist
+        (append (init-improper alist) `(&rest ,last)))))
+  (defun (handle-defaults v)
+    (if (symbol? v)
+      (cons v @null)
+      (cons (nth v 0) (nth v 1))))
+  (defun (fun-handle-vararg offset)
+    (++ "(function (args) {\n"
+        "  var vargs = new Nil();\n"
+        "  for (var i = args.length - 1; i >= " offset "; i--) {\n"
+        "    vargs = new Cons(args[i], vargs);\n"
+        "  }\n"
+        "  return vargs;\n"
+        "})(arguments)"))
   (let (code '()
+        at-least 0
+        at-most 0
         args '()
-        opt-args '()
         rest-arg @null
-        mode 'normal)
-    ; TODO fix bug where defuns don't count as simultaneous local
-    ; variables inside scope (it's not how javascript does it, at
-    ; least, nor scheme)
-    (defun (normal-args alist)
-      (if (symbol? alist)
-            (set! rest-arg alist)
-          (nil? alist)
-            'done
-          (arglist-command? (head alist))
-            (switch (head alist)
-              '&optional (optional-args (tail alist))
-              '&rest     (rest-args (tail alist))
-              otherwise
-                (error (++ "Invalid alist specifier " (head alist))))
-          otherwise
-            (do (push! args (head alist))
-                (normal-args (tail alist)))))
-    (defun (optional-args alist)
-      (if (symbol? alist)
-            (set! rest-arg alist)
-          (nil? alist)
-            'done
-          (arglist-command? (head alist))
-            (switch (head alist)
-              '&rest (rest-args (tail alist))
-              otherwise
-                (error (++ "Invalid alist specifier " (head alist))))
-          otherwise
-            (do (push! opt-args (head alist))
-                (optional-args (tail alist)))))
-    (defun (rest-args alist)
-      (if (symbol? alist)
-            (set! rest-arg alist)
-          (nil? alist)
-            'done
-          (arglist-command? (head alist))
-            (switch (head alist)
-              otherwise
-                (error (++ "Invalid alist specifier " (head alist))))
-          otherwise
-            (do (set! rest-arg (head alist))
-                (rest-args (tail alist)))))
-    (normal-args alist)
-    [args opt-args rest-arg]))
+        mode '&normal)
+    (set! alist (make-proper alist))
+    (while (not (nil? alist))
+      (if (arglist-command? (head alist))
+            (do (set! mode (head alist))
+                (pop! alist))
+          (switch mode
+            '&normal (do (inc! at-least)
+                         (inc! at-most)
+                         (push! args (head alist))
+                         (pop! alist))
+            '&opt (let (vd (handle-defaults (head alist)))
+                    (inc! at-most)
+                    (push! args (head vd))
+                    (push! code `(if (undefined? ,(head vd))
+                                   (set! ,(head vd) ,(tail vd))))
+                    (pop! alist))
+            '&rest (do (set! at-most @null)
+                       (set! rest-arg (head alist))
+                       (push! code `(def ,rest-arg
+                                         (js:js ,(fun-handle-vararg (length args)))))
+                       (pop! alist))
+            otherwise
+              (error (++ "Unknown lambda list specifier " mode)))))
+    [(reversed args)
+     (append (if (< 0 at-least)
+               [`(if (js:binop "<" (js:js "arguments.length") ,at-least)
+                   (error ,(++ "Expecting at least " at-least " arguments.")))]
+               [])
+             (if (null? at-most)
+               []
+               [`(if (js:binop ">" (js:js "arguments.length") ,at-most)
+                   (error ,(++ "Expecting at most " at-most " arguments.")))])
+             (reversed code))
+     at-least at-most]))
+
+(defmac (named-fun name args # body)
+  (let (argc (compile-arglist args))
+    `(js:function ,name ,(nth argc 0)
+       (do ,#(nth argc 1)
+           ,#body))))
+
+; TODO fix bug where defuns don't count as simultaneous local
+; variables inside scope (it's not how javascript does it, at
+; least, nor scheme)

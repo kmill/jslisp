@@ -230,6 +230,7 @@
       "true" @true
       "false" @false
       "null" @null
+      "undefined" (js:js "void 0")
       otherwise
         (do (stream :back-up)
             (stream:error stream (++ "Unexpected literal " t))))))
