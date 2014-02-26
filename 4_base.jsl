@@ -906,7 +906,7 @@
 ; The destruction macro! Similar to Haskell "case" except doesn't yet
 ; handle sub-patterns.
 
-(defmac (destruct v # bindings)
+(defmac (destruct-old v # bindings)
   (defun (handle-just-symbol pat)
     (if (symbol? pat)
       (cons pat (gensym))
@@ -930,6 +930,86 @@
          bindings2 (if has-as (tail (tail bindings)) bindings))
     `(let (,vv ,v)
        ,(_destruct vv bindings2))))
+
+(defmac (destruct v # bindings)
+  (defun (read-whens bindings)
+    (if (nil? bindings)
+          [[] []]
+        (= :when (head bindings))
+          (let (res (read-whens (nth-cons bindings 3)))
+            [(cons [(nth bindings 1) (nth bindings 2)] (nth res 0))
+             (nth res 1)])
+        otherwise
+          [[] bindings]))
+  (defun (try-read-whens bindings)
+    (if (nil? bindings)
+          (error "Expecting consequence to pattern match in destruct.")
+        (= :when (head bindings))
+          (read-whens bindings)
+        otherwise
+          [[[@true (head bindings)]] (tail bindings)]))
+  (defun (_destruct vv bindings)
+    (if (nil? bindings)
+          @null
+        (nil? (tail bindings))
+          (head bindings)
+        otherwise
+          (let (res (try-read-whens (tail bindings)))
+            `(-destruct-case ,vv
+               ,(head bindings) ,(nth res 0)
+               ,(_destruct vv (nth res 1))))))
+
+  (let (vv (gensym))
+    `(let (,vv ,v)
+       ,(_destruct vv bindings))))
+
+(defmac (-destruct-case v pattern conditions alternate)
+  (defun (make-if conditions)
+    (if (nil? conditions)
+          @null
+        (= @true (head (head conditions)))
+          (nth (head conditions) 1)
+        `(if ,(head (head conditions))
+           ,(nth (head conditions) 1)
+           ,(make-if (tail conditions)))))
+  (defun (con? con)
+    (symbol con "?"))
+  (defun (destruct-con con)
+    (symbol "destruct-" con))
+  (if (symbol? pattern)
+        `(let (,pattern ,v)
+           ,(make-if conditions))
+      (and (cons? pattern) (= 'quote (head pattern)) (nil? (head (tail pattern))))
+        `(if (nil? ,v)
+           ,(make-if conditions)
+           ,alternate)
+      (or (self-evaluating? pattern)
+          (and (cons? pattern) (= 'quote (head pattern))))
+        `(if (= ,pattern ,v)
+           ,(make-if conditions)
+           ,alternate)
+      (cons? pattern)
+        (let (con (head pattern)
+              subpats (map (fun (p)
+                             (if (symbol? p) [p p]
+                                 otherwise   [(gensym) p]))
+                           (tail pattern)))
+          `(if (,(con? con) ,v)
+             (,(destruct-con con) ,v
+              (fun ,(map head subpats)
+                ,(foldr (fun (sp then)
+                          (if (= (head sp) (head (tail sp)))
+                            then
+                            `(-destruct-case ,(head sp)
+                              ,(head (tail sp))
+                              ((@true ,then))
+                              ,alternate)))
+                        (make-if conditions)
+                        subpats)))
+             ,alternate))
+      otherwise
+        (error "unknown pattern type")))
+
 
 ; Exception handling
 

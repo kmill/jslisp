@@ -386,15 +386,15 @@
 
 ; For testing macro expansion
 (defun (macro-expand-1 s)
-  (destruct (macro-expand-step s global-env) :as exp
+  (destruct (macro-expand-step s global-env)
     (NoExpand expr)  expr
-    otherwise        exp))
+    exp              exp))
 
 ; The real deal
 (defun (macro-expand s env)
-  (destruct (macro-expand-step s env) :as exp
+  (destruct (macro-expand-step s env)
     (NoExpand expr)  expr
-    otherwise        (macro-expand exp env)))
+    exp              (macro-expand exp env)))
 
 (defun (macro-expand-step s env)
   (if (self-evaluating? s)  (NoExpand s)
@@ -641,17 +641,14 @@
                       expr2)))
 (defun (midir-close m)
   (destruct m
+    (MidirExpr (midir:nop))
+      (midir:seq '())
     (MidirExpr expr)
-      (destruct expr
-        (midir:nop)
-          (midir:seq '())
-        (midir:expr expr))
+      (midir:expr expr)
+    (MidirStatement stat (midir:nop))
+      stat
     (MidirStatement stat expr)
-      (destruct expr
-        (midir:nop)
-          stat
-        otherwise
-          (midir:seq [stat (midir:expr expr)]))))
+      (midir:seq [stat (midir:expr expr)])))
 (defun (midir-unlist ms)
   (defun (-unlist m)
     (destruct m
