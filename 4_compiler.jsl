@@ -463,26 +463,26 @@
 
 (defun (quasiquote-expand s depth)
   (if (cons? s)
-        (switch (head s)
-          'quasiquote
+        (destruct s
+          ['quasiquote # xs]
             (quasi-cons ''quasiquote
-                        (quasiquote-expand (tail s) (+ depth 1)))
-          'unquote
+                        (quasiquote-expand xs (+ depth 1)))
+          ['unquote # xs]
             (if (> depth 0)
                   (quasi-cons ''unquote
-                              (quasiquote-expand (tail s) (- depth 1)))
-                (and (not (nil? (tail s)))
-                     (nil? (tail (tail s))))
-                  (nth s 1)
+                              (quasiquote-expand xs (- depth 1)))
+                (and (not (nil? xs))
+                     (nil? (tail xs)))
+                  (head xs)
                 otherwise
                   `',s)
-          'unquote-splicing
+          ['unquote-splicing # xs]
             (if (> depth 0)
                   (quasi-cons ''unquote-splicing
-                              (quasiquote-expand (tail s) (- depth 1)))
+                              (quasiquote-expand xs (- depth 1)))
                 otherwise
                   `',s)
-          otherwise
+          _
             (if (and (cons? (tail s)) (= 'unquote (head (tail s))))
               (quasiquote-expand-list (head s) depth (nth (tail s) 1))
               (quasi-append (quasiquote-expand-list (head s) depth ''())
@@ -492,30 +492,30 @@
 
 (defun (quasiquote-expand-list s depth end)
   (if (cons? s)
-        (switch (head s)
-          'quasiquote
+        (destruct s
+          ['quasiquote # xs]
             (quasi-cons (quasi-cons ''quasiquote
-                                    (quasiquote-expand (tail s) (+ depth 1)))
+                                    (quasiquote-expand xs (+ depth 1)))
                         end)
-          'unquote
+          ['unquote # xs]
             (if (> depth 0)
                   (quasi-cons (quasi-cons ''unquote
-                                          (quasiquote-expand (tail s) (- depth 1)))
+                                          (quasiquote-expand xs (- depth 1)))
                               end)
                 otherwise
                   ;(apply quasi-list (tail s))
                   (quasi-cons (nth s 1) end))
-          'unquote-splicing
+          ['unquote-splicing # xs]
             (if (> depth 0)
                   (quasi-cons (quasi-cons ''unquote-splicing
-                                          (quasiquote-expand (tail s) (- depth 1)))
+                                          (quasiquote-expand xs (- depth 1)))
                               end)
                 otherwise
                   ;(apply quasi-append (tail s)))
                   (if (and (cons? end) (= 'quote (head end)) (nil? (nth end 1)))
-                    (apply quasi-append (tail s))
-                    `(as-improper ,(apply quasi-append (tail s)) ,end)))
-          otherwise
+                    (apply quasi-append xs)
+                    `(as-improper ,(apply quasi-append xs) ,end)))
+          _
             (quasi-cons (quasi-append (quasiquote-expand-list (head s) depth ''())
                                       (quasiquote-expand (tail s) depth))
                         end))
@@ -680,17 +680,19 @@
 
 (defun (compile-to-midir-toplevel exp env igen)
   (if (cons? exp)
-      (switch (head exp)
-        'js:def (compile-to-midir
-                  `(js:seq ((js:binop "=" ,(nth exp 1) ,(nth exp 2))
-                            @null))
-                  env igen)
-        'js:seq (foldl (fun (acc next)
-                         (midir-join acc (compile-to-midir-toplevel next env igen)))
-                       (MidirExpr (midir:nop))
-                       (nth exp 1))
-        (compile-to-midir exp env igen))
-      (compile-to-midir exp env igen)))
+        (destruct exp
+          ['js:def v val]       (compile-to-midir
+                                  `(js:seq ((js:binop "=" ,v ,val)
+                                            @null))
+                                  env igen)
+          ['js:seq statements]  (foldl (fun (acc next)
+                                         (midir-join acc
+                                                     (compile-to-midir-toplevel next env igen)))
+                                       (MidirExpr (midir:nop))
+                                       statements)
+          _                     (compile-to-midir exp env igen))
+      otherwise
+        (compile-to-midir exp env igen)))
 
 (defun (compile-to-midir exp env igen)
   (if (self-evaluating? exp)  (MidirExpr (midir:lit exp))
@@ -995,9 +997,9 @@
 
 (def repl-run-code compile-string)
 
-(def $ null
-     $$ null
-     $$$ null)
+(def $ @null
+     $$ @null
+     $$$ @null)
 
 
 (defun (make-stdin-collector)
