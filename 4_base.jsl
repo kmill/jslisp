@@ -315,6 +315,7 @@
 (defun (js:!== a b) (js:binop "!==" a b))
 (defun (js:u+ a)    (js:unop "+" a))
 (defun (js:u- a)    (js:unop "-" a))
+(defun (js:u~ a)    (js:unop "~" a))
 (defun (js:toString x)
   (js:+ "" x))
 (defun (js:toNum x)
@@ -323,7 +324,16 @@
   ((js:js "isNaN") x))
 
 (def / js:/)
-(def % js:%)
+(defun (quot a b)
+  "Divide and round to zero."
+  (js:unop "~" (js:unop "~" (js:binop "/" a b))))
+(def rem js:%)
+(defun (div a b)
+  "Divide and round to -infinity."
+  ((js:js "Math.floor") (js:binop "/" a b)))
+(defun (mod a b)
+  "(= a (+ (* b (div a b)) (mod a b))). Number-theory friendly."
+  (js:- a (js:* b (div a b))))
 (def < js:<)
 (def > js:>)
 (def <= js:<=)
