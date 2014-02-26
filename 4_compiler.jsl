@@ -216,6 +216,7 @@
 
 (set-reader-macro! ""
   (fun (stream chars)
+    "Default token reader."
     (let (t (read:token stream))
       (if (= "" t)
         (stream:error stream "Expecting symbol or number.")
@@ -248,6 +249,20 @@
   (fun (stream chars)
     (list 'unquote-splicing (read stream))))
 
+(set-reader-macro! "."
+  (fun (stream chars)
+    "method selector reader macro"
+    (let (parts [(read:token stream)])
+      (while (= "." (stream :peek))
+        (stream :read)
+        (push! parts (read:token stream)))
+      (let (o (gensym 'o)
+            args (gensym 'args))
+        `(js:js ,(++ "function (o) {"
+                     " var o2 = o" (s:join "" (map (fun (sel) (++ "[" (js-escape-string sel) "]")) (reversed (tail parts)))) ";"
+                     " return o2[" (js-escape-string (head parts)) "].apply(o2, Array.prototype.slice.call(arguments, 1));"
+                     "}"))))))
+
 (defun (read s)
   (read:eat-spaces s)
   (if (s :eof?)
@@ -264,15 +279,15 @@
 ; evaluated.
 (defun (make-global-env parent)
   (let* (globals2 ((js:js "function (d) {
-                       function Subenv() {}
-                       Subenv.prototype = d;
-                       return new Subenv();
-                     }") parent)
+                             function Subenv() {}
+                               Subenv.prototype = d;
+                               return new Subenv();
+                           }") parent)
          closure ((js:js "function (globals) {
-                        return function () {
-                        return eval(arguments[0]);
-                      };
-                   }") globals2)
+                            return function () {
+                              return eval(arguments[0]);
+                            };
+                          }") globals2)
          all-code '())
     (dfun :as self
       (:make-subenv)
@@ -286,11 +301,11 @@
         (s:join "\n\n" (reversed all-code))
       (:lookup k)
         (let (v (prop (closure "globals") k))
-          (if (= (js:js "undefined") v)
+          (if (= (js:js "void 0") v)
               (error (++ "No such global " k))
               v))
       (:has? k)
-        (!= (js:js "undefined") (prop (closure "globals") k))
+        (!= (js:js "void 0") (prop (closure "globals") k))
       ; TODO remove these two
       ('has? k) (self :has? k)
       ('lookup k) (self :lookup k)
@@ -302,15 +317,15 @@
 ; Defines a lexical subenvironment
 (defun (make-subenv parent)
   (let* (globals2 ((js:js "function (d) {
-                       function Subenv() {}
-                       Subenv.prototype = d;
-                       return new Subenv();
-                     }") (parent :eval_ "globals"))
+                             function Subenv() {}
+                             Subenv.prototype = d;
+                             return new Subenv();
+                           }") (parent :eval_ "globals"))
          closure ((js:js "function (globals) {
-                        return function () {
-                        return eval(arguments[0]);
-                      };
-                   }") globals2)
+                            return function () {
+                              return eval(arguments[0]);
+                            };
+                          }") globals2)
          bindings (dict))
     (dfun :as self
       (:make-subenv)
@@ -321,14 +336,14 @@
         (closure code)
       (:lookup k)
          (let (v (prop (closure "globals") k))
-           (if (= (js:js "undefined") v)
+           (if (= (js:js "void 0") v)
                (error (++ "No such local or global " k))
                v))
 ;        (if (dict:has? bindings k)
 ;          (dict:get bindings k)
 ;          (parent :lookup k))
       (:has? k)
-        (!= (js:js "undefined") (prop (closure "globals") k))
+        (!= (js:js "void 0") (prop (closure "globals") k))
 ;        (or (dict:has? bindings k) (parent :has? k))
       ; TODO remove these two
       ('has? k) (self :has? k)
@@ -367,7 +382,7 @@
 (defstruct (NoExpand expr))
 
 (defun (self-evaluating? s)
-  (or (number? s) (boolean? s) (null? s) (string? s) (keyword? s)))
+  (or (number? s) (boolean? s) (null? s) (string? s) (keyword? s) (undefined? s)))
 
 ; For testing macro expansion
 (defun (macro-expand-1 s)
@@ -891,6 +906,7 @@
                       ")")
       (null? l)   "null"
       (boolean? l) (if l "true" "false")
+      (undefined? l) "void 0"
       (symbol? l) (++ "Symbol.create(" (js-escape-string (symbol->string l))
                       (if (gensym? l) (error "Can't compile non-interned symbol") "") ; todo: figure out
                       ")")
@@ -967,7 +983,7 @@
                 "return globals;"
                 "\n})();\n"))
   (when (global-env :has? "main")
-    (set! code (++ code "if (process && !module.parent) module.exports.main(module.exports.list.apply(undefined, process.argv.slice(2)));\n")))
+    (set! code (++ code "if (process && !module.parent) module.exports.main(module.exports.list.apply(void 0, process.argv.slice(2)));\n")))
   (write-file output-file code))
 
 (defun (write-file filename content)
@@ -1022,14 +1038,20 @@
             (do-eval line))))))
 
 (defun (run-repl)
-  (let* (readline (js:js "require('readline')")
-         rl ((js:method readline "createInterface")
+  (let* (require (js:js "require")
+         readline (require "readline")
+         rl (.createInterface readline
               {'input  (js:js "process.stdin")
                'output (js:js "process.stdout")})
+         console (js:js "console")
          shouldQuit @false)
 
-    ((js:method rl "setPrompt") "> ")
-    ((js:method rl "prompt"))
+    (println "jslisp. version: " compiler-version)
+    (println)
+
+    (doto rl
+      (.setPrompt "> ")
+      (.prompt))
 
     (defun (handleLine line)
       (try (let (r (repl-run-code line))
@@ -1039,23 +1061,24 @@
              (unless (null? r)
                (println r)))
         :catch x
-          ((js:js "console.log") (prop x "stack"))))
+          (.log console (prop x "stack"))))
 
-    ((js:method rl "on") "line"
-     (fun (line)
-       (set! shouldQuit @false)
-       (handleLine line)
-       ((js:method rl "prompt"))))
-    ((js:method rl "on") "close"
-     (fun () (println "Goodbye!")))
-    ((js:method rl "on") "SIGINT"
-     (fun ()
-       (if shouldQuit
-         (do (println "Goodbye!")
-             (js:code "process.exit(0);"))
-         (do (set! shouldQuit @true)
-             (println "Press C-c again to quit.")
-             ((js:method rl "prompt"))))))))
+    (doto rl
+      (.on "line"
+       (fun (line)
+         (set! shouldQuit @false)
+         (handleLine line)
+         (.prompt rl)))
+      (.on "close"
+       (fun () (println "Goodbye!")))
+      (.on "SIGINT"
+       (fun ()
+         (if shouldQuit
+           (do (println "Goodbye!")
+               (js:code "process.exit(0);"))
+           (do (set! shouldQuit @true)
+               (println "Press C-c again to quit.")
+               (.prompt rl))))))))
 
 (defun (main args)
   (def input-files '())

@@ -44,12 +44,12 @@
       }
     };
 
-    if (this.Cons === undefined) {
+    if (this.Cons === void 0) {
       this.Cons = Cons;
       this.Nil = Nil;
     }
 
-    if (this.Symbol === undefined) {
+    if (this.Symbol === void 0) {
       this.Symbol = Symbol;
     }
   })();
@@ -89,10 +89,10 @@
       (let (s (gensym 'expr))
         `(def ,(head v)
            (set-macro-type!
-            (fun (,s ,(gensym 'env))
-           (apply (named-fun ,(head v) ,(tail v) ,#body)
-             (tail ,s)))
-         "form"))))))
+             (fun (,s ,(gensym 'env))
+               (apply (named-fun ,(head v) ,(tail v) ,#body)
+                      (tail ,s)))
+            "form"))))))
 
 (defmac (do # body)
   `(js:seq ,body))
@@ -181,8 +181,10 @@
     as.push(args.head);
     args = args.tail;
   }
-  return f.apply(undefined, as);
+  return f.apply(void 0, as);
 })"))
+
+(add-symbol-macro! 'this (fun (s env) '(js:js "this")))
 
 (defun (list # args)
   args)
@@ -236,13 +238,13 @@
 (defun (not x)
   (js:unop "!" x))
 
+(add-symbol-macro! 'otherwise (fun (s env) @true))
 (defmac (if # conds)
   (if (nil? conds)        @null
       (nil? (tail conds)) (head conds) ; 'default' case
       otherwise           `(js:if ,(head conds)
                              ,(head (tail conds))
                              (if ,#(tail (tail conds))))))
-(add-symbol-macro! 'otherwise (fun (s env) @true))
 
 (defmac (when pred # body)
   `(if ,pred (do ,#body)))
@@ -257,8 +259,8 @@
 
 (defun (foldl op start lst)
   (while (not (nil? lst))
-    (setq! start (op start (head lst)))
-    (setq! lst (tail lst)))
+    (setq! start (op start (head lst))
+           lst   (tail lst)))
   start)
 
 (defun (foldr op end lst)
@@ -350,11 +352,20 @@
   ((js:prop (js:prop x m) "apply") x (make-array args)))
 (defun (js:call x m # args)
   (js:apply x m args))
+(defun (js:apply-with-this o f args)
+  ((js:prop f "apply") o (make-array args)))
 
 (defun (js:method x m)
   (let (f (prop x m))
     (fun args
       ((js:prop f "apply") x (make-array args)))))
+
+;;; js methods
+
+;(defmac (. obj propname # args)
+;  `(js:selector obj propname ,# args))
+
+;;; functions on lists
 
 (defun (append2 lst1 lst2)
   (foldr cons lst2 lst1))
@@ -374,16 +385,21 @@
 (defun (length lst)
   (def i 0)
   (while (cons? lst)
-    (setq! i (+ i 1))
-    (setq! lst (tail lst)))
+    (setq! i   (+ i 1)
+           lst (tail lst)))
   i)
 (defun (nth lst i)
   (while (> i 0)
     (unless (cons? lst)
       (error "List index out of bounds."))
-    (setq! i (- i 1))
-    (setq! lst (tail lst)))
+    (setq! i   (- i 1)
+           lst (tail lst)))
   (head lst))
+(defun (nth-cons lst i)
+  (while (> i 0)
+    (setq! i   (- i 1)
+           lst (tail lst)))
+  lst)
 
 (defun (set-nth! lst i v)
   (while (> i 0)
@@ -477,63 +493,76 @@
 
 ;;; Functions
 
-; compose
-(defun (. f # args)
+(defun (compose f # args)
+  "Returns a function which is the composition of the given functions."
   (if (nil? args)
     f
-    (let (composed (apply . args))
+    (let (composed (apply compose args))
       (fun a (f (apply composed a))))))
 (defun (curry f)
   (fun (x) (fun (y) (f x y))))
 (defun (uncurry f)
   (fun (x y) ((f x) y)))
 (defun (partial f # args1)
+  "Partially applies arguments to a function."
   (fun args2
     (apply f (append args1 args2))))
 (defun (flip f)
   (fun (x y)
     (f y x)))
-; also known as 'call'
 (defun ($ f # args)
+  "Also known as 'call'."
   (apply f args))
 (defun (chain x # funcs)
+  "Applies functions one at a time to a particular argument."
   (if (nil? funcs)
     x
     (apply chain (cons ((head funcs) x) (tail funcs)))))
-(defun (id x) x)
-(defun (const x) (fun (_) x))
+(defmac (doto x # forms)
+  "Inserts the object as the first argument to each of the forms. Returns the last result."
+  (let* (x2 (gensym 'x)
+         forms2 (map (fun (form)
+                      (let (arg (gensym 'arg))
+                        `(,(head form) ,x2 ,#(tail form))))
+                    forms))
+    `(let (,x2 ,x)
+       ,# forms2)))
+(defun (id x) "Identity function." x)
+(defun (const x) "Creates a constant function." (fun (_) x))
 
 ;;; More control flow
 
-; Sequentially define bindings (so future bindings can use prior bindings)
 (defmac (let* bindings # body)
+  "Sequentially define bindings (so future bindings can use prior bindings."
   (if (nil? bindings)
     `(do ,#body)
     `(let (,(head bindings) ,(head (tail bindings)))
        (let* ,(tail (tail bindings))
          ,#body))))
 
-; Defines bindings "at once," so each binding can refer to any of the
-; bindings, even if they are not guaranteed to be defined yet.
 (defmac (letrec bindings # body)
+  "Defines bindings 'at once,' so each binding can refer to any of the
+  bindings, even if they are not guaranteed to be defined yet."
   `(let ,(apply append (a:map (fun (k v) [k @null]) bindings))
      ,#(a:map (fun (k v) `(setq! ,k ,v)) bindings)
      ,#body))
 
 ; Other flavors of do
 (defmac (do1 fst # body)
+  "A 'do' where the first statement's value is returned."
   (let (v (gensym))
     `(let (,v ,fst)
        ,#body
        ,v)))
 (defmac (do2 fst # body)
+  "A 'do' where the second statement's value is returned."
   `(do ,fst (do1 ,#body)))
 
 
 ;;; More set!
 
-; Parallel set
 (defmac (pset! # pairs)
+  "Set in parallel."
   (let (temps (a:map (fun (k v) (gensym k)) pairs))
     `(let ,(apply append (zip temps (a:values pairs)))
        (set! ,#(apply append (zip (a:keys pairs) temps)))
@@ -552,23 +581,26 @@
     `(set! ,s (- ,s ,delta))))
 
 (defmac (push! s v)
+  "Appends to the head of a list."
   `(set! ,s (cons ,v ,s)))
 (defmac (pop! s)
+  "Removes from the head of a list."
   `(set! ,s (tail ,s)))
 
-; Syntactic sugar for 'map'
 (defmac (for v in lst # body)
+  "Syntactic sugar for 'map'.  The 'in' must be present."
   (if (not (= in 'in))
     (error "Missing keyword 'in' in for.")
     `(map (fun (,v) ,#body) ,lst)))
 
-; Syntactic sugar for 'each'
 (defmac (for_ v in lst # body)
+  "Syntactic sugar for 'each'. The 'each' must be present."
   (if (not (= in 'in))
     (error "Missing keyword 'in' in for_.")
     `(each (fun (,v) ,#body) ,lst)))
 
 (defmac (switch v # cases)
+  "(switch expr v1 res1 v2 res2 [otherwise] default)"
   (defun (_switch vv cases)
     (if (nil? cases)        @null
         (nil? (tail cases)) (head cases)
@@ -584,10 +616,12 @@
     `(let (,vv ,v)
        ,(_switch vv cases2))))
 
-; "dispatch function"
-; (dfun (msg1 a1 a2) cons (msg2 a1 a2) cons ... [alt])
-; Also binds 'self to the created dfun in the body of the functions.
 (defmac (dfun # cases)
+  "Dispatch function.  Chooses which expression to run based on which
+  message was passed to the dfun.
+  (dfun (msg1 a1 a2) res1 (msg2 a1 a2) cons2 ... [alt])
+  Also binds dfun to 'self' using ':as self'."
+
   (defun (transform-cases v cases)
     (if (nil? cases)
           `((fun _ (error (++ "No such message: " (repr ,v)))))
@@ -610,6 +644,7 @@
                 (apply (switch ,v ,#(transform-cases v cases2)) ,args)))
        ,self)))
 
+; This is a dictionary-based version
 (defmac (dfun2 # cases)
   (defun (transform-cases cases default)
     (if (nil? cases)
@@ -729,14 +764,14 @@
 (def dict:get (js:js "(function (o, k, def) {
   if (globals['js:hasOwnProperty'](o, k)) {
     return o[k];
-  } else if (def === undefined) {
+  } else if (def === void 0) {
     throw new Error('Key error: ' + k);
   } else {
     return def;
   }
 })"))
 (def dict:set! (js:js "(function (o, k, v) {
-  if (v === undefined) {
+  if (v === void 0) {
     throw new Error(\"Not enough arguments passed to dict:set!\");
   }
   o[k] = v;
@@ -846,7 +881,7 @@
          ;; a destructor
          (defun (,(symbol "destruct-" name) o f)
            (if (,(symbol name "?") o)
-             ((js:js "function (o, f) { return f.apply(undefined, o.components); }")
+             ((js:js "function (o, f) { return f.apply(void 0, o.components); }")
               o f)
              (error ,(++ "Cannot destruct. Not " name ".")))))))
 
@@ -897,6 +932,16 @@
          finally (if has-finally (head (tail rest2)) @null))
   `(js:try ,totry ,catchvar ,catch ,finally)))
 
+; fluid-let
+
+(defmac (fluid-let pairs # body)
+  "Simulate dynamic variables."
+  (let (temps (map gensym (a:keys pairs)))
+    `(let ,(apply append (zip temps (a:keys pairs)))
+       (try (do (set! ,#pairs)
+                ,#body)
+            :finally (set! ,#(apply append (zip (a:keys pairs) temps)))))))
+
 ; macrolet
 
 (add-macro! 'macrolet
@@ -924,7 +969,9 @@
       (macro-expand `(do ,#body) subenv))))
 
 (defmac (with-places bindings # body)
-  `(symbol-macrolet ,(apply append (a:map (fun (k v) `(,k (fun (,(gensym) ,(gensym)) ',v))) bindings))
+  `(symbol-macrolet ,(apply append (a:map (fun (k v)
+                                            `(,k (fun (,(gensym) ,(gensym)) ',v)))
+                                          bindings))
      ,#body))
 
 
@@ -981,6 +1028,9 @@
                        (push! code `(def ,rest-arg
                                          (js:js ,(fun-handle-vararg (length args)))))
                        (pop! alist))
+;            '&kw (let (kw-arg (gensym 'kw))
+;                   (set! at-most @null)
+;                   (push! code `(def ,kw-arg
             otherwise
               (error (++ "Unknown lambda list specifier " mode)))))
     [(reversed args)
