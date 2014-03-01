@@ -48,6 +48,9 @@
       this.Cons = Cons;
       this.Nil = Nil;
     }
+    if (this.NilInstance === void 0) {
+      this.NilInstance = new this.Nil();
+    }
 
     if (this.Symbol === void 0) {
       this.Symbol = Symbol;
@@ -148,7 +151,7 @@
                 "}\n"))))
   (defun (fun-handle-vararg offset)
     (++ "(function (args) {\n"
-        "  var vargs = new Nil();\n"
+        "  var vargs = NilInstance;\n"
         "  for (var i = args.length - 1; i >= " offset "; i--) {\n"
         "    vargs = new Cons(args[i], vargs);\n"
         "  }\n"
@@ -191,7 +194,7 @@
 
 (defun (cons a b)
   ((js:js "function (a, b) { return new Cons(a, b); }") a b))
-(def nil (js:js "new Nil()"))
+(def nil (js:js "NilInstance"))
 
 (defun (cons? x)
   (js:binop "instanceof" x (js:js "Cons")))
@@ -345,7 +348,7 @@
   return Array.prototype.join.call(arguments, '');
 })"))
 
-(defun (+ # args) (foldl js:+ 0 args))
+(defun (+ # args) (foldl (fun (a b) (js:+ a (js:unop "+" b))) 0 args))
 (defun (* # args) (foldl js:* 1 args))
 
 (defun (- s # args)
@@ -707,7 +710,7 @@
   return Array.prototype.slice.apply(a, args);
 })"))
 (def a:to-list (js:js "(function (a) {
-  var l = new Nil();
+  var l = NilInstance;
   for (var i = a.length - 1; i >= 0; i--) {
     l = new Cons(a[i], l);
   }
@@ -736,7 +739,7 @@
 (def s:split (js:js "(function (s) {
   var args = Array.prototype.slice.call(arguments);
   args.shift();
-  var ret = new Nil();
+  var ret = NilInstance;
   var split = s.split.apply(s, args);
   for (var i = split.length - 1; i >= 0; i--) {
     ret = new Cons(split[i], ret);
@@ -796,10 +799,10 @@
     d))
 (defun (dict:items d)
   ((js:js "function (d) {
-     var items = new Nil();
+     var items = NilInstance;
      for (var k in d) {
        if (globals['js:hasOwnProperty'](d, k))
-         items = new Cons(new Cons(k, new Cons(d[k], new Nil())), items);
+         items = new Cons(new Cons(k, new Cons(d[k], NilInstance)), items);
      }
      return items;
    }") d))
@@ -932,30 +935,30 @@
        ,(_destruct vv bindings2))))
 
 (defmac (destruct v # bindings)
-  (defun (read-whens bindings)
+  (defun (read-whens ret bindings)
     (if (nil? bindings)
           [[] []]
         (= :when (head bindings))
-          (let (res (read-whens (nth-cons bindings 3)))
-            [(cons [(nth bindings 1) (nth bindings 2)] (nth res 0))
+          (let (res (read-whens ret (nth-cons bindings 3)))
+            [(cons [(nth bindings 1) `(,ret ,(nth bindings 2))] (nth res 0))
              (nth res 1)])
         otherwise
           [[] bindings]))
-  (defun (try-read-whens bindings)
+  (defun (try-read-whens ret bindings)
     (if (nil? bindings)
           (error "Expecting consequence to pattern match in destruct.")
         (= :when (head bindings))
-          (read-whens bindings)
+          (read-whens ret bindings)
         otherwise
-          [[[@true (head bindings)]] (tail bindings)]))
+          [[[@true `(,ret ,(head bindings))]] (tail bindings)]))
   (defun (_destruct vv ret bindings)
     (if (nil? bindings)
           @null
         (nil? (tail bindings))
           (head bindings)
         otherwise
-          (let (res (try-read-whens (tail bindings)))
-            `(do (-destruct-case ,vv ,ret
+          (let (res (try-read-whens ret (tail bindings)))
+            `(do (-destruct-case ,vv
                    ,(head bindings) ,(nth res 0))
                  ,(_destruct vv ret (nth res 1))))))
 
@@ -972,15 +975,16 @@
              (prop x "result")
              (js:throw x))))))
 
-(defmac (-destruct-case v ret pattern conditions)
+(defmac (-destruct-case v pattern conditions)
   (defun (make-if conditions)
     (if (nil? conditions)
           @null
         (= @true (head (head conditions)))
-          `(,ret ,(nth (head conditions) 1))
-        `(if ,(head (head conditions))
-           (,ret ,(nth (head conditions) 1))
-           ,(make-if (tail conditions)))))
+          (nth (head conditions) 1)
+        otherwise
+          `(if ,(head (head conditions))
+             ,(nth (head conditions) 1)
+             ,(make-if (tail conditions)))))
   (defun (con? con)
     (symbol con "?"))
   (defun (destruct-con con)
@@ -1001,7 +1005,6 @@
                              (if (symbol? p) [p p]
                                  otherwise   [(gensym) p]))
                            (tail pattern))
-              sentinel (gensym 'sentinel)
               x (gensym 'x))
           `(if (,(con? con) ,v)
              (,(destruct-con con) ,v
@@ -1010,7 +1013,6 @@
                           (if (= (head sp) (nth sp 1))
                             then
                             `(-destruct-case ,(head sp)
-                               ,ret
                                ,(nth sp 1)
                                ((@true ,then)))))
                         (make-if conditions)
@@ -1093,7 +1095,7 @@
       (cons (nth v 0) (nth v 1))))
   (defun (fun-handle-vararg offset)
     (++ "(function (args) {\n"
-        "  var vargs = new Nil();\n"
+        "  var vargs = NilInstance;\n"
         "  for (var i = args.length - 1; i >= " offset "; i--) {\n"
         "    vargs = new Cons(args[i], vargs);\n"
         "  }\n"
@@ -1148,6 +1150,48 @@
     `(js:function ,name ,(nth argc 0)
        (do ,#(nth argc 1)
            ,#body))))
+
+
+;;; Compiler macros
+
+
+(defun (has-compiler-macro? f)
+  (and (function? f) (function? (prop f "compiler-macro"))))
+(defun (compiler-macro f)
+  (prop f "compiler-macro"))
+(defun (set-compiler-macro! f g)
+  (set! (prop f "compiler-macro") g))
+
+(defun (add-compiler-macro! f macro)
+  (if (not (function? f))
+    (error "Can only add compiler macro to functions."))
+  (set! (compiler-macro f) macro)
+  @null)
+
+(add-compiler-macro! +
+  (fun (s env)
+    (defun (ensure-number x)
+      (if (number? x)  x
+          otherwise    `(js:unop "+" ,x)))
+    (destruct s
+      ['+ a]     (ensure-number a)
+      ['+ a # b] `(js:binop "+" ,(ensure-number a) (+ ,#b))
+      _          (NoExpand s))))
+
+(add-compiler-macro! ++
+  (fun (s env)
+    (destruct s
+      ['++ # parts]  (foldl (fun (s p)
+                              `(js:binop "+" ,s ,p))
+                            ""
+                            parts)
+      _ (NoExpand s))))
+
+(add-compiler-macro! =
+  (fun (s env)
+    (destruct s
+      ['= a b]  `(js:binop "===" ,a ,b)
+      _ (NoExpand s))))
 
 ; TODO fix bug where defuns don't count as simultaneous local
 ; variables inside scope (it's not how javascript does it, at

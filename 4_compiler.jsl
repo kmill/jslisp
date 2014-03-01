@@ -225,12 +225,27 @@
             (symbol t)
             val))))))
 
+(set-reader-macro! "."
+  (fun (stream chars)
+    "method selector reader macro"
+    (let (parts [(read:token stream)])
+      (while (= "." (stream :peek))
+        (stream :read)
+        (push! parts (read:token stream)))
+      (let (o (gensym 'o)
+            args (gensym 'args))
+        `(js:js ,(++ "function (o) {"
+                     " var o2 = o" (s:join "" (map (fun (sel) (++ "[" (js-escape-string sel) "]")) (reversed (tail parts)))) ";"
+                     " return o2[" (js-escape-string (head parts)) "].apply(o2, Array.prototype.slice.call(arguments, 1));"
+                     "}"))))))
+
+
 (set-reader-macro! "@"
   (fun (stream chars)
     (switch (read:token stream) :as t
-      "true" @true
-      "false" @false
-      "null" @null
+      "true"      @true
+      "false"     @false
+      "null"      @null
       "undefined" (js:js "void 0")
       otherwise
         (do (stream :back-up)
@@ -249,19 +264,6 @@
   (fun (stream chars)
     (list 'unquote-splicing (read stream))))
 
-(set-reader-macro! "."
-  (fun (stream chars)
-    "method selector reader macro"
-    (let (parts [(read:token stream)])
-      (while (= "." (stream :peek))
-        (stream :read)
-        (push! parts (read:token stream)))
-      (let (o (gensym 'o)
-            args (gensym 'args))
-        `(js:js ,(++ "function (o) {"
-                     " var o2 = o" (s:join "" (map (fun (sel) (++ "[" (js-escape-string sel) "]")) (reversed (tail parts)))) ";"
-                     " return o2[" (js-escape-string (head parts)) "].apply(o2, Array.prototype.slice.call(arguments, 1));"
-                     "}"))))))
 
 (defun (read s)
   (read:eat-spaces s)
@@ -391,7 +393,7 @@
     exp              exp))
 
 ; The real deal
-(defun (macro-expand s env)
+(defun (macro-expand s &opt (env global-env))
   (destruct (macro-expand-step s env)
     (NoExpand expr)  expr
     exp              (macro-expand exp env)))
@@ -399,7 +401,10 @@
 (defun (macro-expand-step s env)
   (if (self-evaluating? s)  (NoExpand s)
       (symbol? s)           (macro-expand-symbol s env)
-      (cons? s)             (macro-expand-form s env)
+      (cons? s)             (let (cs (compiler-macro-expand s env))
+                              (if (= cs s)
+                                (macro-expand-form s env)
+                                (macro-expand-step cs env)))
       (error (++ "Unknown expression to macro expand " (repr s)))))
 
 (defun (macro-expand-symbol s env)
@@ -415,6 +420,24 @@
         ((env :lookup (head s)) s env)
       otherwise
         (NoExpand (map (fun (e) (macro-expand e env)) s))))
+
+(defun (compiler-macro-expand s env)
+  (destruct (compiler-macro-expand-step s env)
+    (NoExpand expr) expr
+    exp             (compiler-macro-expand exp env)))
+
+(defun (compiler-macro-expand-step s env)
+  (if (self-evaluating? s)  (NoExpand s)
+      (symbol? s)           (NoExpand s)
+      (cons? s)             (compiler-macro-expand-form s env)
+      otherwise             (NoExpand s)))
+
+(defun (compiler-macro-expand-form s env)
+  (if (and (env :has? (head s))
+           (has-compiler-macro? (env :lookup (head s))))
+        ((compiler-macro (env :lookup (head s))) s env)
+      otherwise
+        (NoExpand s)))
 
 ;;; Low-level forms
 
@@ -671,7 +694,7 @@
             (null? parent)   (error (++ "Environment key error: " (repr k)))
             otherwise        (parent :lookup k))
       (:has? k)
-        (if (dict:has? d k) @true
+        (if (dict:has? d k)  @true
             (null? parent)   @false
             (parent :has? k))
       (:set! k v)
@@ -710,49 +733,37 @@
     ['quote q]       (MidirExpr (midir:lit q))
     ['js:def v val]  (let (var (igen :get v))
                        (env :set! v var)
-                       (let (expr (comp val))
-                         (midir-splice expr
-                           (fun (e) (MidirStatement (midir:def var e) (midir:nop))))))
+                       (midir-splice (comp val)
+                         (fun (e) (MidirStatement (midir:def var e) (midir:nop)))))
     ['js:if expr con alt]
-                     (let (cexpr (comp expr)
-                           bcon (comp con)
-                           balt (comp alt)
-                           outvar (igen :new "if"))
-                       (midir-splice cexpr
+                     (let (outvar (igen :new "if"))
+                       (midir-splice (comp expr)
                          (fun (ce)
                            (MidirStatement
                              (midir:seq
                                [(midir:def outvar (midir:nop))
                                 (midir:if ce
-                                  (midir-close (midir-splice bcon
+                                  (midir-close (midir-splice (comp con)
                                                  (fun (be) (midir-set outvar be))))
-                                  (midir-close (midir-splice balt
+                                  (midir-close (midir-splice (comp alt)
                                                  (fun (ae) (midir-set outvar ae)))))])
                              (midir:lookup outvar)))))
-    ['js:while expr inside]
-                (let (cexpr (comp expr)
-                      cexpr-inside (comp expr)
-                      body  (comp inside)
-                      outvar (igen :new "while"))
-                  (midir-splice cexpr
+    ['js:while expr body]
+                (let (outvar (igen :new "while"))
+                  (midir-splice (comp expr)
                     (fun (ce)
                       (MidirStatement
                         (midir:seq
-                          (list
-                            (midir:def outvar ce)
-                            (midir:while (midir:lookup outvar)
-                              (midir:seq
-                                (list (midir-close body)
-                                      (midir-close (midir-splice cexpr-inside
-                                                     (fun (ce)
-                                                       (MidirExpr
-                                                         (midir:binop "=" (midir:lookup outvar)
-                                                                      ce))))))))))
+                          [(midir:def outvar ce)
+                           (midir:while (midir:lookup outvar)
+                             (midir:seq
+                               [(midir-close (comp body))
+                                (midir-close (midir-splice (comp expr)
+                                               (fun (ce) (midir-set outvar ce))))]))])
                         (midir:nop)))))
-    ['js:return expr]  (let (cexpr (comp expr))
-                         (midir-splice cexpr
-                           (fun (e)
-                             (MidirStatement (midir:return e) (midir:nop)))))
+    ['js:return expr]  (midir-splice (comp expr)
+                         (fun (e)
+                           (MidirStatement (midir:return e) (midir:nop))))
     ['js:break]     (MidirStatement (midir:break) (midir:nop))
     ['js:continue]  (MidirStatement (midir:continue) (midir:nop))
     ['js:seq exprs] (foldl (fun (acc next)
@@ -898,7 +909,7 @@
     (error (++ "Unknown statement: " (repr m)))))
 
 (defun (midir-lit-to-js l)
-  (if (nil? l)    "new Nil()"
+  (if (nil? l)    "NilInstance"
       (cons? l)   (++ "new Cons("
                       (midir-lit-to-js (head l))
                       ", "
