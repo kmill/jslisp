@@ -706,31 +706,33 @@
 
 (defun (compile-form-to-midir exp env igen)
   (defun (comp e) (compile-to-midir e env igen))
-  (switch (head exp)
-    'quote      (MidirExpr (midir:lit (nth exp 1)))
-    'js:def     (let (var  (igen :get (nth exp 1)))
-                  (env :set! (nth exp 1) var)
-                  (let (expr (comp (nth exp 2)))
-                    (midir-splice expr
-                      (fun (e) (MidirStatement (midir:def var e) (midir:nop))))))
-    'js:if      (let (cexpr (comp (nth exp 1))
-                      bcons (comp (nth exp 2))
-                      balt  (comp (nth exp 3))
-                      outvar (igen :new "if"))
-                  (midir-splice cexpr
-                    (fun (ce)
-                      (MidirStatement
-                        (midir:seq
-                          [(midir:def outvar (midir:nop))
-                           (midir:if ce
-                             (midir-close (midir-splice bcons
-                                            (fun (be) (midir-set outvar be))))
-                             (midir-close (midir-splice balt
-                                            (fun (ae) (midir-set outvar ae)))))])
-                        (midir:lookup outvar)))))
-    'js:while   (let (cexpr (comp (nth exp 1))
-                      cexpr-inside (comp (nth exp 1))
-                      body  (comp (nth exp 2))
+  (destruct exp
+    ['quote q]       (MidirExpr (midir:lit q))
+    ['js:def v val]  (let (var (igen :get v))
+                       (env :set! v var)
+                       (let (expr (comp val))
+                         (midir-splice expr
+                           (fun (e) (MidirStatement (midir:def var e) (midir:nop))))))
+    ['js:if expr con alt]
+                     (let (cexpr (comp expr)
+                           bcon (comp con)
+                           balt (comp alt)
+                           outvar (igen :new "if"))
+                       (midir-splice cexpr
+                         (fun (ce)
+                           (MidirStatement
+                             (midir:seq
+                               [(midir:def outvar (midir:nop))
+                                (midir:if ce
+                                  (midir-close (midir-splice bcon
+                                                 (fun (be) (midir-set outvar be))))
+                                  (midir-close (midir-splice balt
+                                                 (fun (ae) (midir-set outvar ae)))))])
+                             (midir:lookup outvar)))))
+    ['js:while expr inside]
+                (let (cexpr (comp expr)
+                      cexpr-inside (comp expr)
+                      body  (comp inside)
                       outvar (igen :new "while"))
                   (midir-splice cexpr
                     (fun (ce)
@@ -747,46 +749,47 @@
                                                          (midir:binop "=" (midir:lookup outvar)
                                                                       ce))))))))))
                         (midir:nop)))))
-    'js:return  (let (expr (comp (nth exp 1)))
-                  (midir-splice expr
-                    (fun (e)
-                      (MidirStatement (midir:return e) (midir:nop)))))
-    'js:break  (MidirStatement (midir:break) (midir:nop))
-    'js:continue  (MidirStatement (midir:continue) (midir:nop))
-    'js:seq    (foldl (fun (acc next)
-                        (midir-join acc (comp next)))
-                      (MidirExpr (midir:nop))
-                      (nth exp 1))
-    'js:js     (MidirExpr (midir:js (head (tail exp))))
-    'js:code   (MidirStatement (midir:code (nth exp 1)) (midir:nop))
-    'js:binop  (let (expl (comp (nth exp 2))
-                     expr (comp (nth exp 3)))
-                 (midir-splice expl
+    ['js:return expr]  (let (cexpr (comp expr))
+                         (midir-splice cexpr
+                           (fun (e)
+                             (MidirStatement (midir:return e) (midir:nop)))))
+    ['js:break]     (MidirStatement (midir:break) (midir:nop))
+    ['js:continue]  (MidirStatement (midir:continue) (midir:nop))
+    ['js:seq exprs] (foldl (fun (acc next)
+                             (midir-join acc (comp next)))
+                           (MidirExpr (midir:nop))
+                           exprs)
+    ['js:js code]   (MidirExpr (midir:js code))
+    ['js:code code] (MidirStatement (midir:code code) (midir:nop))
+    ['js:binop op exprl exprr]
+               (let (cexpl (comp exprl)
+                     cexpr (comp exprr))
+                 (midir-splice cexpl
                    (fun (el)
-                     (midir-splice expr
+                     (midir-splice cexpr
                        (fun (er)
-                         (MidirExpr (midir:binop (nth exp 1) el er)))))))
-    'js:unop   (let (expr (comp (nth exp 2)))
-                 (midir-splice expr
+                         (MidirExpr (midir:binop op el er)))))))
+    ['js:unop op expr]
+               (let (cexpr (comp expr))
+                 (midir-splice cexpr
                    (fun (e)
-                     (MidirExpr (midir:unop (head (tail exp)) e)))))
-    'js:prop   (let (expr  (comp (nth exp 1))
-                     iexpr (comp (nth exp 2)))
-                 (midir-splice expr
+                     (MidirExpr (midir:unop op e)))))
+    ['js:prop expr iexpr]
+               (let (cexpr (comp expr)
+                     ciexpr (comp iexpr))
+                 (midir-splice cexpr
                    (fun (e)
-                     (midir-splice iexpr
+                     (midir-splice ciexpr
                        (fun (ie)
                          (MidirExpr (midir:prop e ie)))))))
-    'js:throw    (let (expr (nth exp 1))
-                   (midir-splice (comp expr)
-                     (fun (el)
-                       (MidirStatement (midir:throw el) (midir:nop)))))
-    'js:try      (let (texp (nth exp 1)
-                       cv   (igen :get (nth exp 2))
-                       cexp (nth exp 3)
-                       fexp (nth exp 4)
+    ['js:throw expr]
+                 (midir-splice (comp expr)
+                   (fun (el)
+                     (MidirStatement (midir:throw el) (midir:nop))))
+    ['js:try texp cvar cexp fexp]
+                 (let (cv   (igen :get cvar)
                        outvar (igen :new "try"))
-                   (let (env2 (make-js-env env (nth exp 2) cv))
+                   (let (env2 (make-js-env env cvar cv))
                      (MidirStatement
                        (midir:seq
                          (list
@@ -802,31 +805,29 @@
                                  @null
                                  (midir-close (comp fexp))))))
                        (midir:lookup outvar))))
-    'js:function (let* (name (nth exp 1)
-                        args (map (fun (a) (igen :get a)) (nth exp 2))
-                        argse (if (null? name) (nth exp 2) (cons name (nth exp 2)))
-                        body (nth exp 3)
+    ['js:function name args body]
+                 (let* (argsv (map (fun (a) (igen :get a)) args)
+                        argse (if (null? name) (nth exp 2) (cons name args))
                         env2 (apply make-js-env (cons env (map-append (fun (v) [v (igen :get v)])
                                                                       argse))))
                    
                    (MidirExpr
-                     (midir:function (if (null? name) @null (igen :get name)) args
+                     (midir:function (if (null? name) @null (igen :get name)) argsv
                        (midir-close
                          (midir-splice
                            (compile-to-midir body env2 igen)
                            (fun (e) (MidirStatement (midir:return e)
                                                     (midir:nop))))))))
-    
-    (midir-splice (comp (head exp))
-      (fun (f)
-        (let (ul (midir-unlist (map comp (tail exp)))
-              outvar (igen :new "funcall"))
-          (MidirStatement
-            (midir:seq
-              [(midir:seq (head ul))
-               (midir:def outvar (midir:funcall f (head (tail ul))))])
-            (midir:lookup outvar)))))))
-                
+    _    (midir-splice (comp (head exp))
+           (fun (f)
+             (let (ul (midir-unlist (map comp (tail exp)))
+                   outvar (igen :new "funcall"))
+               (MidirStatement
+                 (midir:seq
+                   [(midir:seq (head ul))
+                    (midir:def outvar (midir:funcall f (head (tail ul))))])
+                 (midir:lookup outvar)))))))
+
 
 ;;; Generating js
 

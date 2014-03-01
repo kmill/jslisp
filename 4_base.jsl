@@ -421,7 +421,7 @@
 
 ; Let
 (defmac (let bindings # body)
-  `((fun ,(a:keys bindings) ,#body)
+  `((js:function @null ,(a:keys bindings) (do ,#body))
     ,#(a:values bindings)))
 
 ;;; Symbols
@@ -948,29 +948,38 @@
           (read-whens bindings)
         otherwise
           [[[@true (head bindings)]] (tail bindings)]))
-  (defun (_destruct vv bindings)
+  (defun (_destruct vv ret bindings)
     (if (nil? bindings)
           @null
         (nil? (tail bindings))
           (head bindings)
         otherwise
           (let (res (try-read-whens (tail bindings)))
-            `(-destruct-case ,vv
-               ,(head bindings) ,(nth res 0)
-               ,(_destruct vv (nth res 1))))))
+            `(do (-destruct-case ,vv ,ret
+                   ,(head bindings) ,(nth res 0))
+                 ,(_destruct vv ret (nth res 1))))))
 
-  (let (vv (gensym))
-    `(let (,vv ,v)
-       ,(_destruct vv bindings))))
+  (let (vv (gensym 'vv)
+        result (gensym 'result)
+        ret (gensym 'ret))
+    `(let* (,vv ,v
+            ,result (js:js "{result:null}")
+            ,ret (fun (val) (set! (prop ,result "result") val) (js:throw ,result)))
+       (try
+         ,(_destruct vv ret bindings)
+         :catch x
+           (if (= ,result x)
+             (prop x "result")
+             (js:throw x))))))
 
-(defmac (-destruct-case v pattern conditions alternate)
+(defmac (-destruct-case v ret pattern conditions)
   (defun (make-if conditions)
     (if (nil? conditions)
           @null
         (= @true (head (head conditions)))
-          (nth (head conditions) 1)
+          `(,ret ,(nth (head conditions) 1))
         `(if ,(head (head conditions))
-           ,(nth (head conditions) 1)
+           (,ret ,(nth (head conditions) 1))
            ,(make-if (tail conditions)))))
   (defun (con? con)
     (symbol con "?"))
@@ -981,32 +990,31 @@
            ,(make-if conditions))
       (and (cons? pattern) (= 'quote (head pattern)) (nil? (head (tail pattern))))
         `(if (nil? ,v)
-           ,(make-if conditions)
-           ,alternate)
+           ,(make-if conditions))
       (or (self-evaluating? pattern)
           (and (cons? pattern) (= 'quote (head pattern))))
         `(if (= ,pattern ,v)
-           ,(make-if conditions)
-           ,alternate)
+           ,(make-if conditions))
       (cons? pattern)
         (let (con (head pattern)
               subpats (map (fun (p)
                              (if (symbol? p) [p p]
                                  otherwise   [(gensym) p]))
-                           (tail pattern)))
+                           (tail pattern))
+              sentinel (gensym 'sentinel)
+              x (gensym 'x))
           `(if (,(con? con) ,v)
              (,(destruct-con con) ,v
               (fun ,(map head subpats)
                 ,(foldr (fun (sp then)
-                          (if (= (head sp) (head (tail sp)))
+                          (if (= (head sp) (nth sp 1))
                             then
                             `(-destruct-case ,(head sp)
-                              ,(head (tail sp))
-                              ((@true ,then))
-                              ,alternate)))
+                               ,ret
+                               ,(nth sp 1)
+                               ((@true ,then)))))
                         (make-if conditions)
-                        subpats)))
-             ,alternate))
+                        subpats)))))
       otherwise
         (error "unknown pattern type")))
 
