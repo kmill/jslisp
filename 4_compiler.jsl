@@ -1,8 +1,8 @@
-;;; 3_compiler.jsl
-;;; Compiler to be compiled by 2_compiler
+;;; 4_compiler.jsl
+;;; Compiler to be compiled by 3_compiler
 
 ;; This should be compiled with
-;; node 2_compiler.js 3_base.jsl 3_compiler.jsl -o 3_compiler.js
+;; node 3_compiler.js 4_base.jsl 4_compiler.jsl -o 4_compiler.js
 
 (def compiler-version ,(++ "4_compiler "
                            "built on "
@@ -327,8 +327,7 @@
                             return function () {
                               return eval(arguments[0]);
                             };
-                          }") globals2)
-         bindings (dict))
+                          }") globals2))
     (dfun :as self
       (:make-subenv)
         (make-subenv self)
@@ -341,12 +340,8 @@
            (if (= (js:js "void 0") v)
                (error (++ "No such local or global " k))
                v))
-;        (if (dict:has? bindings k)
-;          (dict:get bindings k)
-;          (parent :lookup k))
       (:has? k)
         (!= (js:js "void 0") (prop (closure "globals") k))
-;        (or (dict:has? bindings k) (parent :has? k))
       ; TODO remove these two
       ('has? k) (self :has? k)
       ('lookup k) (self :lookup k)
@@ -478,40 +473,38 @@
     
 
 (defun (quasi-cons x xs)
-  (if (and (cons? xs) (= 'list (head xs)))
-    `(list ,x ,#(tail xs))
-    `(cons ,x ,xs)))
+  (destruct xs
+    ['list # xss]  `(list ,x ,#xss)
+    _              `(cons ,x ,xs)))
 (defun (quasi-list # things)
   `(list ,#things))
 
 (defun (quasiquote-expand s depth)
-  (if (cons? s)
-        (destruct s
-          ['quasiquote # xs]
-            (quasi-cons ''quasiquote
-                        (quasiquote-expand xs (+ depth 1)))
-          ['unquote # xs]
-            (if (> depth 0)
-                  (quasi-cons ''unquote
-                              (quasiquote-expand xs (- depth 1)))
-                (and (not (nil? xs))
-                     (nil? (tail xs)))
-                  (head xs)
-                otherwise
-                  `',s)
-          ['unquote-splicing # xs]
-            (if (> depth 0)
-                  (quasi-cons ''unquote-splicing
-                              (quasiquote-expand xs (- depth 1)))
-                otherwise
-                  `',s)
-          _
-            (if (and (cons? (tail s)) (= 'unquote (head (tail s))))
-              (quasiquote-expand-list (head s) depth (nth (tail s) 1))
-              (quasi-append (quasiquote-expand-list (head s) depth ''())
-                            (quasiquote-expand (tail s) depth))))
-      otherwise
-        `',s))
+  (destruct s
+    ['quasiquote # xs]
+      (quasi-cons ''quasiquote
+                  (quasiquote-expand xs (+ depth 1)))
+    ['unquote # xs]
+      :when (> depth 0)
+        (quasi-cons ''unquote
+                    (quasiquote-expand xs (- depth 1)))
+    ['unquote x]
+      x
+    ['unquote # xs]
+      `',s
+    ['unquote-splicing # xs]
+      (if (> depth 0)
+            (quasi-cons ''unquote-splicing
+                        (quasiquote-expand xs (- depth 1)))
+          otherwise
+            `',s)
+    [x 'unquote # xs]
+      (quasiquote-expand-list x depth xs)
+    [x # xs]
+      (quasi-append (quasiquote-expand-list x depth ''())
+                    (quasiquote-expand xs depth))
+    _
+      `',s))
 
 (defun (quasiquote-expand-list s depth end)
   (if (cons? s)
@@ -526,7 +519,6 @@
                                           (quasiquote-expand xs (- depth 1)))
                               end)
                 otherwise
-                  ;(apply quasi-list (tail s))
                   (quasi-cons (nth s 1) end))
           ['unquote-splicing # xs]
             (if (> depth 0)
@@ -534,7 +526,6 @@
                                           (quasiquote-expand xs (- depth 1)))
                               end)
                 otherwise
-                  ;(apply quasi-append (tail s)))
                   (if (and (cons? end) (= 'quote (head end)) (nil? (nth end 1)))
                     (apply quasi-append xs)
                     `(as-improper ,(apply quasi-append xs) ,end)))
@@ -702,20 +693,17 @@
 
 
 (defun (compile-to-midir-toplevel exp env igen)
-  (if (cons? exp)
-        (destruct exp
-          ['js:def v val]       (compile-to-midir
-                                  `(js:seq ((js:binop "=" ,v ,val)
-                                            @null))
-                                  env igen)
-          ['js:seq statements]  (foldl (fun (acc next)
-                                         (midir-join acc
-                                                     (compile-to-midir-toplevel next env igen)))
-                                       (MidirExpr (midir:nop))
-                                       statements)
-          _                     (compile-to-midir exp env igen))
-      otherwise
-        (compile-to-midir exp env igen)))
+  (destruct exp
+    ['js:def v val]       (compile-to-midir
+                            `(js:seq ((js:binop "=" ,v ,val)
+                                      @null))
+                            env igen)
+    ['js:seq statements]  (foldl (fun (acc next)
+                                   (midir-join acc
+                                               (compile-to-midir-toplevel next env igen)))
+                                 (MidirExpr (midir:nop))
+                                 statements)
+    _                     (compile-to-midir exp env igen)))
 
 (defun (compile-to-midir exp env igen)
   (if (self-evaluating? exp)  (MidirExpr (midir:lit exp))
@@ -773,30 +761,25 @@
     ['js:js code]   (MidirExpr (midir:js code))
     ['js:code code] (MidirStatement (midir:code code) (midir:nop))
     ['js:binop op exprl exprr]
-               (let (cexpl (comp exprl)
-                     cexpr (comp exprr))
-                 (midir-splice cexpl
-                   (fun (el)
-                     (midir-splice cexpr
-                       (fun (er)
-                         (MidirExpr (midir:binop op el er)))))))
+               (midir-splice (comp exprl)
+                 (fun (el)
+                   (midir-splice (comp exprr)
+                     (fun (er)
+                       (MidirExpr (midir:binop op el er))))))
     ['js:unop op expr]
-               (let (cexpr (comp expr))
-                 (midir-splice cexpr
-                   (fun (e)
-                     (MidirExpr (midir:unop op e)))))
+               (midir-splice (comp expr)
+                 (fun (e)
+                   (MidirExpr (midir:unop op e))))
     ['js:prop expr iexpr]
-               (let (cexpr (comp expr)
-                     ciexpr (comp iexpr))
-                 (midir-splice cexpr
-                   (fun (e)
-                     (midir-splice ciexpr
-                       (fun (ie)
-                         (MidirExpr (midir:prop e ie)))))))
+               (midir-splice (comp expr)
+                 (fun (e)
+                   (midir-splice (comp iexpr)
+                     (fun (ie)
+                       (MidirExpr (midir:prop e ie))))))
     ['js:throw expr]
-                 (midir-splice (comp expr)
-                   (fun (el)
-                     (MidirStatement (midir:throw el) (midir:nop))))
+               (midir-splice (comp expr)
+                  (fun (el)
+                   (MidirStatement (midir:throw el) (midir:nop))))
     ['js:try texp cvar cexp fexp]
                  (let (cv   (igen :get cvar)
                        outvar (igen :new "try"))

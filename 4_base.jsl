@@ -1,5 +1,5 @@
-;;; 3_base.jsl
-;;; Based on 2_compiler.jsl's capabilities.
+;;; 4_base.jsl
+;;; Based on 3_compiler.jsl's capabilities.
 
 ;; N.B. We get the full power of the previous compiler's macro
 ;; facilities when defining the base!
@@ -1009,17 +1009,20 @@
           `(if (,(con? con) ,v)
              (,(destruct-con con) ,v
               (fun ,(map head subpats)
-                ,(foldr (fun (sp then)
-                          (if (= (head sp) (nth sp 1))
-                            then
-                            `(-destruct-case ,(head sp)
-                               ,(nth sp 1)
-                               ((@true ,then)))))
-                        (make-if conditions)
-                        subpats)))))
+                (-destruct-many ,(map head subpats)
+                                ,(map (fun (sp) (nth sp 1)) subpats)
+                                ,(make-if conditions))))))
       otherwise
         (error "unknown pattern type")))
 
+(defmac (-destruct-many vs patterns body)
+  (if (nil? vs)
+        body
+      (= (head vs) (head patterns))
+        `(-destruct-many ,(tail vs) ,(tail patterns) ,body)
+      otherwise
+        `(-destruct-case ,(head vs) ,(head patterns)
+           ((@true (-destruct-many ,(tail vs) ,(tail patterns) ,body))))))
 
 ; Exception handling
 
@@ -1192,6 +1195,7 @@
     (destruct s
       ['= a b]  `(js:binop "===" ,a ,b)
       _ (NoExpand s))))
+  
 
 ; TODO fix bug where defuns don't count as simultaneous local
 ; variables inside scope (it's not how javascript does it, at
