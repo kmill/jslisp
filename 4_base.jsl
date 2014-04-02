@@ -532,14 +532,15 @@
     x
     (apply chain (cons ((head funcs) x) (tail funcs)))))
 (defmac (doto x # forms)
-  "Inserts the object as the first argument to each of the forms. Returns the last result."
+  "Inserts the object as the first argument to each of the forms. Returns the object."
   (let* (x2 (gensym 'x)
          forms2 (map (fun (form)
                       (let (arg (gensym 'arg))
                         `(,(head form) ,x2 ,#(tail form))))
                     forms))
     `(let (,x2 ,x)
-       ,# forms2)))
+       ,# forms2
+       ,x2)))
 (defun (id x) "Identity function." x)
 (defun (const x) "Creates a constant function." (fun (_) x))
 

@@ -225,21 +225,6 @@
             (symbol t)
             val))))))
 
-(set-reader-macro! "."
-  (fun (stream chars)
-    "method selector reader macro"
-    (let (parts [(read:token stream)])
-      (while (= "." (stream :peek))
-        (stream :read)
-        (push! parts (read:token stream)))
-      (let (o (gensym 'o)
-            args (gensym 'args))
-        `(js:js ,(++ "function (o) {"
-                     " var o2 = o" (s:join "" (map (fun (sel) (++ "[" (js-escape-string sel) "]")) (reversed (tail parts)))) ";"
-                     " return o2[" (js-escape-string (head parts)) "].apply(o2, Array.prototype.slice.call(arguments, 1));"
-                     "}"))))))
-
-
 (set-reader-macro! "@"
   (fun (stream chars)
     (switch (read:token stream) :as t
@@ -290,7 +275,8 @@
                               return eval(arguments[0]);
                             };
                           }") globals2)
-         all-code '())
+         all-code '()
+         warned-globals {})
     (dfun :as self
       (:make-subenv)
         (make-subenv self)
@@ -312,7 +298,24 @@
       ('has? k) (self :has? k)
       ('lookup k) (self :lookup k)
       (:set! k v)
-        (dict:set! (closure "globals") k v))))
+        (dict:set! (closure "globals") k v)
+      (:unwarn-var k)
+        (dict:set! warned-globals k @true)
+      (:clear-warned)
+        (set! warned-globals {})
+      (:as-js-env)
+        (dfun
+          (:lookup k)
+            (do (when (and (not (self :has? k))
+                           (not (dict:has? warned-globals k)))
+                  (dict:set! warned-globals k @true)
+                  (println "Warning: undefined global variable " k))
+                (midir:prop (midir:lookup "globals")
+                            (midir:lit (symbol->string k))))
+          (:has? k)
+            @true
+          (:set! k v)
+            (error "Cannot set to global environment as js-env.")))))
 
 (def global-env (make-global-env globals))
 
@@ -381,6 +384,14 @@
 (defun (self-evaluating? s)
   (or (number? s) (boolean? s) (null? s) (string? s) (keyword? s) (undefined? s)))
 
+(defun (method-symbol? s)
+  """Checks whether a symbol represents a method accessor."""
+  (and (symbol? s) (= "." (s:charAt (symbol->string s) 0))))
+(defun (expand-method-symbol s)
+  `(js:js ,(++ "function (o) {\n"
+               "  return o[" (js-escape-string (s:slice (symbol->string s) 1)) "].apply(o, Array.prototype.slice.call(arguments, 1));\n"
+               "}")))
+
 ; For testing macro expansion
 (defun (macro-expand-1 s)
   (destruct (macro-expand-step s global-env)
@@ -406,6 +417,8 @@
   (if (and (env :has? s)
            (symbol-macro? (env :lookup s)))
         ((env :lookup s) s env)
+      (method-symbol? s)
+        (expand-method-symbol s)
       otherwise
         (NoExpand s)))
 
@@ -451,26 +464,24 @@
 
 (defun (quasi-append # things)
   (defun (is-empty? s)
-    (or (and (cons? s) (= 'quote (head s)) (nil? (head (tail s))))
-        (and (cons? s) (= 'list (head s)) (nil? (tail s)))))
-  (if (nil? things)
-        ''()
-      (= 1 (length things))
-        (head things)
-      (is-empty? (head things))
-        (apply quasi-append (tail things))
-      (is-empty? (nth things 1))
-        (apply quasi-append (cons (head things) (tail (tail things))))
-      (and (cons? (head things)) (= 'cons (head (head things))))
-        (quasi-cons (nth (head things) 1)
-                    (apply quasi-append (cons (nth (head things) 2) (tail things))))
-      (and (cons? (head things)) (= 'list (head (head things))))
-        (quasi-cons (nth (head things) 1)
-                    (apply quasi-append (cons `(list ,#(tail (tail (head things))))
-                                              (tail things))))
-      otherwise
-        `(append2 ,(head things) ,(apply quasi-append (tail things)))))
-    
+    (destruct s
+      ['quote '()] @true
+      ['list]      @true
+      _            @false))
+  (destruct things
+    '() ''()
+    [x] x
+    [x # xs]
+      :when (is-empty? x)
+        (apply quasi-append xs)
+      :when (is-empty? (head xs))
+        (apply quasi-append (cons x (tail xs)))
+    [['cons x y] # xs]
+      (quasi-cons x (apply quasi-append (cons y xs)))
+    [['list x # xs] # ys]
+      (quasi-cons x (apply quasi-append (cons `(list ,#xs) ys)))
+    [x # xs]
+      `(append2 ,x ,(apply quasi-append xs))))
 
 (defun (quasi-cons x xs)
   (destruct xs
@@ -681,7 +692,7 @@
   (let (d (apply dict bindings))
     (dfun
       (:lookup k)
-        (if (dict:has? d k)  (dict:get d k)
+        (if (dict:has? d k)  (midir:lookup (dict:get d k))
             (null? parent)   (error (++ "Environment key error: " (repr k)))
             otherwise        (parent :lookup k))
       (:has? k)
@@ -692,25 +703,28 @@
         (dict:set! d k v))))
 
 
-(defun (compile-to-midir-toplevel exp env igen)
+(defun (compile-to-midir-toplevel exp genv igen)
   (destruct exp
-    ['js:def v val]       (compile-to-midir
-                            `(js:seq ((js:binop "=" ,v ,val)
-                                      @null))
-                            env igen)
+    ['js:def v val]       (do (genv :unwarn-var v)
+                              (compile-to-midir
+                                `(js:seq ((js:binop "=" ,v ,val)
+                                          @null))
+                                (make-js-env (genv :as-js-env)) igen))
     ['js:seq statements]  (foldl (fun (acc next)
                                    (midir-join acc
-                                               (compile-to-midir-toplevel next env igen)))
+                                               (compile-to-midir-toplevel next genv igen)))
                                  (MidirExpr (midir:nop))
                                  statements)
-    _                     (compile-to-midir exp env igen)))
+    _                     (compile-to-midir exp (make-js-env (genv :as-js-env)) igen)))
 
 (defun (compile-to-midir exp env igen)
   (if (self-evaluating? exp)  (MidirExpr (midir:lit exp))
-      (symbol? exp)           (if (env :has? exp)
-                                  (MidirExpr (midir:lookup (env :lookup exp)))
-                                  (MidirExpr (midir:prop (midir:lookup "globals")
-                                                         (midir:lit (symbol->string exp)))))
+      (symbol? exp)           (MidirExpr (env :lookup exp))
+;; (if (env :has? exp)
+;;                                     (MidirExpr (midir:lookup (env :lookup exp)))
+;;                                   otherwise
+;;                                     (MidirExpr (midir:prop (midir:lookup "globals")
+;;                                                            (midir:lit (symbol->string exp)))))
       (cons? exp)
         (compile-form-to-midir exp env igen)
       (error (++ "Unknown expression " (repr exp)))))
@@ -874,7 +888,7 @@
     (midir:break)
       "break;\n"
     (midir:continue)
-      "break;\n"
+      "continue;\n"
     (midir:throw expr)
       (++ "throw " (midir-expr-to-js expr) ";\n")
     (midir:try ts var cs mfinally)
@@ -947,8 +961,9 @@
      eval-print-js @false)
 
 (defun (eval-in-env s env)
+  (env :clear-warned)
   (let* (s2 (macro-expand s env)
-         midir (midir-close (compile-to-midir-toplevel s2 (make-js-env @null) (make-js-ident-gen)))
+         midir (midir-close (compile-to-midir-toplevel s2 env (make-js-ident-gen)))
          js (midir-statement-to-js midir))
     (when eval-print-macro-expand (println s2))
     (when eval-print-midir (println midir))
@@ -1006,8 +1021,7 @@
            (unless (null? r)
              (println r)))
        :catch x
-         (do (println x)
-             (println (prop x "stack"))))
+         (do (println (prop x "stack"))))
     (print "> "))
 
   (let (stdin (js:js "process.stdin")
