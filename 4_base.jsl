@@ -373,11 +373,6 @@
     (fun args
       ((js:prop f "apply") x (make-array args)))))
 
-;;; js methods
-
-;(defmac (. obj propname # args)
-;  `(js:selector obj propname ,# args))
-
 ;;; functions on lists
 
 (defun (append2 lst1 lst2)

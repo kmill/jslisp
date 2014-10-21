@@ -385,12 +385,16 @@
   (or (number? s) (boolean? s) (null? s) (string? s) (keyword? s) (undefined? s)))
 
 (defun (method-symbol? s)
-  """Checks whether a symbol represents a method accessor."""
+  "Checks whether a symbol represents a method or property accessor."
   (and (symbol? s) (= "." (s:charAt (symbol->string s) 0))))
 (defun (expand-method-symbol s)
-  `(js:js ,(++ "function (o) {\n"
-               "  return o[" (js-escape-string (s:slice (symbol->string s) 1)) "].apply(o, Array.prototype.slice.call(arguments, 1));\n"
-               "}")))
+  (if (= ".." (s:slice (symbol->string s) 0 2))
+    `(js:js ,(++ "function (o) {\n"
+                 "  return o[" (js-escape-string (s:slice (symbol->string s) 2)) "];\n"
+                 "}"))
+    `(js:js ,(++ "function (o) {\n"
+                 "  return o[" (js-escape-string (s:slice (symbol->string s) 1)) "].apply(o, Array.prototype.slice.call(arguments, 1));\n"
+                 "}"))))
 
 ; For testing macro expansion
 (defun (macro-expand-1 s)
@@ -973,6 +977,8 @@
 (defun (compile-stream s)
   (let (res @null)
     (while (read:has-another? s)
+      (global-env :eval (++ "// " (SourcePos-show (s :pos))))
+      ;; rebuild reader table from global-env here
       (set! res (eval-in-env (read s) global-env)))
     res))
 
@@ -992,7 +998,7 @@
                 "return globals;"
                 "\n})();\n"))
   (when (global-env :has? "main")
-    (set! code (++ code "if (process && !module.parent) module.exports.main(module.exports.list.apply(void 0, process.argv.slice(2)));\n")))
+    (set! code (++ code "if (!module.parent) module.exports.main(module.exports.list.apply(void 0, process.argv.slice(2)));\n")))
   (write-file output-file code))
 
 (defun (write-file filename content)
@@ -1069,7 +1075,8 @@
              (unless (null? r)
                (println r)))
         :catch x
-          (.log console (prop x "stack"))))
+          (.log console x)))
+;          (.log console (prop x "stack"))))
 
     (doto rl
       (.on "line"
